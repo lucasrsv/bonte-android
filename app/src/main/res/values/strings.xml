@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">bonte-android</string>
+    <string name="start">start</string>
+    <string name="circlePager">circlePager</string>
+    <string name="starOffButton">starOffButton</string>
+    <string name="welcomeText">welcome to bontê</string>
+    <string name="yourMissionText">your mission here is to light up the stars in the sky with your empathy</string>
+    <string name="arrowUpStart">arrowUpStart</string>
+    <string name="onboarding2TitleDown">each star is special</string>
+    <string name="onboarding2TextDown">filled with love for you to spread, they suggest good actions to insert in your day to day life</string>
+</resources>
