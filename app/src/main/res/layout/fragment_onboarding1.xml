@@ -39,8 +39,6 @@
             android:id="@+id/welcomeText2"
             android:layout_width="278dp"
             android:layout_height="78dp"
-            android:layout_marginBottom="488dp"
-            android:font="@font/montserrat_medium"
             android:text="@string/yourMissionText"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
@@ -49,7 +47,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.806" />
+            app:layout_constraintVertical_bias="0.148" />
 
         <ImageView
             android:id="@+id/arrowUp"
@@ -88,7 +86,7 @@
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.484"
+            app:layout_constraintHorizontal_bias="0.500"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0">

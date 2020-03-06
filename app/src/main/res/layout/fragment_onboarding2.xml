@@ -21,7 +21,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/star_off_intermediary" />
 
-        <com.example.android.bonte_android.CustomViews.StarLineView
+        <com.example.android.bonte_android.customViews.StarLineView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -40,7 +40,7 @@
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.484"
+            app:layout_constraintHorizontal_bias="0.500"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0">
