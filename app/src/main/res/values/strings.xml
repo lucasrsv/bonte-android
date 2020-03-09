@@ -8,4 +8,6 @@
     <string name="arrowUpStart">arrowUpStart</string>
     <string name="onboarding2TitleDown">each star is special</string>
     <string name="onboarding2TextDown">filled with love for you to spread, they suggest good actions to insert in your day to day life</string>
+    <string name="firstAction">commit to being empathetic with myself and people around me</string>
+    <string name="ballIndicator" />
 </resources>

@@ -5,9 +5,7 @@
         xmlns:tools="http://schemas.android.com/tools">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" android:background="@drawable/gradient"
-        android:paddingStart="35dp"
-        android:paddingEnd="35dp">
+        android:layout_height="match_parent" android:background="@drawable/gradient">
 
         <ImageView
             android:id="@+id/starOffButton"
@@ -102,9 +100,9 @@
                 android:id="@+id/circle2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="25dp"
-                android:layout_marginTop="-8dp"
                 android:alpha="0.35"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="-5dp"
                 android:contentDescription="@string/circlePager"
                 android:src="@drawable/page_indicator" />
 
@@ -112,8 +110,8 @@
                 android:id="@+id/circle3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="50dp"
-                android:layout_marginTop="-8dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="-5dp"
                 android:alpha="0.35"
                 android:contentDescription="@string/circlePager"
                 android:src="@drawable/page_indicator" />

@@ -1,4 +1,4 @@
-package com.example.android.bonte_android.Onboarding
+package com.example.android.bonte_android.onboarding
 
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
@@ -28,12 +28,5 @@ class OnboardingActivity : AppCompatActivity() {
         val binding = DataBindingUtil.setContentView<ActivityOnboardingBinding>(this,
             R.layout.activity_onboarding
         )
-        // zoomAnimation()
-
     }
-/*
-    private fun zoomAnimation() {
-        zoomAnimation = AnimationUtils.loadAnimation(this,R.anim.zoom_undonestar)
-        turnedOffStar.startAnimation(zoomAnimation)
-    }*/
 }

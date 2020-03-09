@@ -1,4 +1,4 @@
-package com.example.android.bonte_android.Onboarding
+package com.example.android.bonte_android.onboarding
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
