@@ -27,7 +27,7 @@ class BeamLightView @JvmOverloads constructor(
             isAntiAlias = true
             color = Color.WHITE
             style = Paint.Style.STROKE
-            strokeWidth = 140f
+            strokeWidth = 788f
             strokeCap = Paint.Cap.ROUND
             alpha = 35
         }
