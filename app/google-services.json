@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "988422280647",
+    "firebase_url": "https://bonte-test.firebaseio.com",
+    "project_id": "bonte-test",
+    "storage_bucket": "bonte-test.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:988422280647:android:c7308d5dc8c8f5cef375e2",
+        "android_client_info": {
+          "package_name": "com.example.android.bonte_android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "988422280647-enherrogeerc40ad69erkut6g087t2ld.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.android.bonte_android",
+            "certificate_hash": "6ff9ec1e4473bf563394369f93e2d3a7dcf92d86"
+          }
+        },
+        {
+          "client_id": "988422280647-ntm6okqh46mo6l6mq5sfeedc8bg38vrg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApUXIj4hoLu9MdY157ZCbWycS8imFaEVw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "988422280647-ntm6okqh46mo6l6mq5sfeedc8bg38vrg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
