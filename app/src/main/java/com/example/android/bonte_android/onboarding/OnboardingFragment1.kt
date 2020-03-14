@@ -4,7 +4,9 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.content.ContentValues.TAG
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +16,12 @@ import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import com.example.android.bonte_android.Language
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.databinding.FragmentOnboarding1Binding
 import com.example.android.bonte_android.R.layout
+import com.google.firebase.database.*
+import java.util.*
 
 class OnboardingFragment1 : Fragment() {
     private lateinit var binding: FragmentOnboarding1Binding
@@ -26,6 +31,8 @@ class OnboardingFragment1 : Fragment() {
     private lateinit var welcomeText1: TextView
     private lateinit var welcomeText2: TextView
     private lateinit var turnedOffStarButton: ImageView
+    private var database: DatabaseReference = FirebaseDatabase.getInstance().reference
+    private var language = com.example.android.bonte_android.Language()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,31 +47,25 @@ class OnboardingFragment1 : Fragment() {
         startText = binding.startText
         turnedOffStarButton = binding.starOffButton
 
+
+
         turnedOffStarButton.setOnClickListener (
             Navigation.createNavigateOnClickListener(R.id.action_onboardingFragment1_to_onboardingFragment2)
         )
 
-        fadeInAnimation()
-
+        setTexts()
         return binding.root
     }
 
     private fun fadeInAnimation() {
-/*        fadeInAnim = AnimationUtils.loadAnimation(activity, R.anim.fade_in)
-        welcomeText1.startAnimation(fadeInAnim)
-        welcomeText2.startAnimation(fadeInAnim)
-        welcomeText1.animation = fadeInAnim
-        startArrow.startAnimation(fadeInAnim)
-        startText.startAnimation(fadeInAnim)*/
-
 
         val fadeIn1 = ObjectAnimator.ofFloat(welcomeText1, "alpha", 0.35f, 1.0f).apply {
-            duration = 1500
+            duration = 1250
 
         }
 
         val fadeIn2 = ObjectAnimator.ofFloat(welcomeText2, "alpha", 0.35f, 1.0f).apply {
-            duration = 1500
+            duration = 1250
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     startArrow.visibility = View.VISIBLE
@@ -87,6 +88,28 @@ class OnboardingFragment1 : Fragment() {
             play(fadeIn3).after(fadeIn2)
             start()
         }
+
+    }
+
+    private fun setTexts() {
+
+        database.child(Language().language).child("onboarding").child("onboarding1").addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Log.w(TAG, "getUser:onCancelled", databaseError.toException())
+                }
+
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    welcomeText1.text = dataSnapshot.child("welcomeTitle").value as String
+                    welcomeText2.text = dataSnapshot.child("welcomeDescription").value as String
+                    startText.text = dataSnapshot.child("startText").value as String
+                    fadeInAnimation()
+
+                }
+            }
+        )
+
+
 
     }
 }

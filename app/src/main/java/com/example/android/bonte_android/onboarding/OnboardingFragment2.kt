@@ -4,27 +4,30 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.media.Image
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.customViews.StarLineView
 import com.example.android.bonte_android.databinding.FragmentOnboarding2Binding
 
 
-class OnboardingFragment2 : Fragment(), StarLineView.StarView {
+class OnboardingFragment2 : Fragment() {
     private lateinit var binding: FragmentOnboarding2Binding
     private lateinit var title1: TextView
     private lateinit var title2: TextView
     private lateinit var firstAction: TextView
     private lateinit var ballIndicator: ImageView
     private lateinit var star: ImageView
-    private lateinit var starLineView: StarLineView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,6 +42,9 @@ class OnboardingFragment2 : Fragment(), StarLineView.StarView {
         ballIndicator = binding.ballIndicator
         star = binding.starOffButton
 
+        star.setOnClickListener(
+            Navigation.createNavigateOnClickListener(R.id.action_onboardingFragment2_to_skyActivity)
+        )
 
         fadeInAnimation()
 
@@ -51,6 +57,7 @@ class OnboardingFragment2 : Fragment(), StarLineView.StarView {
             duration = 1500
 
         }
+
         val fadeIn2 = ObjectAnimator.ofFloat(title2, "alpha", 0.35f, 1.0f).apply {
             duration = 1500
             addListener(object : AnimatorListenerAdapter() {
@@ -64,6 +71,7 @@ class OnboardingFragment2 : Fragment(), StarLineView.StarView {
         val fadeIn3 = ObjectAnimator.ofFloat(firstAction, "alpha", 0.0f, 1.0f).apply {
             duration = 1000
         }
+
         val fadeIn4 = ObjectAnimator.ofFloat(ballIndicator, "alpha", 0.0f, 1.0f).apply {
             duration = 1000
         }
@@ -77,10 +85,4 @@ class OnboardingFragment2 : Fragment(), StarLineView.StarView {
         }
 
     }
-
-    override fun onStar() {
-        var star = binding.starOffButton
-        starLineView.setCallBack(this)
-    }
-
 }

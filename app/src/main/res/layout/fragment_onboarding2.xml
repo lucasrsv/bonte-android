@@ -105,6 +105,16 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
 
+        <com.example.android.bonte_android.customViews.BeamLightView
+            android:id="@+id/beamLightView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
 
         <ImageView
             android:id="@+id/ballIndicator"
@@ -117,25 +127,25 @@
             app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toStartOf="@+id/firstAction"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.84000003"
+            app:layout_constraintVertical_bias="0.9"
             app:srcCompat="@drawable/action_indicator" />
 
         <TextView
             android:id="@+id/firstAction"
             android:layout_width="173dp"
-            android:layout_height="97dp"
+            android:layout_height="105dp"
             android:text="@string/firstAction"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="21sp"
             android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/starOffButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_default="percent"
             app:layout_constraintHeight_percent="0.112"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.17"
+            app:layout_constraintVertical_bias="0.675"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent="0.469" />
 

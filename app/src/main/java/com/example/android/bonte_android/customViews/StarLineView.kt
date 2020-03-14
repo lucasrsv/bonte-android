@@ -3,52 +3,46 @@ package com.example.android.bonte_android.customViews
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
-import android.media.Image
 import android.util.AttributeSet
-import android.view.LayoutInflater
+import android.util.TypedValue
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
-import android.widget.RelativeLayout
+import androidx.appcompat.app.AppCompatActivity
 import com.example.android.bonte_android.R
-import kotlinx.android.synthetic.main.fragment_onboarding2.view.*
+import kotlin.math.roundToInt
+
 
 class StarLineView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : RelativeLayout(context, attrs, defStyleAttr) {
-
-    interface StarView {
-        fun onStar()
-    }
+) : View(context, attrs, defStyleAttr) {
 
     private var path = Path()
     private var paint = Paint()
-    private val dashes = floatArrayOf(90f, 90f)
-    private val view: View = inflate(context, R.layout.fragment_onboarding2, this)
-    private val starOffButton = view.findViewById<ImageView>(R.id.starOffButton)
-    private lateinit var mCallBack: StarView
-
-    fun setCallBack(callback: StarView) {
-        mCallBack = callback
-    }
+    private val dashes = floatArrayOf(125f, 125f)
+    private val activity = context as AppCompatActivity
+    private val res = resources
+    private lateinit var star: ImageView
 
     init {
+
+        activity.supportFragmentManager.findFragmentById(R.id.onboardingFragment2)
+        star = activity.findViewById(R.id.starOffButton)
 
         paint = Paint().apply {
             isAntiAlias = true
             color = Color.WHITE
             style = Paint.Style.STROKE
-            strokeWidth = 10.0f
-            pathEffect = CornerPathEffect(10f)
+            strokeWidth = dpToPx(5).toFloat()
             strokeCap = Paint.Cap.ROUND
 
         }
 
         path = Path().apply {
-            moveTo(100f, 100f)
-            lineTo(100f, 0f)
+            moveTo((star.left.toFloat() + (star.right.toFloat() - star.left.toFloat())/2), star.top.toFloat())
+            lineTo((star.left.toFloat() + (star.right.toFloat() - star.left.toFloat())/2), star.top.toFloat() - dpToPx(40))
         }
 
         val lineAnim = ValueAnimator.ofFloat(100f, 0f)
@@ -58,13 +52,20 @@ class StarLineView @JvmOverloads constructor(
             invalidate()
         }
 
-        lineAnim.duration = 1500
+        lineAnim.duration = 2000
         lineAnim.start()
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        mCallBack.onStar()
         canvas!!.drawPath(path, paint)
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp.toFloat(),
+            resources.displayMetrics
+        ).roundToInt()
     }
 }

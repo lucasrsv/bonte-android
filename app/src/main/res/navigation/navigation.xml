@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/navigation"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
     app:startDestination="@id/onboardingFragment1">
 
     <fragment
@@ -14,5 +16,14 @@
     <fragment
         android:id="@+id/onboardingFragment2"
         android:name="com.example.android.bonte_android.onboarding.OnboardingFragment2"
-        android:label="OnboardingFragment2" />
+        android:label="OnboardingFragment2" >
+        <action
+            android:id="@+id/action_onboardingFragment2_to_skyActivity"
+            app:destination="@id/skyActivity" />
+    </fragment>
+    <activity
+        android:id="@+id/skyActivity"
+        android:name="com.example.android.bonte_android.SkyActivity"
+        android:label="activity_sky"
+        tools:layout="@layout/activity_sky" />
 </navigation>

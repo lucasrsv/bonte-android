@@ -3,6 +3,7 @@ package com.example.android.bonte_android.onboarding
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.databinding.DataBindingUtil
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.databinding.ActivityOnboardingBinding
