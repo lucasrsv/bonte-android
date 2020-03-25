@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".SkyActivity"
-    android:id="@+id/sky_activity">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.otaliastudios.zoom.ZoomLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/skyZoomLayout"
+        app:overScrollHorizontal="false"
+        app:overScrollVertical="false"
+        app:overPinchable="true"
+        app:minZoom="1.0"
+        app:maxZoom="4.0"
+        app:minZoomType="zoom"
+        app:maxZoomType="zoom"
+        app:alignment="center">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/sky">
+
+            </FrameLayout>
+
+    </com.otaliastudios.zoom.ZoomLayout>
 
 </layout>

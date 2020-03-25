@@ -23,7 +23,7 @@
     </fragment>
     <activity
         android:id="@+id/skyActivity"
-        android:name="com.example.android.bonte_android.SkyActivity"
+        android:name="com.example.android.bonte_android.sky.SkyActivity"
         android:label="activity_sky"
         tools:layout="@layout/activity_sky" />
 </navigation>

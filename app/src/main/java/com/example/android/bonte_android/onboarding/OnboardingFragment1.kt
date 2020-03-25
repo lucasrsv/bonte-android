@@ -4,10 +4,12 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
@@ -34,6 +36,7 @@ class OnboardingFragment1 : Fragment() {
     private var database: DatabaseReference = FirebaseDatabase.getInstance().reference
     private var language = com.example.android.bonte_android.Language()
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -108,8 +111,7 @@ class OnboardingFragment1 : Fragment() {
                 }
             }
         )
-
-
-
     }
+
+
 }

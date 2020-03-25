@@ -23,8 +23,7 @@ class StarLineView @JvmOverloads constructor(
     private var paint = Paint()
     private val dashes = floatArrayOf(125f, 125f)
     private val activity = context as AppCompatActivity
-    private val res = resources
-    private lateinit var star: ImageView
+    private var star: ImageView
 
     init {
 
