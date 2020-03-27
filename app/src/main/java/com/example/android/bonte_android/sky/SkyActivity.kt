@@ -20,7 +20,6 @@ import com.example.android.bonte_android.dpToPx
 import kotlinx.android.synthetic.main.activity_sky.*
 import pl.polidea.view.ZoomView
 
-
 class SkyActivity : AppCompatActivity() {
     private lateinit var view: View
     private lateinit var params: ViewGroup.LayoutParams
@@ -36,6 +35,7 @@ class SkyActivity : AppCompatActivity() {
     private lateinit var const5Positions: Array<Point>
     private lateinit var paths: ArrayList<StarPath>
     private lateinit var starParams: ViewGroup.LayoutParams
+    private lateinit var pathCustomView: StarPath
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,11 +50,14 @@ class SkyActivity : AppCompatActivity() {
         params.width = view.resources.displayMetrics.widthPixels * 2
         params.height = view.resources.displayMetrics.heightPixels * 2
         view.layoutParams = params
+        pathCustomView = StarPath(this)
         binding.skyZoomLayout.setBackgroundResource(R.drawable.gradient)
 
         changeStatusBarColor()
         setStars()
         setPaths()
+
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -79,16 +82,18 @@ class SkyActivity : AppCompatActivity() {
             constellations[i].setImageParams(starParams)
             for (j in constellations[i].stars.indices) {
                 binding.sky.addView(constellations[i].stars[j].starImageView)
+                constellations[i].stars[j].starImageView.isClickable = true
                 constellations[i].stars[j].starImageView.setOnTouchListener { v, event ->
                             when (event.actionMasked) {
                             MotionEvent.ACTION_DOWN -> {
-                                Log.d("DEBUG_TAG", event.x.toString())
+                                Log.d("x", event.x.toString())
+                                Log.d("star", constellations[i].stars[j].id.toString())
                                 true
                             }
                             MotionEvent.ACTION_UP -> {
                                 Log.d("DEBUG_TAG", "Action was UP")
-                                Log.d("test", const1Positions[0].x.toString())
-                                Log.d("test2", view.width.toString())
+                                binding.skyZoomLayout.engine.moveTo(4f, event.x, event.y, false)
+                                pathCustomView
                                 true
                             }
                             MotionEvent.ACTION_MOVE -> {
@@ -119,7 +124,6 @@ class SkyActivity : AppCompatActivity() {
     }
 
     private fun setPaths() {
-        val pathCustomView = StarPath(this)
         pathCustomView.setConstellations(constellations)
         binding.sky.addView(pathCustomView)
     }

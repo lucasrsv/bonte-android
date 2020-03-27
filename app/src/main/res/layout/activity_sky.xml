@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <com.otaliastudios.zoom.ZoomLayout
         android:layout_width="match_parent"
@@ -14,15 +15,17 @@
         app:maxZoom="4.0"
         app:minZoomType="zoom"
         app:maxZoomType="zoom"
-        app:alignment="center">
+        app:alignment="center"
+        app:hasClickableChildren="true">
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/sky">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/sky">
 
-            </FrameLayout>
+        </FrameLayout>
 
     </com.otaliastudios.zoom.ZoomLayout>
+
 
 </layout>

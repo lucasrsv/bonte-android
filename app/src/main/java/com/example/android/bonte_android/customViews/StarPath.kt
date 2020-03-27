@@ -21,6 +21,7 @@ class StarPath @JvmOverloads constructor(
     private var paint = Paint()
     private val activity = context as AppCompatActivity
     private lateinit var constellations: Array<Constellation>
+    private lateinit var paths: MutableList<Pair<Path, Pair<Int, Int>>>
 
     init {
         paint = Paint().apply {
@@ -29,7 +30,7 @@ class StarPath @JvmOverloads constructor(
             style = Paint.Style.STROKE
             strokeCap = Paint.Cap.ROUND
             strokeWidth = 3f
-            alpha = 15
+            alpha = 30
 
         }
     }
@@ -43,7 +44,6 @@ class StarPath @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        val clear = PorterDuffXfermode(PorterDuff.Mode.LIGHTEN)
         for (i in 0..4) {
             val position1 = intArrayOf(0, 0)
             val position2 = intArrayOf(0, 0)
@@ -53,26 +53,13 @@ class StarPath @JvmOverloads constructor(
                     constellations[i].stars[j].starImageView.getLocationOnScreen(position1)
                     constellations[i].stars[j].getNeighbor()[k].starImageView.getLocationOnScreen(position2)
                     val path = Path().apply {
-/*                        if (position1[0] > position2[0] && position1[1] > position2[1]) {
-                            moveTo(position1[0].toFloat() + dpToPx(9.0), position1[1].toFloat() - dpToPx(20.0))
-                            lineTo(position2[0].toFloat() + dpToPx(24.0), position2[1].toFloat() - dpToPx(2.0))
-                        } else if (position1[0] < position2[0] && position1[1] < position2 [1]) {
-                            if ((position2[0] - position1[0] >= dpToPx(5.0)) && ((position2[1] - position1[1] > dpToPx(50.0)))) {
-                                moveTo(position1[0].toFloat() + dpToPx(25.0), position1[1].toFloat() - dpToPx(2.0))
-                                lineTo(position2[0].toFloat() + dpToPx(6.0), position2[1].toFloat() - dpToPx(24.0))
-                            } else {
-                                moveTo(position1[0].toFloat() + dpToPx(25.0), position1[1].toFloat() - dpToPx(4.0))
-                                lineTo(position2[0].toFloat() + dpToPx(12.0), position2[1].toFloat() - dpToPx(24.0))
-                            }
-                            Log.v("tag", (dpToPx(50.0)).toString())
-                             }*/
-                        moveTo(position1[0].toFloat() + dpToPx(12), position1[1].toFloat() - dpToPx(10))
-                        lineTo(position2[0].toFloat() + dpToPx(12), position2[1].toFloat() - dpToPx(10))
+                        moveTo(constellations[i].stars[j].starImageView.x + dpToPx(12), constellations[i].stars[j].starImageView.y + dpToPx(12))
+                        lineTo(constellations[i].stars[j].getNeighbor()[k].starImageView.x + dpToPx(12), constellations[i].stars[j].getNeighbor()[k].starImageView.y + dpToPx(12))
                         sizes[0] = dpToPx(4).toFloat()
-                        sizes[1] = (dpToPx(4)).toFloat()
+                        sizes[1] = dpToPx(4).toFloat()
                     }
+                    constellations[i].paths[j] = path
                     paint.pathEffect = DashPathEffect(sizes, dpToPx(20).toFloat())
-                    paint.xfermode = clear
                     canvas!!.drawPath(path, paint)
                     constellations[i].paths.add(path)
                 }
