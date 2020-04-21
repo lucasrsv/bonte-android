@@ -5,21 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/gradient">
-
-        <ImageView
-            android:id="@+id/starOffButton"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:contentDescription="@string/starOffButton"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/star_off_intermediary" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -89,6 +78,7 @@
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="21sp"
+            android:fontFamily="@font/montserrat"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -106,14 +96,56 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <com.example.android.bonte_android.customViews.BeamLightView
-            android:id="@+id/beamLightView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0"/>
+
+        <ImageView
+            android:id="@+id/starOutter"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/star_off_outter"
+            android:rotation="-10.9"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/starOutter2"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/star_off_outter"
+            android:rotation="-10.9"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/starMid"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:src="@drawable/star_circle"
+            android:alpha="0.3"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/starInner"
+            android:layout_width="29dp"
+            android:layout_height="29dp"
+            android:src="@drawable/star_circle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <ImageView
@@ -127,27 +159,30 @@
             app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toStartOf="@+id/firstAction"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.9"
+            app:layout_constraintVertical_bias="0.95"
             app:srcCompat="@drawable/action_indicator" />
 
         <TextView
             android:id="@+id/firstAction"
-            android:layout_width="173dp"
-            android:layout_height="105dp"
+            android:layout_width="193dp"
+            android:layout_height="111dp"
             android:text="@string/firstAction"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="21sp"
             android:visibility="invisible"
-            app:layout_constraintBottom_toTopOf="@+id/starOffButton"
+            android:fontFamily="@font/montserrat"
+            app:layout_constraintBottom_toTopOf="@+id/starOutter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_default="percent"
             app:layout_constraintHeight_percent="0.112"
+            app:layout_constraintHorizontal_bias="0.504"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.675"
+            app:layout_constraintVertical_bias="0.69"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent="0.469" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

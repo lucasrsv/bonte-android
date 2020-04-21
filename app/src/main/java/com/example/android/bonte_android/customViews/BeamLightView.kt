@@ -3,8 +3,10 @@ package com.example.android.bonte_android.customViews
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -13,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.android.bonte_android.R
 import kotlin.math.roundToInt
 
+@Suppress("DEPRECATION")
 class BeamLightView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -21,14 +24,14 @@ class BeamLightView @JvmOverloads constructor(
 
     private var path = Path()
     private var paint = Paint()
-    private val dashes = floatArrayOf(670f, 2200f)
     private val activity = context as AppCompatActivity
-    private var star: ImageView
-    private val res = resources
+    private val dashes = floatArrayOf((activity.windowManager.defaultDisplay.width.toFloat()*0.65).toFloat(), dpToPx(500).toFloat())
+    private var star: View
 
     init {
+
         activity.supportFragmentManager.findFragmentById(R.id.onboardingFragment2)
-        star = activity.findViewById(R.id.starOffButton)
+        star = activity.findViewById(R.id.starOutter)
 
         paint = Paint().apply {
             isAntiAlias = true
@@ -39,31 +42,31 @@ class BeamLightView @JvmOverloads constructor(
         }
 
         path = Path().apply {
-            moveTo(activity.windowManager.defaultDisplay.width.toFloat() + dpToPx(15), star.y + dpToPx(180))
-            lineTo(star.x - dpToPx(10), star.y + dpToPx(16))
+            moveTo(activity.windowManager.defaultDisplay.width.toFloat() + dpToPx(15), (activity.windowManager.defaultDisplay.height*0.645).toFloat()
+            )
+            lineTo(activity.windowManager.defaultDisplay.width/2.toFloat()*0.99f, activity.windowManager.defaultDisplay.height*0.485.toFloat())
         }
 
-        val lineAnim = ValueAnimator.ofFloat(1000f, 0f)
+        val lineAnim = ValueAnimator.ofFloat(dpToPx(392).toFloat(), dpToPx(0).toFloat())
         lineAnim.interpolator = LinearInterpolator()
         lineAnim.addUpdateListener {
             paint.pathEffect = DashPathEffect(dashes, lineAnim.animatedValue as Float)
             invalidate()
         }
-        lineAnim.duration = 4000
+        lineAnim.duration = 2500
 
         val fadeAnim = ValueAnimator.ofInt(0, 180)
         fadeAnim.interpolator = LinearInterpolator()
         fadeAnim.addUpdateListener {
             paint.alpha = fadeAnim.animatedValue as Int
+            invalidate()
         }
-        fadeAnim.duration = 5000
+        fadeAnim.duration = 3000
 
         AnimatorSet().apply {
             playTogether(lineAnim, fadeAnim)
             start()
         }
-
-
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -72,12 +75,6 @@ class BeamLightView @JvmOverloads constructor(
     }
 
     private fun dpToPx(dp: Int): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp.toFloat(),
-            resources.displayMetrics
-        ).roundToInt()
+        return (dp * resources.displayMetrics.scaledDensity).toInt()
     }
-
-
 }

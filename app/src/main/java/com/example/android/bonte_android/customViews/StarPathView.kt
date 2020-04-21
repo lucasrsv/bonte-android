@@ -8,20 +8,20 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.marginBottom
 import com.example.android.bonte_android.sky.Constellation
 import kotlin.math.roundToInt
 
 
-class StarPath @JvmOverloads constructor(
+class StarPathView @JvmOverloads constructor(
     context:Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     private var paint = Paint()
-    private val activity = context as AppCompatActivity
+    private lateinit var path: Path
     private lateinit var constellations: Array<Constellation>
-    private lateinit var paths: MutableList<Pair<Path, Pair<Int, Int>>>
 
     init {
         paint = Paint().apply {
@@ -31,7 +31,6 @@ class StarPath @JvmOverloads constructor(
             strokeCap = Paint.Cap.ROUND
             strokeWidth = 3f
             alpha = 30
-
         }
     }
 
@@ -50,18 +49,17 @@ class StarPath @JvmOverloads constructor(
             val sizes = floatArrayOf(0F, 0F)
             for (j in 0 until constellations[i].size) {
                 for (k in 0 until constellations[i].stars[j].getNeighbor().size) {
-                    constellations[i].stars[j].starImageView.getLocationOnScreen(position1)
-                    constellations[i].stars[j].getNeighbor()[k].starImageView.getLocationOnScreen(position2)
-                    val path = Path().apply {
-                        moveTo(constellations[i].stars[j].starImageView.x + dpToPx(12), constellations[i].stars[j].starImageView.y + dpToPx(12))
-                        lineTo(constellations[i].stars[j].getNeighbor()[k].starImageView.x + dpToPx(12), constellations[i].stars[j].getNeighbor()[k].starImageView.y + dpToPx(12))
+                    constellations[i].stars[j].paths = MutableList(constellations[i].stars[j].getNeighbor().size) { Path() }
+                    constellations[i].stars[j].starViews[2].getLocationOnScreen(position1)
+                    constellations[i].stars[j].getNeighbor()[k].starViews[2].getLocationOnScreen(position2)
+                    constellations[i].stars[j].paths[k] = Path().apply {
+                        moveTo(constellations[i].stars[j].starViews[2].x + dpToPx(12), constellations[i].stars[j].starViews[2].y + dpToPx(12))
+                        lineTo(constellations[i].stars[j].getNeighbor()[k].starViews[2].x + dpToPx(12), constellations[i].stars[j].getNeighbor()[k].starViews[2].y + dpToPx(12))
                         sizes[0] = dpToPx(4).toFloat()
                         sizes[1] = dpToPx(4).toFloat()
                     }
-                    constellations[i].paths[j] = path
                     paint.pathEffect = DashPathEffect(sizes, dpToPx(20).toFloat())
-                    canvas!!.drawPath(path, paint)
-                    constellations[i].paths.add(path)
+                    canvas!!.drawPath(constellations[i].stars[j].paths[k], paint)
                 }
             }
         }

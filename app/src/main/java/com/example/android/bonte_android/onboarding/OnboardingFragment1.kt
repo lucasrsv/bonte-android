@@ -9,7 +9,6 @@ import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
@@ -23,7 +22,6 @@ import com.example.android.bonte_android.R
 import com.example.android.bonte_android.databinding.FragmentOnboarding1Binding
 import com.example.android.bonte_android.R.layout
 import com.google.firebase.database.*
-import java.util.*
 
 class OnboardingFragment1 : Fragment() {
     private lateinit var binding: FragmentOnboarding1Binding
@@ -32,7 +30,7 @@ class OnboardingFragment1 : Fragment() {
     private lateinit var startText: TextView
     private lateinit var welcomeText1: TextView
     private lateinit var welcomeText2: TextView
-    private lateinit var turnedOffStarButton: ImageView
+    private lateinit var turnedOffStarButton: View
     private var database: DatabaseReference = FirebaseDatabase.getInstance().reference
     private var language = com.example.android.bonte_android.Language()
 
@@ -48,9 +46,7 @@ class OnboardingFragment1 : Fragment() {
         welcomeText2 = binding.welcomeText2
         startArrow = binding.arrowUp
         startText = binding.startText
-        turnedOffStarButton = binding.starOffButton
-
-
+        turnedOffStarButton = binding.starOutter
 
         turnedOffStarButton.setOnClickListener (
             Navigation.createNavigateOnClickListener(R.id.action_onboardingFragment1_to_onboardingFragment2)

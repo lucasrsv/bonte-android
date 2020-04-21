@@ -10,16 +10,37 @@
         android:background="@drawable/gradient">
 
         <ImageView
-            android:id="@+id/starOffButton"
+            android:id="@+id/starOutter"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:contentDescription="@string/starOffButton"
+            android:src="@drawable/star_off_outter"
+            android:rotation="-10.9"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/star_off" />
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/starMid"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:src="@drawable/star_circle"
+            android:alpha="0.3"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/starInner"
+            android:layout_width="29dp"
+            android:layout_height="29dp"
+            android:src="@drawable/star_circle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+            app:srcCompat="@drawable/star_outer3x" />
 
         <TextView
             android:id="@+id/welcomeText"
@@ -44,9 +65,10 @@
             android:fontFamily="@font/montserrat_medium"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.148" />
+            app:layout_constraintVertical_bias="0.13" />
 
         <ImageView
             android:id="@+id/arrowUp"
@@ -58,7 +80,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/starOffButton"
+            app:layout_constraintTop_toBottomOf="@+id/starOutter"
             app:layout_constraintVertical_bias="0.155"
             app:srcCompat="@drawable/arrow" />
 

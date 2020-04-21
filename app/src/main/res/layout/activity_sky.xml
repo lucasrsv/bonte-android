@@ -10,12 +10,9 @@
         android:id="@+id/skyZoomLayout"
         app:overScrollHorizontal="false"
         app:overScrollVertical="false"
-        app:overPinchable="true"
+        app:overPinchable="false"
         app:minZoom="1.0"
-        app:maxZoom="4.0"
-        app:minZoomType="zoom"
-        app:maxZoomType="zoom"
-        app:alignment="center"
+        app:maxZoom="5.0"
         app:hasClickableChildren="true">
 
         <FrameLayout

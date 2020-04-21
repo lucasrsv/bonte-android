@@ -1,5 +1,6 @@
 package com.example.android.bonte_android.customViews
 
+import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
@@ -22,37 +23,65 @@ class StarLineView @JvmOverloads constructor(
     private var path = Path()
     private var paint = Paint()
     private val dashes = floatArrayOf(125f, 125f)
+    private var onSky = false
     private val activity = context as AppCompatActivity
-    private var star: ImageView
 
     init {
 
-        activity.supportFragmentManager.findFragmentById(R.id.onboardingFragment2)
-        star = activity.findViewById(R.id.starOffButton)
+        if (!onSky) {
+            activity.supportFragmentManager.findFragmentById(R.id.onboardingFragment2)
 
-        paint = Paint().apply {
-            isAntiAlias = true
-            color = Color.WHITE
-            style = Paint.Style.STROKE
-            strokeWidth = dpToPx(5).toFloat()
-            strokeCap = Paint.Cap.ROUND
+            paint = Paint().apply {
+                isAntiAlias = true
+                color = Color.WHITE
+                style = Paint.Style.STROKE
+                strokeWidth = dpToPx(5).toFloat()
+                strokeCap = Paint.Cap.ROUND
 
+            }
+
+            path = Path().apply {
+                moveTo(
+                    activity.windowManager.defaultDisplay.width.toFloat() / 2,
+                    (activity.windowManager.defaultDisplay.height / 2 - dpToPx(62).toFloat())
+                )
+                lineTo(
+                    activity.windowManager.defaultDisplay.width.toFloat() / 2,
+                    (activity.windowManager.defaultDisplay.height / 2 - dpToPx(115).toFloat())
+                )
+            }
+
+            val lineAnim = ValueAnimator.ofFloat(100f, 0f)
+            lineAnim.interpolator = LinearInterpolator()
+            lineAnim.addUpdateListener {
+                paint.pathEffect = DashPathEffect(dashes, lineAnim.animatedValue as Float)
+                invalidate()
+            }
+
+            lineAnim.duration = 2000
+            lineAnim.start()
+        } else {
+
+            paint = Paint().apply {
+                isAntiAlias = true
+                color = Color.WHITE
+                style = Paint.Style.STROKE
+                strokeWidth = dpToPx(5).toFloat()
+                strokeCap = Paint.Cap.ROUND
+
+            }
+
+            path = Path().apply {
+                moveTo(
+                    activity.windowManager.defaultDisplay.width.toFloat() / 2,
+                    (activity.windowManager.defaultDisplay.height / 2 - dpToPx(62).toFloat())
+                )
+                lineTo(
+                    activity.windowManager.defaultDisplay.width.toFloat() / 2,
+                    (activity.windowManager.defaultDisplay.height / 2 - dpToPx(115).toFloat())
+                )
+            }
         }
-
-        path = Path().apply {
-            moveTo((star.left.toFloat() + (star.right.toFloat() - star.left.toFloat())/2), star.top.toFloat())
-            lineTo((star.left.toFloat() + (star.right.toFloat() - star.left.toFloat())/2), star.top.toFloat() - dpToPx(40))
-        }
-
-        val lineAnim = ValueAnimator.ofFloat(100f, 0f)
-        lineAnim.interpolator = LinearInterpolator()
-        lineAnim.addUpdateListener {
-            paint.pathEffect = DashPathEffect(dashes, lineAnim.animatedValue as Float)
-            invalidate()
-        }
-
-        lineAnim.duration = 2000
-        lineAnim.start()
     }
 
     override fun onDraw(canvas: Canvas?) {
