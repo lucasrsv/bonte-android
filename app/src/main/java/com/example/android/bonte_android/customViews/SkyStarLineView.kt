@@ -3,51 +3,40 @@ package com.example.android.bonte_android.customViews
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
+import android.renderscript.Sampler
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.animation.LinearInterpolator
-import androidx.appcompat.app.AppCompatActivity
-import com.example.android.bonte_android.R
 import kotlin.math.roundToInt
 
-
-class StarLineView @JvmOverloads constructor(
+class SkyStarLineView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
-
+) : View(context, attrs, defStyleAttr){
     private var path = Path()
     private var paint = Paint()
-    private val dashes = floatArrayOf(125f, 125f)
-    private val activity = context as AppCompatActivity
+    private lateinit var lineAnim: ValueAnimator
+    private val dashes = floatArrayOf(dpToPx(20f), dpToPx(50f))
 
-    init {
-        activity.supportFragmentManager.findFragmentById(R.id.onboardingFragment2)
-
+    fun setValues(xCoordinate: Int, yCoordinate: Int) {
         paint = Paint().apply {
             isAntiAlias = true
             color = Color.WHITE
             style = Paint.Style.STROKE
-            strokeWidth = dpToPx(5).toFloat()
+            strokeWidth = dpToPx(2.3f)
             strokeCap = Paint.Cap.ROUND
 
         }
 
         path = Path().apply {
-            moveTo(
-                activity.windowManager.defaultDisplay.width.toFloat() / 2,
-                (activity.windowManager.defaultDisplay.height / 2 - dpToPx(63).toFloat())
-            )
-            lineTo(
-                activity.windowManager.defaultDisplay.width.toFloat() / 2,
-                (activity.windowManager.defaultDisplay.height / 2 - dpToPx(115).toFloat())
-            )
+            moveTo(xCoordinate.toFloat() + dpToPx(13f), yCoordinate.toFloat() - dpToPx(12f))
+            lineTo(xCoordinate.toFloat() + dpToPx(13f), yCoordinate.toFloat() - dpToPx(42f))
         }
 
-        val lineAnim = ValueAnimator.ofFloat(100f, 0f)
+        lineAnim = ValueAnimator.ofFloat(100f, 0f)
         lineAnim.interpolator = LinearInterpolator()
         lineAnim.addUpdateListener {
             paint.pathEffect = DashPathEffect(dashes, lineAnim.animatedValue as Float)
@@ -58,16 +47,29 @@ class StarLineView @JvmOverloads constructor(
         lineAnim.start()
     }
 
+    fun undo() {
+        lineAnim = ValueAnimator.ofFloat(0f, 100f)
+        lineAnim.interpolator = LinearInterpolator()
+        lineAnim.addUpdateListener {
+            paint.pathEffect = DashPathEffect(dashes, lineAnim.animatedValue as Float)
+            invalidate()
+        }
+
+        lineAnim.duration = 500
+        lineAnim.start()
+    }
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        Log.d("stroke", paint.strokeWidth.toString())
         canvas!!.drawPath(path, paint)
     }
 
-    private fun dpToPx(dp: Int): Int {
+    private fun dpToPx(dp: Float): Float {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dp.toFloat(),
             resources.displayMetrics
-        ).roundToInt()
+        )
     }
 }

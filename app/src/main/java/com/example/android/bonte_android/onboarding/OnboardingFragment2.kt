@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.app.Activity
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -14,18 +13,12 @@ import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.android.bonte_android.R
-import com.example.android.bonte_android.customViews.BeamLightView
-import com.example.android.bonte_android.customViews.StarInnerView
-import com.example.android.bonte_android.customViews.StarMidView
-import com.example.android.bonte_android.customViews.StarOffOuterView
 import com.example.android.bonte_android.databinding.FragmentOnboarding2Binding
-import com.example.android.bonte_android.dpToPx
 import kotlin.math.roundToInt
 
 
@@ -35,8 +28,8 @@ class OnboardingFragment2 : Fragment() {
     private lateinit var title2: TextView
     private lateinit var ballIndicator: ImageView
     private lateinit var actionText: TextView
-    private lateinit var starButton: ImageView
-    private lateinit var starOutter2: ImageView
+    private lateinit var starButton: View
+    private lateinit var starOutter2: View
 
     override fun onCreateView(
         inflater: LayoutInflater,

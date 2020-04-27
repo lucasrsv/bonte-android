@@ -9,12 +9,11 @@
         android:layout_height="match_parent"
         android:background="@drawable/gradient">
 
-        <ImageView
+        <com.example.android.bonte_android.customViews.StarOffOutterView
             android:id="@+id/starOutter"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/star_off_outter"
-            android:rotation="-10.9"
+            android:rotation="0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

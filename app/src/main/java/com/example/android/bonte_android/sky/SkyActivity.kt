@@ -19,6 +19,7 @@ import androidx.core.animation.doOnEnd
 import androidx.databinding.DataBindingUtil
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.changeStatusBarColor
+import com.example.android.bonte_android.customViews.SkyStarLineView
 import com.example.android.bonte_android.customViews.StarLineView
 import com.example.android.bonte_android.customViews.StarPathView
 import com.example.android.bonte_android.databinding.ActivitySkyBinding
@@ -41,7 +42,7 @@ class SkyActivity : AppCompatActivity() {
     private lateinit var starClicked: Pair<Int, Int>
     private lateinit var scaleListener: ScaleGestureDetector.SimpleOnScaleGestureListener
     private lateinit var scaleDetector: ScaleGestureDetector
-    private lateinit var starLineView: StarLineView
+    private lateinit var starLineView: SkyStarLineView
     private var numClicks = 0
     private var isStarClicked = false
 
@@ -67,6 +68,7 @@ class SkyActivity : AppCompatActivity() {
                 val pvhY: PropertyValuesHolder
                 val pvhXBright: PropertyValuesHolder
                 val pvhYBright: PropertyValuesHolder
+                sky.removeView(starLineView)
 
                 if (!constellations[starClicked.first].stars[starClicked.second].done) {
                     pvhX = PropertyValuesHolder.ofFloat(View.SCALE_X, 2f, 1f)
@@ -257,20 +259,11 @@ class SkyActivity : AppCompatActivity() {
                 constellations[i].stars[j].starViews[7].setOnTouchListener { _, event ->
                     Log.d("starTouched", isStarClicked.toString())
                     if (!isStarClicked) {
-                        var timeDown = 0L
-                        var timeUp = 0L
-                        var totalTime = 0L
                         when (event.actionMasked) {
                             MotionEvent.ACTION_DOWN -> {
-                                timeDown = event.eventTime
-                                Log.d("timeDown", timeDown.toString())
                                 true
                             }
                             MotionEvent.ACTION_UP -> {
-                                timeUp = event.eventTime
-                                totalTime = timeUp - timeDown
-                                Log.d("timeUp", timeUp.toString())
-                                Log.d("totalTime", totalTime.toString())
                                 numClicks++
                                 starClicked = Pair(i, j)
                                 isStarClicked = true
@@ -332,6 +325,9 @@ class SkyActivity : AppCompatActivity() {
                                 Log.d("stt1inter", constellations[i].stars[j].intermediate.toString())
                                 Log.d("st2done", constellations[i].stars[j].done.toString())
                                 if (!constellations[i].stars[j].done && !constellations[i].stars[j].intermediate) {
+                                    starLineView = SkyStarLineView(this)
+                                    starLineView.setValues(constellations[i].stars[j].position.x, constellations[i].stars[j].position.y)
+                                    sky.addView(starLineView)
                                     AnimatorSet().apply {
                                         playTogether(scaleButton, scaleInner, scaleMid, scaleOutter1, scaleOutter2, rotateAnim, scaleOutter3)
                                         start()
@@ -352,8 +348,6 @@ class SkyActivity : AppCompatActivity() {
                                         start()
                                     }
                                 }
-
-                                starLineView = StarLineView(this)
                                 binding.sky.removeView(pathCustomView)
 
                                 for (a in constellations.indices) {
@@ -397,6 +391,7 @@ class SkyActivity : AppCompatActivity() {
                                     val rotateAnim = ObjectAnimator.ofPropertyValuesHolder(constellations[i].stars[j].starViews[4], pvhR).apply {
                                         duration = 1000
                                     }
+                                    starLineView.undo()
 
                                     AnimatorSet().apply {
                                         play(rotateAnim)
@@ -512,14 +507,6 @@ class SkyActivity : AppCompatActivity() {
                                 duration = 1100
                                 startDelay = delay
                             }
-                            val scaleMid2Again = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[3],
-                                xGeneral,
-                                yGeneral
-                            ).apply {
-                                duration = 1000
-                                startDelay = 800
-                            }
                             val scaleIntermediaryOutter = ObjectAnimator.ofPropertyValuesHolder(
                                 constellations[i].stars[j].starViews[6],
                                 xOutter,
@@ -539,8 +526,7 @@ class SkyActivity : AppCompatActivity() {
                                 addUpdateListener { animation ->
                                     if (animation.animatedValue as Float > 0f && !turnedVisible) {
                                         turnedVisible = true
-                                        constellations[i].stars[j].starViews[5].visibility =
-                                            View.VISIBLE
+                                        constellations[i].stars[j].starViews[5].visibility = View.VISIBLE
                                     }
                                 }
                             }
@@ -689,25 +675,6 @@ class SkyActivity : AppCompatActivity() {
                                     start()
                                 }
                             }
-
-    /*                        var timeAnim = 0f
-                            var animStarted = false
-                            scaleMid2.addUpdateListener { animation ->
-                                timeAnim = animation.animatedValue as Float
-                                Log.d("animFraction", timeAnim.toString())
-
-                                if (timeAnim >= 1.5 && !animStarted) {
-                                    animStarted = true
-                                    AnimatorSet().apply {
-                                        playTogether(scaleInner, scaleMid, scaleOutter, scaleOutter2, scaleBright)
-                                        playTogether(scaleDownOutter, scaleDownOutter2)
-                                        play(scaleDownOutter).after(scaleBright)
-                                        playTogether(scaleDownInner, scaleDownMid, scaleDownMid2, scaleDownBright)
-                                        play(scaleDownInner).after(scaleDownOutter)
-                                        start()
-                                    }
-                                }
-                            }*/
 
                             constellations[i].stars[j].done = true
                             constellations[i].stars[j].intermediate = false

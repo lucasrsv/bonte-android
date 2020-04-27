@@ -5,17 +5,15 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
-import java.nio.file.Path
 import kotlin.math.roundToInt
-import kotlin.properties.Delegates
 
-class StarOffOuterView @JvmOverloads constructor(
+class StarOffOutterView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
-    private var size by Delegates.notNull<Float>()
-    private  var paint: Paint
+    private var size = 50f
+    private var paint: Paint
 
     init {
         paint = Paint().apply {
@@ -26,10 +24,6 @@ class StarOffOuterView @JvmOverloads constructor(
             strokeWidth = dpToPx(4.7f).toFloat()
             strokeCap = Paint.Cap.ROUND
         }
-    }
-
-    fun setRadius(size: Float) {
-        this.size = size
     }
 
     override fun onDraw(canvas: Canvas?) {
