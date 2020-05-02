@@ -4,7 +4,9 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.content.ContentValues
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -14,11 +16,14 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.animation.doOnEnd
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import com.example.android.bonte_android.Language
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.databinding.FragmentOnboarding2Binding
+import com.google.firebase.database.*
 import kotlin.math.roundToInt
 
 
@@ -30,6 +35,8 @@ class OnboardingFragment2 : Fragment() {
     private lateinit var actionText: TextView
     private lateinit var starButton: View
     private lateinit var starOutter2: View
+    private var database: DatabaseReference = FirebaseDatabase.getInstance().reference
+    private lateinit var language: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,12 +52,8 @@ class OnboardingFragment2 : Fragment() {
         starButton = binding.starOutter
         starOutter2 = binding.starOutter2
 
-        starButton.setOnClickListener(
-            Navigation.createNavigateOnClickListener(R.id.action_onboardingFragment2_to_skyActivity)
-        )
-
         rotateAnimation()
-        fadeInAnimation()
+        setTexts()
 
         return binding.root
     }
@@ -73,12 +76,10 @@ class OnboardingFragment2 : Fragment() {
 
         val fadeIn2 = ObjectAnimator.ofFloat(title2, "alpha", 0.35f, 1.0f).apply {
             duration = 1500
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    ballIndicator.visibility = View.VISIBLE
-                    actionText.visibility = View.VISIBLE
-                }
-            })
+            doOnEnd {
+                ballIndicator.visibility = View.VISIBLE
+                actionText.visibility = View.VISIBLE
+            }
         }
 
         val fadeIn3 = ObjectAnimator.ofFloat(actionText, "alpha", 0.0f, 1.0f).apply {
@@ -87,6 +88,11 @@ class OnboardingFragment2 : Fragment() {
 
         val fadeIn4 = ObjectAnimator.ofFloat(ballIndicator, "alpha", 0.0f, 1.0f).apply {
             duration = 1000
+            doOnEnd {
+                starButton.setOnClickListener(
+                    Navigation.createNavigateOnClickListener(R.id.action_onboardingFragment2_to_skyActivity)
+                )
+            }
         }
 
         AnimatorSet().apply {
@@ -97,6 +103,31 @@ class OnboardingFragment2 : Fragment() {
         }
 
     }
+
+    private fun setTexts() {
+        language = if (Language().language == "pt") {
+            "pt"
+        } else {
+            "en"
+        }
+        database.child(language).child("onboarding").child("onboarding2").addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Log.w(ContentValues.TAG, "getUser:onCancelled", databaseError.toException())
+                }
+
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    actionText.text = dataSnapshot.child("starAction").value as String
+                    title1.text = dataSnapshot.child("title").value as String
+                    title2.text = dataSnapshot.child("description").value as String
+                    fadeInAnimation()
+
+                }
+            }
+        )
+    }
+
+
 
     fun dpToPx(dp: Int): Int {
         return TypedValue.applyDimension(

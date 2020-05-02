@@ -19,16 +19,20 @@ class SkyStarLineView @JvmOverloads constructor(
     private var path = Path()
     private var paint = Paint()
     private lateinit var lineAnim: ValueAnimator
-    private val dashes = floatArrayOf(dpToPx(20f), dpToPx(50f))
+    private val dashes = floatArrayOf(dpToPx(20f), dpToPx(100f))
+
+    fun getAnim(): ValueAnimator {
+        return lineAnim
+    }
 
     fun setValues(xCoordinate: Int, yCoordinate: Int) {
         paint = Paint().apply {
             isAntiAlias = true
+            isDither = true
             color = Color.WHITE
             style = Paint.Style.STROKE
-            strokeWidth = dpToPx(2.3f)
+            strokeWidth = dpToPx(2.5f)
             strokeCap = Paint.Cap.ROUND
-
         }
 
         path = Path().apply {

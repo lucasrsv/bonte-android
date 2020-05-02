@@ -11,3 +11,19 @@ fun Activity.dpToPx(dp: Int): Int {
         resources.displayMetrics
     ).roundToInt()
 }
+
+fun Activity.dpToPxF(dp: Float): Float {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dp,
+        resources.displayMetrics
+    )
+}
+
+fun Activity.dpToPxD(dp: Double): Int {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dp.toFloat(),
+        resources.displayMetrics
+    ).roundToInt()
+}

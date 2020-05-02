@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.animation.doOnEnd
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
@@ -32,7 +33,7 @@ class OnboardingFragment1 : Fragment() {
     private lateinit var welcomeText2: TextView
     private lateinit var turnedOffStarButton: View
     private var database: DatabaseReference = FirebaseDatabase.getInstance().reference
-    private var language = com.example.android.bonte_android.Language()
+    private lateinit var language: String
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -47,10 +48,6 @@ class OnboardingFragment1 : Fragment() {
         startArrow = binding.arrowUp
         startText = binding.startText
         turnedOffStarButton = binding.starOutter
-
-        turnedOffStarButton.setOnClickListener (
-            Navigation.createNavigateOnClickListener(R.id.action_onboardingFragment1_to_onboardingFragment2)
-        )
 
         setTexts()
         return binding.root
@@ -79,6 +76,11 @@ class OnboardingFragment1 : Fragment() {
 
         val fadeIn4 = ObjectAnimator.ofFloat(startArrow, "alpha", 0f, 1.0f).apply {
             duration = 1000
+            doOnEnd {
+                turnedOffStarButton.setOnClickListener (
+                    Navigation.createNavigateOnClickListener(R.id.action_onboardingFragment1_to_onboardingFragment2)
+                )
+            }
         }
 
         AnimatorSet().apply {
@@ -91,8 +93,12 @@ class OnboardingFragment1 : Fragment() {
     }
 
     private fun setTexts() {
-
-        database.child(Language().language).child("onboarding").child("onboarding1").addListenerForSingleValueEvent(
+        language = if (Language().language == "pt") {
+            "pt"
+        } else {
+            "en"
+        }
+        database.child(language).child("onboarding").child("onboarding1").addListenerForSingleValueEvent(
             object : ValueEventListener {
                 override fun onCancelled(databaseError: DatabaseError) {
                     Log.w(TAG, "getUser:onCancelled", databaseError.toException())

@@ -21,7 +21,7 @@ class StarLineView @JvmOverloads constructor(
 
     private var path = Path()
     private var paint = Paint()
-    private val dashes = floatArrayOf(125f, 125f)
+    private val dashes = floatArrayOf(dpToPx(40).toFloat(), dpToPx(80).toFloat())
     private val activity = context as AppCompatActivity
 
     init {
