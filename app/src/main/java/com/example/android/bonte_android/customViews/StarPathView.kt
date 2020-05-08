@@ -57,7 +57,9 @@ class StarPathView @JvmOverloads constructor(
                         lineTo(constellations[i].stars[j].getNeighbor()[k].starViews[2].x + dpToPx(12), constellations[i].stars[j].getNeighbor()[k].starViews[2].y + dpToPx(12))
                         sizes[0] = dpToPx(4).toFloat()
                         sizes[1] = dpToPx(4).toFloat()
+
                     }
+
                     paint.pathEffect = DashPathEffect(sizes, dpToPx(20).toFloat())
                     canvas!!.drawPath(constellations[i].stars[j].paths[k], paint)
                 }

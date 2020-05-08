@@ -69,12 +69,12 @@ class OnboardingFragment2 : Fragment() {
 
     private fun fadeInAnimation() {
 
-        val fadeIn1 = ObjectAnimator.ofFloat(title1, "alpha", 0.35f, 1.0f).apply {
+        val fadeIn1 = ObjectAnimator.ofFloat(title1, "alpha", 0f, 1.0f).apply {
             duration = 1500
 
         }
 
-        val fadeIn2 = ObjectAnimator.ofFloat(title2, "alpha", 0.35f, 1.0f).apply {
+        val fadeIn2 = ObjectAnimator.ofFloat(title2, "alpha", 0f, 1.0f).apply {
             duration = 1500
             doOnEnd {
                 ballIndicator.visibility = View.VISIBLE

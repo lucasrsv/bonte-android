@@ -55,12 +55,12 @@ class OnboardingFragment1 : Fragment() {
 
     private fun fadeInAnimation() {
 
-        val fadeIn1 = ObjectAnimator.ofFloat(welcomeText1, "alpha", 0.35f, 1.0f).apply {
+        val fadeIn1 = ObjectAnimator.ofFloat(welcomeText1, "alpha", 0f, 1.0f).apply {
             duration = 1250
 
         }
 
-        val fadeIn2 = ObjectAnimator.ofFloat(welcomeText2, "alpha", 0.35f, 1.0f).apply {
+        val fadeIn2 = ObjectAnimator.ofFloat(welcomeText2, "alpha", 0f, 1.0f).apply {
             duration = 1250
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {

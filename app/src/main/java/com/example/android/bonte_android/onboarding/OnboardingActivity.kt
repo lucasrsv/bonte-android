@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.changeStatusBarColor
 import com.example.android.bonte_android.databinding.ActivityOnboardingBinding
+import com.google.firebase.database.FirebaseDatabase
 
 
 class OnboardingActivity : AppCompatActivity() {
@@ -30,6 +31,7 @@ class OnboardingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true)
 
         /*sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         firstTime = sharedPreferences.getBoolean("FirstTime", true)
