@@ -317,7 +317,7 @@ class SkyActivity : AppCompatActivity() {
         touchListener()
         longPressListener()
         setParticles()
-        rotateStarts()
+        //rotateStarts()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -684,6 +684,9 @@ class SkyActivity : AppCompatActivity() {
                             fadeInText.duration = 500
                             val fadeInBall = ObjectAnimator.ofFloat(actionDot, "alpha", 0f, 1.0f)
                             fadeInBall.duration = 500
+                            fadeInBall.doOnEnd {
+                                canZoomOut = true
+                            }
 
 
                             val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, -0.05f, 0.05f)
@@ -791,6 +794,7 @@ class SkyActivity : AppCompatActivity() {
                             }
 
                             if (!constellations[i].stars[j].done) {
+                                canZoomOut = false
                                 starLineView.undo()
                                 constellations[i].stars[j].starViews[3].visibility = View.VISIBLE
                                 AnimatorSet().apply {
@@ -824,6 +828,7 @@ class SkyActivity : AppCompatActivity() {
                                 constellations[i].stars[j].starViews[1].startAnimation(shake)
 
                             } else {
+                                canZoomOut = false
                                 AnimatorSet().apply {
                                     if (constellations[i].stars[j].timesCompleted < 3) {
                                         playTogether(
