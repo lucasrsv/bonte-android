@@ -27,7 +27,27 @@
                 android:textColor="#FFFFFF"
                 android:textSize="8sp"
                 android:visibility="invisible"
-                android:fontFamily="@font/montserrat"
+                android:fontFamily="@font/montserrat_medium"
+                />
+            <TextView
+            android:id="@+id/starDoAgainText"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="6sp"
+            android:visibility="invisible"
+            android:fontFamily="@@font/montserrat_medium"
+            />
+            <TextView
+                android:id="@+id/takeYourTimeText"
+                android:layout_width="80dp"
+                android:layout_height="50dp"
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
+                android:textSize="6sp"
+                android:visibility="invisible"
+                android:fontFamily="@@font/montserrat_medium"
                 />
 
         </FrameLayout>
