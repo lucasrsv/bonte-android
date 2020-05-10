@@ -20,6 +20,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnPause
 import androidx.core.animation.doOnRepeat
 import androidx.core.animation.doOnStart
 import androidx.databinding.DataBindingUtil
@@ -64,6 +65,7 @@ class SkyActivity : AppCompatActivity() {
     private var isStarClicked = false
     private var canDoStarAgain = false
     private var canZoomOut = true
+    private var canRotate = true
     private var rotateAnimations = Array(26) { ObjectAnimator() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -279,6 +281,95 @@ class SkyActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    if (canRotate) {
+                        canRotate = false
+                        var starChosen = false
+                        for (i in constellations.indices) {
+                            for (j in constellations[i].stars.indices) {
+                                if (!constellations[i].stars[j].done && !constellations[i].stars[j].intermediate && i != starClicked.first && j != starClicked.second && !starChosen) {
+                                    Log.d("startou?", "serar")
+                                    starChosen = true
+                                    var index = 0
+                                    when (i) {
+                                        0 -> {
+                                            index = j
+                                        }
+                                        1 -> {
+                                            index = j + 5
+                                        }
+                                        2 -> {
+                                            index = j + 10
+                                        }
+                                        3 -> {
+                                            index = j + 18
+                                        }
+                                        else -> {
+                                            index = j + 22
+                                        }
+                                    }
+                                    var hasRotatedAgain = false
+                                    rotateAnimations[index].addUpdateListener {
+                                        if (!hasRotatedAgain) {
+                                            hasRotatedAgain = true
+                                            var currentValue = rotateAnimations[index].animatedValue
+                                            when (starClicked.first) {
+                                                0 -> {
+                                                    index = starClicked.second
+                                                }
+                                                1 -> {
+                                                    index = starClicked.second + 5
+                                                }
+                                                2 -> {
+                                                    index = starClicked.second + 10
+                                                }
+                                                3 -> {
+                                                    index = starClicked.second + 18
+                                                }
+                                                else -> {
+                                                    index = starClicked.second + 22
+                                                }
+                                            }
+                                            var pvhR = PropertyValuesHolder.ofFloat(
+                                                View.ROTATION,
+                                                0f,
+                                                currentValue as Float
+                                            )
+                                            rotateAnimations[index] =
+                                                ObjectAnimator.ofPropertyValuesHolder(
+                                                    constellations[starClicked.first].stars[starClicked.second].starViews[2],
+                                                    pvhR
+                                                )
+                                            rotateAnimations[index].duration = 100
+                                            rotateAnimations[index].doOnStart {
+                                                Log.d("startou?", "sera")
+                                                Handler().postDelayed({
+                                                    pvhR = PropertyValuesHolder.ofFloat(
+                                                        View.ROTATION,
+                                                        currentValue,
+                                                        360f + currentValue
+                                                    )
+                                                    rotateAnimations[index] =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            constellations[starClicked.first].stars[starClicked.second].starViews[2],
+                                                            pvhR
+                                                        )
+                                                    rotateAnimations[index].duration = 15000
+                                                    rotateAnimations[index].repeatMode =
+                                                        ValueAnimator.RESTART
+                                                    rotateAnimations[index].repeatCount =
+                                                        ValueAnimator.INFINITE
+                                                    rotateAnimations[index].interpolator =
+                                                        LinearInterpolator()
+                                                    rotateAnimations[index].start()
+                                                }, 101)
+                                            }
+                                            rotateAnimations[index].start()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     return true
                 }
                 return false
@@ -317,7 +408,7 @@ class SkyActivity : AppCompatActivity() {
         touchListener()
         longPressListener()
         setParticles()
-        //rotateStarts()
+        rotateStarts()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -339,6 +430,7 @@ class SkyActivity : AppCompatActivity() {
                                 starClicked = Pair(i, j)
                                 isStarClicked = true
                                 canZoomOut = false
+                                canRotate = true
                                 skyZoomLayout.setZoomEnabled(false)
                                 skyZoomLayout.engine.setScrollEnabled(false)
                                 skyZoomLayout.engine.setFlingEnabled(false)
@@ -417,11 +509,49 @@ class SkyActivity : AppCompatActivity() {
                                 val scaleBright = ObjectAnimator.ofPropertyValuesHolder(constellations[i].stars[j].starViews[5], pvhBrightX, pvhBrightY).apply {
                                     duration = 1000
                                 }
-                                val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, 0f, -11f)
+                                var pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, 0f, -11f)
 
                                 val rotateAnim = ObjectAnimator.ofPropertyValuesHolder(constellations[i].stars[j].starViews[2], pvhR). apply {
                                     duration = 1000
                                 }
+
+                                var rotateStar: ObjectAnimator
+                                var index = 0
+                                when (i) {
+                                    0 -> {
+                                        rotateStar = rotateAnimations[j]
+                                        index = j
+                                    }
+                                    1 -> {
+                                        rotateStar =rotateAnimations[j+5]
+                                        index = j+5
+                                    }
+                                    2 -> {
+                                        rotateStar = rotateAnimations[j+10]
+                                        index = j+10
+                                    }
+                                    3 -> {
+                                        rotateStar = rotateAnimations[j+18]
+                                        index = j+18
+                                    }
+                                    else -> {
+                                        rotateStar = rotateAnimations[j+22]
+                                        index = j+22
+                                    }
+                                }
+                                var currentRotation = 0f
+
+                                rotateStar.doOnPause {
+                                    currentRotation = rotateStar.animatedValue as Float
+                                    pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, currentRotation, 349f)
+                                    rotateStar = ObjectAnimator.ofPropertyValuesHolder(constellations[i].stars[j].starViews[2],pvhR)
+                                    rotateStar.duration = 1000
+                                    rotateAnimations[index] = rotateStar
+                                    rotateStar.start()
+                                }
+
+                                rotateStar.pause()
+
 
                                 actionText.x = constellations[i].stars[j].position.x - dpToPx(26).toFloat()
                                 actionText.y = constellations[i].stars[j].position.y - dpToPx(70).toFloat()
@@ -445,7 +575,7 @@ class SkyActivity : AppCompatActivity() {
                                     starLineView.setValues(constellations[i].stars[j].position.x, constellations[i].stars[j].position.y)
                                     sky.addView(starLineView)
                                     AnimatorSet().apply {
-                                        playTogether(scaleButton, scaleInner, scaleMid, scaleOutter1, scaleOutter2, rotateAnim, scaleOutter3, fadeText, fadeDot)
+                                        playTogether(scaleButton, scaleInner, scaleMid, scaleOutter1, scaleOutter2, scaleOutter3, fadeText, fadeDot)
                                         start()
                                     }
                                 } else if (constellations[i].stars[j].done && !constellations[i].stars[j].intermediate) {
