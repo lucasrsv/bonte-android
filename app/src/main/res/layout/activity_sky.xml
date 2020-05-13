@@ -19,36 +19,36 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/sky">
+
             <TextView
                 android:id="@+id/actionText"
-                android:layout_width="80dp"
-                android:layout_height="50dp"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
                 android:textSize="8sp"
                 android:visibility="invisible"
                 android:fontFamily="@font/montserrat_medium"
-                />
-            <TextView
-            android:id="@+id/starDoAgainText"
-            android:layout_width="80dp"
-            android:layout_height="50dp"
-            android:textAlignment="center"
-            android:textColor="#FFFFFF"
-            android:textSize="6sp"
-            android:visibility="invisible"
-            android:fontFamily="@@font/montserrat_medium"
-            />
-            <TextView
-                android:id="@+id/takeYourTimeText"
                 android:layout_width="80dp"
-                android:layout_height="50dp"
+                android:layout_height="50dp" />
+
+            <TextView
+                android:id="@+id/starDoAgainText"
+                android:layout_width="80dp"
+                android:layout_height="30dp"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
                 android:textSize="6sp"
                 android:visibility="invisible"
-                android:fontFamily="@@font/montserrat_medium"
-                />
+                android:fontFamily="@font/montserrat_medium" />
+
+            <TextView
+                android:id="@+id/takeYourTimeText"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
+                android:textSize="6sp"
+                android:visibility="invisible"
+                android:fontFamily="@font/montserrat_medium" />
 
         </FrameLayout>
 

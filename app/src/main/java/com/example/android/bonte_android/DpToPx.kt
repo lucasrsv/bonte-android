@@ -27,3 +27,12 @@ fun Activity.dpToPxD(dp: Double): Int {
         resources.displayMetrics
     ).roundToInt()
 }
+
+fun Activity.spToPx(sp: Float): Float {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_SP,
+        sp,
+        resources.displayMetrics
+    )
+}
+
