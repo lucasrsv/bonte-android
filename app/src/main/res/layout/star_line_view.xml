@@ -7,5 +7,5 @@
         android:layout_width="match_parent"
         android:id="@+id/starLineView"
         />
-    <include layout="@layout/fragment_onboarding2"/>
+    <include layout="@layout/fragment_onboarding1"/>
 </merge>

@@ -24,8 +24,7 @@ class StarLineView @JvmOverloads constructor(
     private val dashes = floatArrayOf(dpToPx(40).toFloat(), dpToPx(80).toFloat())
     private val activity = context as AppCompatActivity
 
-    init {
-        activity.supportFragmentManager.findFragmentById(R.id.onboardingFragment2)
+    fun run() {
 
         paint = Paint().apply {
             isAntiAlias = true
@@ -55,6 +54,17 @@ class StarLineView @JvmOverloads constructor(
         }
 
         lineAnim.duration = 2000
+        lineAnim.start()
+    }
+    fun undo() {
+        val lineAnim = ValueAnimator.ofFloat(0f, 100f)
+        lineAnim.interpolator = LinearInterpolator()
+        lineAnim.addUpdateListener {
+            paint.pathEffect = DashPathEffect(dashes, lineAnim.animatedValue as Float)
+            invalidate()
+        }
+
+        lineAnim.duration = 500
         lineAnim.start()
     }
 

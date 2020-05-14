@@ -26,12 +26,8 @@ class BeamLightView @JvmOverloads constructor(
     private var paint = Paint()
     private val activity = context as AppCompatActivity
     private val dashes = floatArrayOf((activity.windowManager.defaultDisplay.width.toFloat()*0.65).toFloat(), dpToPx(500).toFloat())
-    private var star: View
 
-    init {
-
-        activity.supportFragmentManager.findFragmentById(R.id.onboardingFragment2)
-        star = activity.findViewById(R.id.starOutter)
+    fun run() {
 
         paint = Paint().apply {
             isAntiAlias = true
@@ -53,7 +49,7 @@ class BeamLightView @JvmOverloads constructor(
             paint.pathEffect = DashPathEffect(dashes, lineAnim.animatedValue as Float)
             invalidate()
         }
-        lineAnim.duration = 2500
+        lineAnim.duration = 2000
 
         val fadeAnim = ValueAnimator.ofInt(0, 180)
         fadeAnim.interpolator = LinearInterpolator()
@@ -62,6 +58,29 @@ class BeamLightView @JvmOverloads constructor(
             invalidate()
         }
         fadeAnim.duration = 3000
+
+        AnimatorSet().apply {
+            playTogether(lineAnim, fadeAnim)
+            start()
+        }
+    }
+
+    fun undo() {
+        val lineAnim = ValueAnimator.ofFloat(dpToPx(0).toFloat(), dpToPx(392).toFloat())
+        lineAnim.interpolator = LinearInterpolator()
+        lineAnim.addUpdateListener {
+            paint.pathEffect = DashPathEffect(dashes, lineAnim.animatedValue as Float)
+            invalidate()
+        }
+        lineAnim.duration = 500
+
+        val fadeAnim = ValueAnimator.ofInt(180, 0)
+        fadeAnim.interpolator = LinearInterpolator()
+        fadeAnim.addUpdateListener {
+            paint.alpha = fadeAnim.animatedValue as Int
+            invalidate()
+        }
+        fadeAnim.duration = 1000
 
         AnimatorSet().apply {
             playTogether(lineAnim, fadeAnim)

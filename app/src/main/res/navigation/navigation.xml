@@ -3,27 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/onboardingFragment1">
+    app:startDestination="@id/onboardingActivity">
 
-    <fragment
-        android:id="@+id/onboardingFragment1"
-        android:name="com.example.android.bonte_android.onboarding.OnboardingFragment1"
-        android:label="OnboardingFragment1" >
-        <action
-            android:id="@+id/action_onboardingFragment1_to_onboardingFragment2"
-            app:destination="@id/onboardingFragment2" />
-    </fragment>
-    <fragment
-        android:id="@+id/onboardingFragment2"
-        android:name="com.example.android.bonte_android.onboarding.OnboardingFragment2"
-        android:label="OnboardingFragment2" >
-        <action
-            android:id="@+id/action_onboardingFragment2_to_skyActivity"
-            app:destination="@id/skyActivity" />
-    </fragment>
     <activity
         android:id="@+id/skyActivity"
         android:name="com.example.android.bonte_android.sky.SkyActivity"
         android:label="activity_sky"
         tools:layout="@layout/activity_sky" />
+    <activity
+        android:id="@+id/onboardingActivity"
+        android:name="com.example.android.bonte_android.onboarding.OnboardingActivity"
+        android:label="OnboardingActivity" />
 </navigation>

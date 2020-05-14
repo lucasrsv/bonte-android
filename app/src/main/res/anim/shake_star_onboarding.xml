@@ -2,17 +2,17 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <rotate
         android:duration="50"
-        android:fromDegrees="-0.02"
+        android:fromDegrees="-1"
         android:pivotX="50%"
         android:pivotY="50%"
-        android:repeatCount="20"
+        android:repeatCount="30"
         android:repeatMode="reverse"
         android:interpolator="@android:anim/linear_interpolator"
-        android:toDegrees="0.02" />
+        android:toDegrees="1" />
     <translate
-        android:fromXDelta="-0.02"
-        android:toXDelta="0.02"
-        android:repeatCount="20"
+        android:fromXDelta="-1"
+        android:toXDelta="1"
+        android:repeatCount="30"
         android:repeatMode="reverse"
         android:interpolator="@android:anim/linear_interpolator"
         android:duration="50" />

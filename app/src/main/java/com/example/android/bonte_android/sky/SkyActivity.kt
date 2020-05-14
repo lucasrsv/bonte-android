@@ -95,7 +95,6 @@ class SkyActivity : AppCompatActivity() {
 
         sky.addView(actionDot)
         pathCustomView = StarPathView(this)
-        Log.d("scaledPanxo  ", skyZoomLayout.engine.panX.toString())
 
         scaleListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             override fun onScale(detector: ScaleGestureDetector?): Boolean {
@@ -352,93 +351,6 @@ class SkyActivity : AppCompatActivity() {
                                 index = starClicked.second + 22
                             }
                         }
-
-                        /*var starChosen = false
-                        for (i in constellations.indices) {
-                            for (j in constellations[i].stars.indices) {
-                                if (!constellations[i].stars[j].done && !constellations[i].stars[j].intermediate && i != starClicked.first && j != starClicked.second && !starChosen) {
-                                    Log.d("startou?", "serar")
-                                    starChosen = true
-                                    var index = 0
-                                    when (i) {
-                                        0 -> {
-                                            index = j
-                                        }
-                                        1 -> {
-                                            index = j + 5
-                                        }
-                                        2 -> {
-                                            index = j + 10
-                                        }
-                                        3 -> {
-                                            index = j + 18
-                                        }
-                                        else -> {
-                                            index = j + 22
-                                        }
-                                    }
-                                    var hasRotatedAgain = false
-                                    rotateAnimations[index].addUpdateListener {
-                                        if (!hasRotatedAgain) {
-                                            hasRotatedAgain = true
-                                            var currentValue = rotateAnimations[index].animatedValue
-                                            when (starClicked.first) {
-                                                0 -> {
-                                                    index = starClicked.second
-                                                }
-                                                1 -> {
-                                                    index = starClicked.second + 5
-                                                }
-                                                2 -> {
-                                                    index = starClicked.second + 10
-                                                }
-                                                3 -> {
-                                                    index = starClicked.second + 18
-                                                }
-                                                else -> {
-                                                    index = starClicked.second + 22
-                                                }
-                                            }
-                                            var pvhR = PropertyValuesHolder.ofFloat(
-                                                View.ROTATION,
-                                                0f,
-                                                currentValue as Float
-                                            )
-                                            rotateAnimations[index] =
-                                                ObjectAnimator.ofPropertyValuesHolder(
-                                                    constellations[starClicked.first].stars[starClicked.second].starViews[2],
-                                                    pvhR
-                                                )
-                                            rotateAnimations[index].duration = 100
-                                            rotateAnimations[index].doOnStart {
-                                                Log.d("startou?", "sera")
-                                                Handler().postDelayed({
-                                                    pvhR = PropertyValuesHolder.ofFloat(
-                                                        View.ROTATION,
-                                                        currentValue,
-                                                        360f + currentValue
-                                                    )
-                                                    rotateAnimations[index] =
-                                                        ObjectAnimator.ofPropertyValuesHolder(
-                                                            constellations[starClicked.first].stars[starClicked.second].starViews[2],
-                                                            pvhR
-                                                        )
-                                                    rotateAnimations[index].duration = 15000
-                                                    rotateAnimations[index].repeatMode =
-                                                        ValueAnimator.RESTART
-                                                    rotateAnimations[index].repeatCount =
-                                                        ValueAnimator.INFINITE
-                                                    rotateAnimations[index].interpolator =
-                                                        LinearInterpolator()
-                                                    rotateAnimations[index].start()
-                                                }, 101)
-                                            }
-                                            rotateAnimations[index].start()
-                                        }
-                                    }
-                                }
-                            }
-                        }*/
                     }
                     return true
                 }
@@ -448,7 +360,6 @@ class SkyActivity : AppCompatActivity() {
         scaleDetector = ScaleGestureDetector(this, scaleListener)
 
         skyZoomLayout.setOnTouchListener { _, event ->
-            Log.d("star", isStarClicked.toString())
             if (isStarClicked) {
                 scaleDetector.onTouchEvent(event)
 
@@ -474,16 +385,19 @@ class SkyActivity : AppCompatActivity() {
         for (i in constellations.indices) {
             for (j in constellations[i].stars.indices) {
                 constellations[i].stars[j].starViews[7].setOnTouchListener { _, event ->
-                    Log.d("starTouched", isStarClicked.toString())
                     if (!isStarClicked) {
                         var time = 0L
                         when (event.actionMasked) {
                             MotionEvent.ACTION_DOWN -> {
                                 time = event.eventTime
+                                Log.d("timeDown", time.toString())
                                 true
                             }
                             MotionEvent.ACTION_UP -> {
-                                val time2String = event.eventTime
+                                val totalTime = event.eventTime - time
+                                Log.d("timeUp", event.eventTime.toString())
+                                Log.d("timeDown", time.toString())
+                                Log.d("totalTime", totalTime.toString())
                                 numClicks++
                                 starClicked = Pair(i, j)
                                 isStarClicked = true
@@ -505,7 +419,6 @@ class SkyActivity : AppCompatActivity() {
                                     override fun run() {
                                         canZoomOut = true
                                         canZoomOut2 = true
-                                        Log.d("scaledPanx", skyZoomLayout.engine.panX.toString())
                                     }
                                 }, 2000)
 
@@ -663,7 +576,6 @@ class SkyActivity : AppCompatActivity() {
                                     (pathCustomView.parent as ViewGroup).removeView(pathCustomView)
                                     moveStars(i, j, constellations[i].stars[j].starViews[0].x, constellations[i].stars[j].starViews[0].y, isReturning = false)
                                     canAddPath = true
-                                    Log.d("apath", canAddPath.toString())
                                 }
                                 pathAlpha.start()
 
@@ -749,7 +661,6 @@ class SkyActivity : AppCompatActivity() {
 
                                     AnimatorSet().apply {
                                         playTogether(rotateAnim, fadeInRectangle, fadeInTakeYourTimeText)
-                                        Log.d("aa"," 2ndtime")
                                         start()
                                     }
                                     constellations[i].stars[j].intermediate = true
@@ -757,7 +668,6 @@ class SkyActivity : AppCompatActivity() {
                                 } else if (starClicked.first == i && starClicked.second == j  &&
                                     !constellations[i].stars[j].intermediate && constellations[i].stars[j].done && (numClicks == 1 || numClicks == 2 || numClicks == 3)) {
                                     constellations[i].stars[j].intermediate = true
-                                    Log.d("numclick", numClicks.toString())
                                     numClicks++
                                     val x = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 3.1f)
                                     val y = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 3.1f)
@@ -810,7 +720,6 @@ class SkyActivity : AppCompatActivity() {
                             }
                             val star = "star" + (j+1).toString()
                             setTexts(constellation, star, "doStarAgainText")
-                            Log.d("textStar", "a")
 
                             var xMid2 = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 4f)
                             var yMid2 = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 4f)
@@ -1071,6 +980,7 @@ class SkyActivity : AppCompatActivity() {
                                 constellations[i].stars[j].starViews[4].startAnimation(shake)
                                 constellations[i].stars[j].starViews[0].startAnimation(shake)
                                 constellations[i].stars[j].starViews[1].startAnimation(shake)
+                                constellations[i].stars[j].starViews[3].startAnimation(shake)
 
                             } else {
                                 canZoomOut = false
@@ -1416,7 +1326,6 @@ class SkyActivity : AppCompatActivity() {
 
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             actionText.text = dataSnapshot.child(star).value as String
-                            Log.d("textvalue", dataSnapshot.child(star).value as String)
                             if ((dataSnapshot.child(star).value as String).length <= 35) {
                                 actionText.y = actionText.y + dpToPx(10)
                                 actionDot.y = actionDot.y + dpToPx(10)
@@ -1441,7 +1350,6 @@ class SkyActivity : AppCompatActivity() {
 
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             doStarAgainText.text = dataSnapshot.child("doStarAgain").value as String
-                            Log.d("textvalue", dataSnapshot.child("doStarAgain").value as String)
                         }
                     }
                 )
@@ -1482,7 +1390,6 @@ class SkyActivity : AppCompatActivity() {
     }
 
     private fun moveStars(const: Int, star: Int, x: Float, y: Float, isReturning: Boolean) {
-        Log.d("sa", "ss")
         var bool = false
         var bool2 = true
         canAddPath = false
@@ -1526,7 +1433,6 @@ class SkyActivity : AppCompatActivity() {
                         }
                         ObjectAnimator.ofFloat(star, View.X, View.Y, path).apply {
                             duration = 2000
-                            Log.d("clicada?", isStarClicked.toString())
                             if (isReturning) {
                                 duration = 1000
                                 doOnEnd {
