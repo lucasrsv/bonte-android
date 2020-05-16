@@ -18,18 +18,16 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnRepeat
 import androidx.core.animation.doOnStart
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.Navigation
-import com.example.android.bonte_android.Language
+import com.example.android.bonte_android.*
 import com.example.android.bonte_android.R
-import com.example.android.bonte_android.changeStatusBarColor
 import com.example.android.bonte_android.databinding.ActivityOnboardingBinding
-import com.example.android.bonte_android.dpToPxD
 import com.example.android.bonte_android.sky.SkyActivity
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_onboarding.*
@@ -63,27 +61,20 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var ballIndicator: ImageView
     private lateinit var database: DatabaseReference
     private lateinit var language: String
-    private var timesClicked = 0
-    private lateinit var particles: List<ImageView>
-    private lateinit var size: List<Double>
-    private lateinit var xRight: List<Int>
-    private lateinit var yRight: List<Int>
-    private lateinit var xLeft: List<Int>
-    private lateinit var yLeft: List<Int>
-    private lateinit var xTop: List<Int>
-    private lateinit var yTop: List<Int>
-    private lateinit var xBottom: List<Int>
-    private lateinit var yBottom: List<Int>
-    private lateinit var paths: Array<Path>
     private lateinit var view: View
     private lateinit var params: ViewGroup.LayoutParams
+    private var timesClicked = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (firstTime) {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true)
+            firstTime = false
+        }
+        database = FirebaseDatabase.getInstance().reference
+        database.keepSynced(true)
 
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true)
-        database= FirebaseDatabase.getInstance().reference
         binding = DataBindingUtil.setContentView(
             this,
             R.layout.activity_onboarding
@@ -98,9 +89,12 @@ class OnboardingActivity : AppCompatActivity() {
         title1 = binding.title1
         description1 = binding.description1
         actionText = binding.firstAction
+        actionText.y = starOutter2.y - dpToPxF(150f)
         ballIndicator = binding.ballIndicator
+        ballIndicator.y = actionText.y + dpToPxF(5f)
         view = binding.onboarding
         params = view.layoutParams
+        addSkyParticles()
         setTexts()
         /*sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         firstTime = sharedPreferences.getBoolean("FirstTime", true)
@@ -116,7 +110,6 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     private fun fadeInAnimation() {
-        setParticles()
         val shake = AnimationUtils.loadAnimation(this, R.anim.shake_star_onboarding)
 
         val fadeIn1 = ObjectAnimator.ofFloat(welcomeText1, "alpha", 0f, 1.0f).apply {
@@ -125,20 +118,14 @@ class OnboardingActivity : AppCompatActivity() {
 
         val fadeIn2 = ObjectAnimator.ofFloat(welcomeText2, "alpha", 0f, 1.0f).apply {
             duration = 1250
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    startArrow.visibility = View.VISIBLE
-                    startText.visibility = View.VISIBLE
-                }
-            })
         }
 
         val fadeIn3 = ObjectAnimator.ofFloat(startText, "alpha", 0f, 1.0f).apply {
-            duration = 1000
+            duration = 1250
         }
 
         val fadeIn4 = ObjectAnimator.ofFloat(startArrow, "alpha", 0f, 1.0f).apply {
-            duration = 1000
+            duration = 1250
             doOnEnd {
                 turnedOffStarButton.setOnClickListener {
                     if (timesClicked == 0) {
@@ -184,7 +171,6 @@ class OnboardingActivity : AppCompatActivity() {
                                 duration = 1000
                                 startDelay = 2000
                                 doOnEnd {
-                                    addParticles()
                                     turnedOffStarButton.setOnLongClickListener {
                                         var xInner = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 2.5f)
                                         var yInner = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 2.5f)
@@ -211,7 +197,7 @@ class OnboardingActivity : AppCompatActivity() {
                                             duration = 1000
                                             startDelay = time
                                             doOnStart {
-                                                particlesExplosion()
+                                                starParticlesExplosion()
                                             }
                                         }
                                         val scaleMid = ObjectAnimator.ofPropertyValuesHolder(binding.starMid, xMid, yMid).apply {
@@ -483,13 +469,12 @@ class OnboardingActivity : AppCompatActivity() {
                                             )
                                             playTogether(scaleDownOutter, scaleDownOutter2)
                                             play(scaleDownOutter).after(scaleBright)
-                                            playTogether(
-                                                scaleDownInner,
-                                                scaleDownMid,
-                                                scaleDownMid2,
-                                                scaleDownBright
-                                            )
+
+                                            play(scaleDownMid).after(scaleDownOutter)
+                                            play(scaleDownMid2).after(scaleDownOutter)
+                                            play(scaleDownBright).after(scaleDownOutter)
                                             play(scaleDownInner).after(scaleDownOutter)
+
                                             start()
                                             binding.beamLightView.undo()
                                             binding.starLineView.undo()
@@ -537,30 +522,40 @@ class OnboardingActivity : AppCompatActivity() {
 
     }
 
-    private fun addParticles() {
-
-        particles = List(100) { ImageView(this) }
-        size = List(100) { Random.nextDouble(2.0, 5.0) }
-        xRight = List(25) { Random.nextInt(( onboarding.width/2 + (onboarding.width * 0.2)).toInt(), (onboarding.width/2 + (onboarding.width * 0.4)).toInt()) }
-        yRight = List(25) { ((onboarding.height/2 - (onboarding.height * 0.1)).toInt() until (onboarding.height/2 + (onboarding.height/2 * 0.25)).toInt() ).random() }
-        xLeft = List(25) { Random.nextInt((onboarding.width/2 - (onboarding.width* 0.4)).toInt(), (onboarding.width/2- (onboarding.width * 0.15)).toInt()) }
-        yLeft = List(25) { Random.nextInt((onboarding.height/2 - (onboarding.height*0.2)).toInt(), (onboarding.height/2+ (onboarding.height * 0.3)).toInt()) }
-        xTop = List(25) { Random.nextInt((onboarding.width/2 - (onboarding.width * 0.4)).toInt(), (onboarding.width/2 + (onboarding.width * 0.4)).toInt()) }
-        yTop = List(25) { Random.nextInt((onboarding.height/2 - (onboarding.height * 0.3)).toInt(), (onboarding.height/2 - (onboarding.height * 0.05)).toInt()) }
-        xBottom = List(25) { Random.nextInt((onboarding.width/2 - (onboarding.width * 0.4)).toInt(), (onboarding.width/2 + (onboarding.width * 0.4)).toInt()) }
-        yBottom = List(25) { Random.nextInt((onboarding.height/2 + (onboarding.height * 0.07)).toInt(), (onboarding.height/2 + (onboarding.height * 0.24)).toInt()) }
-        paths = Array(100) { Path() }
+    private fun addSkyParticles() {
+        val particles = List(100) { ImageView(this) }
+        val size = List(100) { Random.nextDouble(1.0, 5.0) }
+        val x = List(100) { Random.nextInt(0, resources.displayMetrics.widthPixels )}
+        val y = List(100) { Random.nextInt(0, resources.displayMetrics.heightPixels)}
         for (i in particles.indices) {
             particles[i].setImageResource(R.drawable.star_circle)
             particles[i].layoutParams = LinearLayout.LayoutParams(dpToPxD(size[i]), dpToPxD(size[i]))
-            particles[i].x = onboarding.width / 2f
-            particles[i].y = onboarding.height / 2f
+            particles[i].x = x[i].toFloat()
+            particles[i].y = y[i].toFloat()
             binding.onboarding.addView(particles[i])
         }
     }
 
-    private fun particlesExplosion() {
+    private fun starParticlesExplosion() {
+        val particles = List(100) { ImageView(this) }
+        val size = List(100) { Random.nextDouble(1.0, 5.0) }
+        var displayMetrics = resources.displayMetrics
+        val xRight = List(25) { Random.nextInt((displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.2)).toInt(), (displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.4)).toInt()) }
+        val yRight = List(25) { ((displayMetrics.heightPixels/2 - (displayMetrics.heightPixels * 0.1)).toInt() until (displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.25)).toInt() ).random() }
+        val xLeft = List(25) { Random.nextInt((displayMetrics.widthPixels/2 - (displayMetrics.widthPixels* 0.4)).toInt(), (displayMetrics.widthPixels/2- (displayMetrics.widthPixels * 0.15)).toInt()) }
+        val yLeft = List(25) { Random.nextInt((displayMetrics.heightPixels/2 - (displayMetrics.heightPixels*0.2)).toInt(), (displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.3)).toInt()) }
+        val xTop = List(25) { Random.nextInt((displayMetrics.widthPixels/2 - (displayMetrics.widthPixels * 0.4)).toInt(), (displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.4)).toInt()) }
+        val yTop = List(25) { Random.nextInt((displayMetrics.heightPixels/2 - (displayMetrics.heightPixels * 0.4)).toInt(), (displayMetrics.heightPixels/2 - (displayMetrics.heightPixels * 0.05)).toInt()) }
+        val xBottom = List(25) { Random.nextInt((displayMetrics.widthPixels/2 - (displayMetrics.widthPixels * 0.4)).toInt(), (displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.4)).toInt()) }
+        val yBottom = List(25) { Random.nextInt((displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.07)).toInt(), (displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.24)).toInt()) }
+        val paths = Array(100) { Path() }
+
         for (i in particles.indices) {
+            particles[i].setImageResource(R.drawable.star_circle)
+            particles[i].layoutParams = LinearLayout.LayoutParams(dpToPxD(size[i]), dpToPxD(size[i]))
+            particles[i].x = displayMetrics.widthPixels/2f
+            particles[i].y = displayMetrics.heightPixels/2f
+            onboarding.addView(particles[i])
             when {
                 i <= 24 -> {
                     val path = Path().apply {
@@ -633,10 +628,11 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     private fun setParticles() {
+        var displayMetrics = resources.displayMetrics
         val particle = List(100) { ImageView(this) }
         val size = List(100) { Random.nextDouble(1.0, 5.0) }
-        val x = List(100) { Random.nextInt(0, view.width )}
-        val y = List(100) { Random.nextInt(0, view.height)}
+        val x = List(100) { Random.nextInt(0, displayMetrics.widthPixels)}
+        val y = List(100) { Random.nextInt(0, displayMetrics.heightPixels)}
         for (i in particle.indices) {
             particle[i].setImageResource(R.drawable.star_circle)
             particle[i].layoutParams = LinearLayout.LayoutParams(dpToPxD(size[i]), dpToPxD(size[i]))
@@ -646,8 +642,6 @@ class OnboardingActivity : AppCompatActivity() {
         }
 
     }
-
-
 
     private fun setTexts() {
         language = if (Language().language == "pt") {

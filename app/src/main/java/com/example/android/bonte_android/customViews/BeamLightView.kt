@@ -13,6 +13,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.android.bonte_android.R
+import kotlinx.android.synthetic.main.activity_onboarding.*
 import kotlin.math.roundToInt
 
 @Suppress("DEPRECATION")
@@ -40,7 +41,7 @@ class BeamLightView @JvmOverloads constructor(
         path = Path().apply {
             moveTo(activity.windowManager.defaultDisplay.width.toFloat() + dpToPx(15), (activity.windowManager.defaultDisplay.height*0.645).toFloat()
             )
-            lineTo(activity.windowManager.defaultDisplay.width/2.toFloat()*0.99f, activity.windowManager.defaultDisplay.height*0.485.toFloat())
+            lineTo(activity.windowManager.defaultDisplay.width/2.toFloat()*0.99f, activity.starOutter1.y + activity.starOutter1.height/2)
         }
 
         val lineAnim = ValueAnimator.ofFloat(dpToPx(392).toFloat(), dpToPx(0).toFloat())

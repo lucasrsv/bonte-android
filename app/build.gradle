@@ -8,6 +8,8 @@ apply plugin: 'kotlin-kapt'
 
 apply plugin: 'com.google.gms.google-services'
 
+apply plugin: 'com.google.firebase.firebase-perf'
+
 android {
     compileSdkVersion 29
     dataBinding {
@@ -50,12 +52,6 @@ dependencies {
     kapt "com.android.databinding:compiler:3.5.3"
     implementation 'com.google.firebase:firebase-analytics:17.2.2'
     implementation 'com.google.firebase:firebase-database:19.1.0'
-    implementation 'com.google.firebase:firebase-ml-natural-language:22.0.0'
-    implementation 'com.google.firebase:firebase-ml-natural-language-language-id-model:20.0.7'
-    implementation 'com.jaredrummler:twodscrollview:1.0.1'
-    // Navigation
-    implementation "android.arch.navigation:navigation-fragment-ktx:$navigation_version"
-    implementation "android.arch.navigation:navigation-ui-ktx:$navigation_version"
-    implementation files('libs/android-zoom-view.jar')
+    implementation 'com.google.firebase:firebase-perf:18.0.1'
     implementation 'com.otaliastudios:zoomlayout:1.7.1'
 }

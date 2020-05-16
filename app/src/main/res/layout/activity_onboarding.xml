@@ -139,7 +139,7 @@
             android:layout_width="68dp"
             android:layout_height="49dp"
             android:rotation="-90"
-            android:visibility="invisible"
+            android:alpha="0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -155,7 +155,6 @@
             android:fontFamily="@font/montserrat_semibold"
             android:textColor="#FFFFFF"
             android:textSize="26sp"
-            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -209,7 +208,6 @@
             app:layout_constraintHeight_percent="0.112"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.237"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent="0.5" />
 

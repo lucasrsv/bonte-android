@@ -42,7 +42,7 @@ class StarLineView @JvmOverloads constructor(
             )
             lineTo(
                 activity.windowManager.defaultDisplay.width.toFloat() / 2,
-                (activity.windowManager.defaultDisplay.height / 2 - dpToPx(115).toFloat())
+                (resources.displayMetrics.heightPixels / 2 - dpToPx(115).toFloat())
             )
         }
 
@@ -67,6 +67,7 @@ class StarLineView @JvmOverloads constructor(
         lineAnim.duration = 500
         lineAnim.start()
     }
+
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
