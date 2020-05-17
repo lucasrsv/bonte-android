@@ -1,17 +1,12 @@
 package com.example.android.bonte_android.sky
 
-import android.app.Activity
-import android.graphics.Path
-import android.util.Log
-import android.view.View
-import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.ImageView
-import com.example.android.bonte_android.R
-import com.example.android.bonte_android.customViews.*
-
-data class Constellation(val id: Int, val size: Int, val name: String, val description: String, val stars: List<Star>, val numPaths: Int)  {
-
+data class Constellation(
+    val id: Int,
+    val size: Int,
+    val name: String,
+    val description: String,
+    val stars: List<Star>,
+    val numPaths: Int)  {
 
     fun setStarsNeighbors() {
         when (id) {

@@ -29,6 +29,7 @@ import com.example.android.bonte_android.*
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.databinding.ActivityOnboardingBinding
 import com.example.android.bonte_android.sky.SkyActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_onboarding.*
 import kotlinx.android.synthetic.main.activity_sky.*
@@ -42,11 +43,6 @@ import kotlin.random.Random
 class OnboardingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityOnboardingBinding
-    private lateinit var sharedPreferences: SharedPreferences
-    private var firstTime: Boolean = true
-    private lateinit var mScaleGestureDetector:ScaleGestureDetector
-    private lateinit var mGestureDetector: GestureDetectorCompat
-    private lateinit var fadeInAnim: Animation
     private lateinit var startArrow: ImageView
     private lateinit var startText: TextView
     private lateinit var welcomeText1: TextView
@@ -54,8 +50,6 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var title1: TextView
     private lateinit var description1: TextView
     private lateinit var actionText: TextView
-    private lateinit var title2: TextView
-    private lateinit var description2: TextView
     private lateinit var turnedOffStarButton: View
     private lateinit var starOutter2: View
     private lateinit var ballIndicator: ImageView
@@ -65,15 +59,20 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var params: ViewGroup.LayoutParams
     private var timesClicked = 0
 
+    //Check firebase login
+
+    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var authStateListener: FirebaseAuth.AuthStateListener
+
+    //
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (firstTime) {
-            FirebaseDatabase.getInstance().setPersistenceEnabled(true)
-            firstTime = false
-        }
         database = FirebaseDatabase.getInstance().reference
         database.keepSynced(true)
+        firebaseAuth = FirebaseAuth.getInstance()
+        checkLogin()
 
         binding = DataBindingUtil.setContentView(
             this,
@@ -96,17 +95,27 @@ class OnboardingActivity : AppCompatActivity() {
         params = view.layoutParams
         addSkyParticles()
         setTexts()
-        /*sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        firstTime = sharedPreferences.getBoolean("FirstTime", true)
-        if (!firstTime) {} else {
-            setContentView(R.layout.activity_onboarding)
-            var editor: SharedPreferences.Editor = sharedPreferences.edit()
-            editor.putBoolean("FirstTIme", false)
-            editor.commit()
-        }*/
+    }
 
+    override fun onStart() {
+        super.onStart()
+        firebaseAuth.addAuthStateListener(authStateListener)
+    }
 
+    override fun onPause() {
+        super.onPause()
+        firebaseAuth.removeAuthStateListener(authStateListener)
+    }
 
+    private fun checkLogin() {
+
+        authStateListener =  FirebaseAuth.AuthStateListener {
+            var firebaseUser = firebaseAuth.currentUser
+            if (firebaseUser != null) {
+                val intent = Intent(baseContext, SkyActivity::class.java)
+                startActivity(intent)
+            }
+        }
     }
 
     private fun fadeInAnimation() {
@@ -398,7 +407,7 @@ class OnboardingActivity : AppCompatActivity() {
                                                                 doOnEnd {
                                                                     buttonSky.isClickable = true
                                                                     buttonSky.setOnClickListener {
-                                                                        val intent = Intent(baseContext, SkyActivity::class.java)
+                                                                        val intent = Intent(baseContext, LoginActivity::class.java)
                                                                         startActivity(intent)
                                                                     }
                                                                 }
@@ -659,7 +668,7 @@ class OnboardingActivity : AppCompatActivity() {
                     welcomeText1.text = dataSnapshot.child("welcomeTitle").value as String
                     welcomeText2.text = dataSnapshot.child("welcomeDescription").value as String
                     startText.text = dataSnapshot.child("startText").value as String
-                    actionText.text = dataSnapshot.child("starAction").value as String
+                     actionText.text = dataSnapshot.child("starAction").value as String
                     title1.text = dataSnapshot.child("title").value as String
                     description1.text = dataSnapshot.child("description").value as String
                     litStarTitle.text = dataSnapshot.child("title2").value as String

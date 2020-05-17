@@ -5,7 +5,7 @@ import android.graphics.Point
 import android.view.View
 import android.widget.ImageView
 
-data class Star(val id: Int, var done: Boolean, var intermediate: Boolean, val action: String, var timesCompleted: Int, var position: Point, var starViews: MutableList<ImageView>, var paths: MutableList<Path>) {
+data class Star(val id: Int, var done: Boolean, var intermediate: Boolean, val action: String, var timesCompleted: Long, var position: Point, var starViews: MutableList<ImageView>, var paths: MutableList<Path>) {
 
     private var neighbor = mutableListOf<Star>()
 
