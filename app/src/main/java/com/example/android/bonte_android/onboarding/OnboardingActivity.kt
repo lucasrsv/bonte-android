@@ -68,33 +68,44 @@ class OnboardingActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.enterTransition = null
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
-        database = FirebaseDatabase.getInstance().reference
-        database.keepSynced(true)
         firebaseAuth = FirebaseAuth.getInstance()
-        checkLogin()
+        if (checkLogin()) {
+            val intent = Intent(baseContext, SkyActivity::class.java)
+            startActivity(intent)
+            window.exitTransition = null
+            overridePendingTransition(0, 0);
+            finish()
+        } else {
+            database = FirebaseDatabase.getInstance().reference
+            database.keepSynced(true)
+            firebaseAuth.addAuthStateListener(authStateListener)
 
-        binding = DataBindingUtil.setContentView(
-            this,
-            R.layout.activity_onboarding
-        )
-        changeStatusBarColor()
-        welcomeText1 = binding.welcomeText
-        welcomeText2 = binding.welcomeText2
-        startArrow = binding.arrowUp
-        startText = binding.startText
-        turnedOffStarButton = binding.starOutter1
-        starOutter2 = binding.starOutter2
-        title1 = binding.title1
-        description1 = binding.description1
-        actionText = binding.firstAction
-        actionText.y = starOutter2.y - dpToPxF(150f)
-        ballIndicator = binding.ballIndicator
-        ballIndicator.y = actionText.y + dpToPxF(5f)
-        view = binding.onboarding
-        params = view.layoutParams
-        addSkyParticles()
-        setTexts()
+
+            binding = DataBindingUtil.setContentView(
+                this,
+                R.layout.activity_onboarding
+            )
+            changeStatusBarColor()
+            welcomeText1 = binding.welcomeText
+            welcomeText2 = binding.welcomeText2
+            startArrow = binding.arrowUp
+            startText = binding.startText
+            turnedOffStarButton = binding.starOutter1
+            starOutter2 = binding.starOutter2
+            title1 = binding.title1
+            description1 = binding.description1
+            actionText = binding.firstAction
+            actionText.y = starOutter2.y - dpToPxF(150f)
+            ballIndicator = binding.ballIndicator
+            ballIndicator.y = actionText.y + dpToPxF(5f)
+            view = binding.onboarding
+            params = view.layoutParams
+            addSkyParticles()
+            setTexts()
+        }
     }
 
     override fun onStart() {
@@ -107,14 +118,19 @@ class OnboardingActivity : AppCompatActivity() {
         firebaseAuth.removeAuthStateListener(authStateListener)
     }
 
-    private fun checkLogin() {
-
+    private fun checkLogin(): Boolean {
+        var logged = true
         authStateListener =  FirebaseAuth.AuthStateListener {
             var firebaseUser = firebaseAuth.currentUser
             if (firebaseUser != null) {
-                val intent = Intent(baseContext, SkyActivity::class.java)
-                startActivity(intent)
+                logged = true
+
             }
+        }
+        if (logged) {
+            return true
+        } else {
+            return false
         }
     }
 
@@ -409,6 +425,7 @@ class OnboardingActivity : AppCompatActivity() {
                                                                     buttonSky.setOnClickListener {
                                                                         val intent = Intent(baseContext, LoginActivity::class.java)
                                                                         startActivity(intent)
+                                                                        finish()
                                                                     }
                                                                 }
                                                             }
@@ -668,7 +685,7 @@ class OnboardingActivity : AppCompatActivity() {
                     welcomeText1.text = dataSnapshot.child("welcomeTitle").value as String
                     welcomeText2.text = dataSnapshot.child("welcomeDescription").value as String
                     startText.text = dataSnapshot.child("startText").value as String
-                     actionText.text = dataSnapshot.child("starAction").value as String
+                    actionText.text = dataSnapshot.child("starAction").value as String
                     title1.text = dataSnapshot.child("title").value as String
                     description1.text = dataSnapshot.child("description").value as String
                     litStarTitle.text = dataSnapshot.child("title2").value as String

@@ -75,6 +75,7 @@ class SkyActivity : AppCompatActivity() {
     private var rotateAnimations = Array(26) { ObjectAnimator() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(
@@ -1298,24 +1299,6 @@ class SkyActivity : AppCompatActivity() {
                 starOffOutter2.x = constellations[i].stars[j].position.x.toFloat()
                 starOffOutter2.y = constellations[i].stars[j].position.y.toFloat()
                 starOffOutter2.rotation = -11f
-
-                val starOnInner = ImageView(this)
-                starOnInner.setImageResource(R.drawable.star_on_inner)
-                starOnInner.layoutParams = starParams
-                starOnInner.x = constellations[i].stars[j].position.x.toFloat()
-                starOnInner.y = constellations[i].stars[j].position.y.toFloat()
-
-                val starOnMid = ImageView(this)
-                starOnMid.setImageResource(R.drawable.star_circle)
-                starOnMid.layoutParams = starParams
-                starOnMid.x = constellations[i].stars[j].position.x.toFloat()
-                starOnMid.x = constellations[i].stars[j].position.y.toFloat()
-
-                val starOnOutter = ImageView(this)
-                starOnOutter.setImageResource(R.drawable.star_on_outter)
-                starOnOutter.layoutParams = starParams
-                starOnOutter.x = constellations[i].stars[j].position.x.toFloat()
-                starOnOutter.y = constellations[i].stars[j].position.y.toFloat()
 
                 val starOnBright = ImageView(this)
                 starOnBright.setImageResource(R.drawable.star_on_bright)

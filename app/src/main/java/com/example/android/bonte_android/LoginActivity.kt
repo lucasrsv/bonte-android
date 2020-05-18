@@ -34,6 +34,8 @@ class LoginActivity : AppCompatActivity() {
     private val RC_SIGN_IN = 9001
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.enterTransition = null
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(
             this,
@@ -58,6 +60,7 @@ class LoginActivity : AppCompatActivity() {
         addSkyParticles()
 
     }
+
 
     private fun signIn() {
         val signInIntent: Intent = googleSignInClient.signInIntent
@@ -92,6 +95,9 @@ class LoginActivity : AppCompatActivity() {
                     }
                     val intent = Intent(baseContext, SkyActivity::class.java)
                     startActivity(intent)
+                    window.exitTransition = null
+                    overridePendingTransition(0, 0);
+                    finish()
                 } else {
                     Log.w("Google Login", "signInWithCredential:failure", task.exception)
                 }
