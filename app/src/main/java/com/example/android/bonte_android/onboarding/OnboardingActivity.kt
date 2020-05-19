@@ -10,6 +10,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Bundle
 import android.os.Handler
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
 import android.view.animation.Animation
@@ -58,6 +59,7 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var view: View
     private lateinit var params: ViewGroup.LayoutParams
     private var timesClicked = 0
+    private var firstTime = true
 
     //Check firebase login
 
@@ -66,46 +68,25 @@ class OnboardingActivity : AppCompatActivity() {
 
     //
 
+    private lateinit var particles: List<ImageView>
+    private lateinit var  size: List<Double>
+    private lateinit var  displayMetrics: DisplayMetrics
+    private lateinit var  xRight: List<Int>
+    private lateinit var  yRight:  List<Int>
+    private lateinit var  xLeft:  List<Int>
+    private lateinit var  yLeft:  List<Int>
+    private lateinit var  xTop:  List<Int>
+    private lateinit var  yTop:  List<Int>
+    private lateinit var  xBottom:  List<Int>
+    private lateinit var  yBottom:  List<Int>
+    private lateinit var  paths: Array<Path>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.enterTransition = null
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         firebaseAuth = FirebaseAuth.getInstance()
-        if (checkLogin()) {
-            val intent = Intent(baseContext, SkyActivity::class.java)
-            startActivity(intent)
-            window.exitTransition = null
-            overridePendingTransition(0, 0);
-            finish()
-        } else {
-            database = FirebaseDatabase.getInstance().reference
-            database.keepSynced(true)
-            firebaseAuth.addAuthStateListener(authStateListener)
-
-
-            binding = DataBindingUtil.setContentView(
-                this,
-                R.layout.activity_onboarding
-            )
-            changeStatusBarColor()
-            welcomeText1 = binding.welcomeText
-            welcomeText2 = binding.welcomeText2
-            startArrow = binding.arrowUp
-            startText = binding.startText
-            turnedOffStarButton = binding.starOutter1
-            starOutter2 = binding.starOutter2
-            title1 = binding.title1
-            description1 = binding.description1
-            actionText = binding.firstAction
-            actionText.y = starOutter2.y - dpToPxF(150f)
-            ballIndicator = binding.ballIndicator
-            ballIndicator.y = actionText.y + dpToPxF(5f)
-            view = binding.onboarding
-            params = view.layoutParams
-            addSkyParticles()
-            setTexts()
-        }
+        checkLogin()
     }
 
     override fun onStart() {
@@ -118,19 +99,51 @@ class OnboardingActivity : AppCompatActivity() {
         firebaseAuth.removeAuthStateListener(authStateListener)
     }
 
-    private fun checkLogin(): Boolean {
-        var logged = true
+    private fun loadOnboarding() {
+        database = FirebaseDatabase.getInstance().reference
+        database.keepSynced(true)
+        firebaseAuth.addAuthStateListener(authStateListener)
+
+        binding = DataBindingUtil.setContentView(
+            this,
+            R.layout.activity_onboarding
+        )
+
+        changeStatusBarColor()
+        welcomeText1 = binding.welcomeText
+        welcomeText2 = binding.welcomeText2
+        startArrow = binding.arrowUp
+        startText = binding.startText
+        turnedOffStarButton = binding.starOutter1
+        starOutter2 = binding.starOutter2
+        title1 = binding.title1
+        description1 = binding.description1
+        actionText = binding.firstAction
+        actionText.y = starOutter2.y - dpToPxF(150f)
+        ballIndicator = binding.ballIndicator
+        ballIndicator.y = actionText.y + dpToPxF(5f)
+        view = binding.onboarding
+        params = view.layoutParams
+        addParticlesExplosion()
+        addSkyParticles()
+        setTexts()
+    }
+
+    private fun checkLogin() {
         authStateListener =  FirebaseAuth.AuthStateListener {
             var firebaseUser = firebaseAuth.currentUser
             if (firebaseUser != null) {
-                logged = true
-
+                val intent = Intent(baseContext, SkyActivity::class.java)
+                startActivity(intent)
+                window.exitTransition = null
+                overridePendingTransition(0, 0);
+                finish()
+            } else {
+                if (firstTime) {
+                    loadOnboarding()
+                    firstTime = false
+                }
             }
-        }
-        if (logged) {
-            return true
-        } else {
-            return false
         }
     }
 
@@ -562,26 +575,32 @@ class OnboardingActivity : AppCompatActivity() {
         }
     }
 
-    private fun starParticlesExplosion() {
-        val particles = List(100) { ImageView(this) }
-        val size = List(100) { Random.nextDouble(1.0, 5.0) }
-        var displayMetrics = resources.displayMetrics
-        val xRight = List(25) { Random.nextInt((displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.2)).toInt(), (displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.4)).toInt()) }
-        val yRight = List(25) { ((displayMetrics.heightPixels/2 - (displayMetrics.heightPixels * 0.1)).toInt() until (displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.25)).toInt() ).random() }
-        val xLeft = List(25) { Random.nextInt((displayMetrics.widthPixels/2 - (displayMetrics.widthPixels* 0.4)).toInt(), (displayMetrics.widthPixels/2- (displayMetrics.widthPixels * 0.15)).toInt()) }
-        val yLeft = List(25) { Random.nextInt((displayMetrics.heightPixels/2 - (displayMetrics.heightPixels*0.2)).toInt(), (displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.3)).toInt()) }
-        val xTop = List(25) { Random.nextInt((displayMetrics.widthPixels/2 - (displayMetrics.widthPixels * 0.4)).toInt(), (displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.4)).toInt()) }
-        val yTop = List(25) { Random.nextInt((displayMetrics.heightPixels/2 - (displayMetrics.heightPixels * 0.4)).toInt(), (displayMetrics.heightPixels/2 - (displayMetrics.heightPixels * 0.05)).toInt()) }
-        val xBottom = List(25) { Random.nextInt((displayMetrics.widthPixels/2 - (displayMetrics.widthPixels * 0.4)).toInt(), (displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.4)).toInt()) }
-        val yBottom = List(25) { Random.nextInt((displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.07)).toInt(), (displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.24)).toInt()) }
-        val paths = Array(100) { Path() }
+    private fun addParticlesExplosion() {
+        particles = List(100) { ImageView(this) }
+        size = List(100) { Random.nextDouble(1.0, 5.0) }
+        displayMetrics = resources.displayMetrics
+        xRight = List(25) { Random.nextInt((displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.2)).toInt(), (displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.4)).toInt()) }
+        yRight = List(25) { ((displayMetrics.heightPixels/2 - (displayMetrics.heightPixels * 0.1)).toInt() until (displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.25)).toInt() ).random() }
+        xLeft = List(25) { Random.nextInt((displayMetrics.widthPixels/2 - (displayMetrics.widthPixels* 0.4)).toInt(), (displayMetrics.widthPixels/2- (displayMetrics.widthPixels * 0.15)).toInt()) }
+        yLeft = List(25) { Random.nextInt((displayMetrics.heightPixels/2 - (displayMetrics.heightPixels*0.2)).toInt(), (displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.3)).toInt()) }
+        xTop = List(25) { Random.nextInt((displayMetrics.widthPixels/2 - (displayMetrics.widthPixels * 0.4)).toInt(), (displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.4)).toInt()) }
+        yTop = List(25) { Random.nextInt((displayMetrics.heightPixels/2 - (displayMetrics.heightPixels * 0.4)).toInt(), (displayMetrics.heightPixels/2 - (displayMetrics.heightPixels * 0.05)).toInt()) }
+        xBottom = List(25) { Random.nextInt((displayMetrics.widthPixels/2 - (displayMetrics.widthPixels * 0.4)).toInt(), (displayMetrics.widthPixels/2 + (displayMetrics.widthPixels * 0.4)).toInt()) }
+        yBottom = List(25) { Random.nextInt((displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.07)).toInt(), (displayMetrics.heightPixels/2 + (displayMetrics.heightPixels * 0.24)).toInt()) }
+        paths = Array(100) { Path() }
 
         for (i in particles.indices) {
             particles[i].setImageResource(R.drawable.star_circle)
             particles[i].layoutParams = LinearLayout.LayoutParams(dpToPxD(size[i]), dpToPxD(size[i]))
-            particles[i].x = displayMetrics.widthPixels/2f
-            particles[i].y = displayMetrics.heightPixels/2f
+            particles[i].x = displayMetrics.widthPixels / 2f
+            particles[i].y = displayMetrics.heightPixels / 2f
             onboarding.addView(particles[i])
+        }
+
+    }
+
+    private fun starParticlesExplosion() {
+        for (i in particles.indices) {
             when {
                 i <= 24 -> {
                     val path = Path().apply {

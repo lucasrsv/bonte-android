@@ -42,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
             R.layout.activity_login
         )
         signInButton = binding.signInButton
-
+        signInButton.setSize(SignInButton.SIZE_WIDE)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
