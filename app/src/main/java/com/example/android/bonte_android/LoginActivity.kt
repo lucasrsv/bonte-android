@@ -51,14 +51,13 @@ class LoginActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
+
         signInButton.setOnClickListener {
             signIn()
         }
 
-
         changeStatusBarColor()
         addSkyParticles()
-
     }
 
 

@@ -5,11 +5,19 @@ import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Path
 import android.graphics.Point
+import android.graphics.PorterDuff
+import android.media.Image
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.util.Log
 import android.view.MotionEvent
@@ -27,16 +35,27 @@ import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnPause
 import androidx.core.animation.doOnRepeat
 import androidx.core.animation.doOnStart
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.example.android.bonte_android.*
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.customViews.SkyStarLineView
 import com.example.android.bonte_android.customViews.StarPathView
 import com.example.android.bonte_android.databinding.ActivitySkyBinding
+import com.example.android.bonte_android.onboarding.OnboardingActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.tasks.OnCanceledListener
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.activity_onboarding.*
 import kotlinx.android.synthetic.main.activity_sky.*
+import java.io.File
 import java.util.*
+import java.util.jar.Manifest
 import kotlin.random.Random
 
 
@@ -62,7 +81,12 @@ class SkyActivity : AppCompatActivity() {
     private lateinit var takeYourTimeText: TextView
     private lateinit var actionDot: ImageView
     private lateinit var menuButton: ImageView
+    private lateinit var menuSymbol: ImageView
+    private lateinit var screenshotButton: ImageView
+    private lateinit var screenshotSymbol: ImageView
+    private lateinit var logoutButton: ImageView
     private lateinit var language: String
+    private lateinit var googleSignInClient: GoogleSignInClient
     private var database: DatabaseReference = FirebaseDatabase.getInstance().reference
     private val firebaseUser = FirebaseAuth.getInstance().currentUser
     private var numClicks = 0
@@ -75,10 +99,19 @@ class SkyActivity : AppCompatActivity() {
     private var canAddPath = true
     private var boolForRotateShow = true
     private var rotateAnimations = Array(26) { ObjectAnimator() }
+    private var scaleStar = 0
+    private var scale = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
+
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         binding = DataBindingUtil.setContentView(
             this,
@@ -105,7 +138,8 @@ class SkyActivity : AppCompatActivity() {
 
         scaleListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             override fun onScale(detector: ScaleGestureDetector?): Boolean {
-                if (canZoomOut) {
+
+                if (isStarClicked && canZoomOut) {
                     canZoomOut = false
                     numClicks = 0
                     val pvhX: PropertyValuesHolder
@@ -242,7 +276,6 @@ class SkyActivity : AppCompatActivity() {
                                 scaleOutter1,
                                 scaleOutter2,
                                 scaleBright
-
                                 //scaleLine
                             )
                             rotateAnimations[index].start()
@@ -367,11 +400,7 @@ class SkyActivity : AppCompatActivity() {
         scaleDetector = ScaleGestureDetector(this, scaleListener)
 
         skyZoomLayout.setOnTouchListener { _, event ->
-            if (isStarClicked) {
                 scaleDetector.onTouchEvent(event)
-
-            }
-
             false
         }
 
@@ -386,8 +415,8 @@ class SkyActivity : AppCompatActivity() {
         longPressListener()
         setParticles()
         addMenu()
-        setTexts("0", "0", "takeYourTime")
-        setTexts("0", "0", "doStarAgainText")
+        setTexts("0", "0", "takeYourTime", 0, 0)
+        setTexts("0", "0", "doStarAgainText", 0, 0)
 
     }
 
@@ -428,18 +457,21 @@ class SkyActivity : AppCompatActivity() {
                                     var pvhY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 2f)
                                     var pvhBrightX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.2f, 3.0f)
                                     var pvhBrightY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.2f, 3.0f)
+                                    scaleStar = 2
 
                                     if (constellations[i].stars[j].done && !constellations[i].stars[j].intermediate) {
                                         pvhX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.2f, 3.0f)
                                         pvhY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.2f, 3.0f)
                                         pvhBrightX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.4f, 4.0f)
                                         pvhBrightY= PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.4f, 4.0f)
+                                        scaleStar = 3
 
                                     } else if (constellations[i].stars[j].done && constellations[i].stars[j].intermediate) {
                                         pvhX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.0f, 3.0f)
                                         pvhY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.0f, 3.0f)
                                         pvhBrightX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.2f, 4.0f)
                                         pvhBrightY= PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.2f, 4.0f)
+                                        scaleStar = 3
                                     }
 
                                     val fadeText = ObjectAnimator.ofFloat(actionText, "alpha", 0f, 1f).apply {
@@ -447,6 +479,11 @@ class SkyActivity : AppCompatActivity() {
                                         startDelay = 2000
                                         doOnStart {
                                             actionText.visibility = View.VISIBLE
+                                            actionText.x = constellations[i].stars[j].position.x - dpToPx(26).toFloat()
+                                            val height = (-skyZoomLayout.engine.panY + view.height / skyZoomLayout.zoom) - (-skyZoomLayout.panY)
+                                            actionText.y = -skyZoomLayout.engine.panY + height/3f - actionText.height
+                                            actionDot.x = constellations[i].stars[j].position.x.toFloat() + dpToPxF(11.3f)
+                                            actionDot.y = actionText.y - dpToPxF(5f)
                                         }
                                         doOnEnd {
                                             canZoomOut = true
@@ -532,11 +569,6 @@ class SkyActivity : AppCompatActivity() {
                                     rotateStar.pause()
 
 
-                                    actionText.x = constellations[i].stars[j].position.x - dpToPx(26).toFloat()
-                                    actionText.y = constellations[i].stars[j].position.y - dpToPx(70).toFloat()
-                                    actionDot.x = constellations[i].stars[j].position.x.toFloat() + dpToPxF(11.3f)
-                                    actionDot.y = constellations[i].stars[j].position.y.toFloat() - dpToPx(75)
-
                                     val constellation = if (i == 0) {
                                         "volans"
                                     } else if (i == 1) {
@@ -549,11 +581,14 @@ class SkyActivity : AppCompatActivity() {
                                         "sagitta"
                                     }
                                     val star = "star" + (j+1).toString()
-                                        setTexts(constellation, star, "actionText")
+                                    setTexts(constellation, star, "actionText", i, j)
+
+                                    scaleStar--
 
                                     if (!constellations[i].stars[j].done && !constellations[i].stars[j].intermediate) {
                                         starLineView.setValues(constellations[i].stars[j].position.x, constellations[i].stars[j].position.y)
                                         sky.addView(starLineView)
+                                        Log.d("starlineview", starLineView.width.toString())
                                         AnimatorSet().apply {
                                             playTogether(scaleButton, scaleInner, scaleMid, scaleOutter1, scaleOutter2, scaleOutter3, fadeText, fadeDot)
                                             start()
@@ -1371,7 +1406,7 @@ class SkyActivity : AppCompatActivity() {
         binding.sky.addView(pathCustomView)
     }
 
-    private fun setTexts(constellation: String, star: String, whichText: String) {
+    private fun setTexts(constellation: String, star: String, whichText: String, constId: Int, starId: Int) {
         language = if (Language().language == "pt") {
             "pt"
         } else {
@@ -1391,13 +1426,6 @@ class SkyActivity : AppCompatActivity() {
 
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             actionText.text = dataSnapshot.child(star).value as String
-                            if ((dataSnapshot.child(star).value as String).length <= 35) {
-                                actionText.y = actionText.y + dpToPx(10)
-                                actionDot.y = actionDot.y + dpToPx(10)
-                            } else if ((dataSnapshot.child(star).value as String).length >= 60) {
-                                actionText.y = actionText.y - dpToPx(12)
-                                actionDot.y = actionDot.y - dpToPx(10)
-                            }
                         }
                     }
                 )
@@ -1908,20 +1936,240 @@ class SkyActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun addMenu() {
         menuButton = ImageView(this)
         menuButton.setImageResource(R.drawable.button_menu)
-        menuButton.alpha = 0.5f
+        menuButton.alpha = 0.15f
         menuButton.layoutParams = LinearLayout.LayoutParams(dpToPx(100), dpToPx(100))
         menuButton.x = view.layoutParams.width - dpToPxF(120f)
         menuButton.y = view.layoutParams.height - dpToPxF(130f)
         menuButton.isClickable = true
-        sky.addView(menuButton)
 
-        menuButton.setOnClickListener {
-            Log.d("shot", "scren")
-            val b = Screenshot().takescreenshotOfRootView(sky)
-            Screenshot().storeScreenshot(b)
+        menuSymbol = ImageView(this)
+
+
+        screenshotButton = ImageView(this)
+        screenshotButton.setImageResource(R.drawable.button_menu)
+        screenshotButton.layoutParams = LinearLayout.LayoutParams(dpToPx(100), dpToPx(100))
+        screenshotButton.x = view.layoutParams.width - dpToPxF(120f)
+        screenshotButton.y = view.layoutParams.height - dpToPxF(260f)
+        screenshotButton.visibility = View.INVISIBLE
+        screenshotButton.isClickable = true
+
+        screenshotSymbol = ImageView(this)
+        screenshotSymbol.setImageResource(R.drawable.share_sky)
+        screenshotSymbol.layoutParams = LinearLayout.LayoutParams(dpToPx(50), dpToPx(50))
+        screenshotSymbol.x = screenshotButton.x + screenshotButton.layoutParams.width/4
+        screenshotSymbol.y = screenshotButton.y + screenshotButton.layoutParams.height/5f
+        screenshotSymbol.visibility = View.INVISIBLE
+
+        logoutButton = ImageView(this)
+        logoutButton.setImageResource(R.drawable.button_menu)
+        logoutButton.layoutParams = LinearLayout.LayoutParams(dpToPx(100), dpToPx(100))
+        logoutButton.x = view.layoutParams.width - dpToPxF(120f)
+        logoutButton.y = view.layoutParams.height - dpToPxF(390f)
+        logoutButton.visibility = View.INVISIBLE
+        logoutButton.isClickable = true
+
+        sky.addView(menuButton)
+        sky.addView(screenshotButton)
+        sky.addView(screenshotSymbol)
+        sky.addView(logoutButton)
+
+        menuButton.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    val button = v as ImageView
+                    button.drawable.setColorFilter(0x77000000, PorterDuff.Mode.SRC_ATOP)
+                    button.invalidate()
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    val button = v as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+                    if (screenshotButton.visibility == View.INVISIBLE) {
+                        val fadeScreenshotButton = ObjectAnimator.ofFloat(screenshotButton, "alpha", 0f, 0.15f).apply {
+                            duration = 250
+                            doOnStart {
+                                screenshotButton.visibility = View.VISIBLE
+                            }
+                        }
+
+                        val fadeScreenshotSymbol = ObjectAnimator.ofFloat(screenshotSymbol, "alpha", 0f, 1f).apply {
+                            duration = 250
+                            doOnStart {
+                                screenshotSymbol.visibility = View.VISIBLE
+                            }
+                        }
+                        val fadeLogoutButton= ObjectAnimator.ofFloat(logoutButton, "alpha", 0f, 0.15f).apply {
+                            duration = 250
+                            doOnStart {
+                                logoutButton.visibility = View.VISIBLE
+                            }
+                        }
+
+                        AnimatorSet().apply {
+                            playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeLogoutButton)
+                            start()
+                        }
+
+                    } else {
+                        val fadeScreenshotButton= ObjectAnimator.ofFloat(screenshotButton, "alpha", 0.15f, 0f).apply {
+                            duration = 250
+                            doOnEnd {
+                                screenshotButton.visibility = View.INVISIBLE
+                            }
+                        }
+
+                        val fadeScreenshotSymbol = ObjectAnimator.ofFloat(screenshotSymbol, "alpha", 1f, 0f).apply {
+                            duration = 250
+                            doOnEnd {
+                                screenshotSymbol.visibility = View.INVISIBLE
+                            }
+                        }
+
+                        val fadeLogoutButton= ObjectAnimator.ofFloat(logoutButton, "alpha", 0.15f, 0f).apply {
+                            duration = 250
+                            doOnEnd {
+                                logoutButton.visibility = View.INVISIBLE
+                            }
+                        }
+
+                        AnimatorSet().apply {
+                            playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeLogoutButton)
+                            start()
+                        }
+                    }
+                }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    val button = v as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+                }
+            }
+            false
         }
+
+        screenshotButton.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    val button = v as ImageView
+                    button.drawable.setColorFilter(0x77000000, PorterDuff.Mode.SRC_ATOP)
+                    button.invalidate()
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    val button = v as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+                    val fadeScreenshotButton = ObjectAnimator.ofFloat(screenshotButton, "alpha", 0.15f, 0f).apply {
+                        duration = 250
+                        doOnEnd {
+                            if (isStoragePermissionGranted()) {
+                                screenshotButton.visibility = View.INVISIBLE
+                                val b = Screenshot().takescreenshotOfRootView(sky)
+                                Screenshot().storeScreenshot(b, applicationContext)
+                            }
+                        }
+                    }
+
+                    val fadeScreenshotSymbol = ObjectAnimator.ofFloat(screenshotSymbol, "alpha", 1f, 0f).apply {
+                        duration = 250
+                        doOnEnd {
+                            screenshotSymbol.visibility = View.INVISIBLE
+                        }
+                    }
+
+                    val fadeLogoutButton = ObjectAnimator.ofFloat(logoutButton, "alpha", 0.15f, 0f).apply {
+                        duration = 250
+                        doOnEnd {
+                            logoutButton.visibility = View.INVISIBLE
+                        }
+                    }
+
+                    AnimatorSet().apply {
+                        playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeLogoutButton)
+                        start()
+                    }
+                }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    val button = v as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+                }
+            }
+            false
+        }
+
+        logoutButton.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    val button = v as ImageView
+                    button.drawable.setColorFilter(0x77000000, PorterDuff.Mode.SRC_ATOP)
+                    button.invalidate()
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    val button = v as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+
+                    googleSignInClient.revokeAccess()
+
+                    FirebaseAuth.getInstance().signOut()
+
+                    val intent = Intent(baseContext, OnboardingActivity::class.java)
+                    startActivity(intent)
+                    finish()
+
+                }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    val button = v as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+                }
+            }
+            false
+        }
+
     }
+
+    private fun isStoragePermissionGranted(): Boolean {
+        return if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                    val folder =  File(Environment.getExternalStorageDirectory().toString(), "bontê")
+                    if (!folder.exists()) {
+                        folder.mkdir()
+                        if (folder.exists()) {
+                            Log.d("aff vei", "yuke")
+                        }
+                    }
+                }
+                Log.v("TAG","Permission is granted")
+                true
+            } else {
+
+                Log.v("TAG", "Permission is revoked")
+                ActivityCompat.requestPermissions(this, Array(2){ android.Manifest.permission.WRITE_EXTERNAL_STORAGE }, 1)
+                false
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("TAG","Permission is granted");
+            val folder =  File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "bontê")
+            if (!folder.exists()) {
+                folder.mkdir()
+                if (folder.exists()) {
+                    Log.d("aff vei", "yuke")
+                }
+            }
+            true
+        }
+}
 }

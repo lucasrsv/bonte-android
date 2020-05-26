@@ -37,6 +37,7 @@ import kotlinx.android.synthetic.main.activity_sky.*
 import kotlinx.android.synthetic.main.fragment_onboarding1.*
 import kotlinx.android.synthetic.main.fragment_onboarding1.onboardingLayout
 import kotlinx.android.synthetic.main.fragment_onboarding1.starBright
+import java.lang.Exception
 import java.util.*
 import kotlin.random.Random
 
@@ -119,9 +120,8 @@ class OnboardingActivity : AppCompatActivity() {
         title1 = binding.title1
         description1 = binding.description1
         actionText = binding.firstAction
-        actionText.y = starOutter2.y - dpToPxF(150f)
         ballIndicator = binding.ballIndicator
-        ballIndicator.y = actionText.y + dpToPxF(5f)
+
         view = binding.onboarding
         params = view.layoutParams
         addParticlesExplosion()
@@ -535,6 +535,12 @@ class OnboardingActivity : AppCompatActivity() {
                                 }
                             }
 
+                        val metrics =  DisplayMetrics()
+                        windowManager.defaultDisplay.getMetrics(metrics);
+                        val location = IntArray(2)
+                        starOutterInvisible.getLocationOnScreen(location)
+                        actionText.y = metrics.heightPixels/2.8f - actionText.height
+                        ballIndicator.y = actionText.y - dpToPxF(10f)
 
                         AnimatorSet().apply {
                             playTogether(
@@ -544,6 +550,7 @@ class OnboardingActivity : AppCompatActivity() {
                                 fadeOutStartText,
                                 fadeOutStartArrow
                             )
+
                             playTogether(fadeInTitle1, fadeInDesc1, fadeInActionText, fadeInBallIndicator)
                             play(fadeInTitle1).after(rotateOutter)
                             start()
@@ -701,16 +708,23 @@ class OnboardingActivity : AppCompatActivity() {
                 }
 
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    welcomeText1.text = dataSnapshot.child("welcomeTitle").value as String
-                    welcomeText2.text = dataSnapshot.child("welcomeDescription").value as String
-                    startText.text = dataSnapshot.child("startText").value as String
-                    actionText.text = dataSnapshot.child("starAction").value as String
-                    title1.text = dataSnapshot.child("title").value as String
-                    description1.text = dataSnapshot.child("description").value as String
-                    litStarTitle.text = dataSnapshot.child("title2").value as String
-                    litStarDescription.text = dataSnapshot.child("description2").value as String
-                    buttonSkyText.text = dataSnapshot.child("button").value as String
-                    fadeInAnimation()
+
+                    try {
+                        welcomeText1.text = dataSnapshot.child("welcomeTitle").value as String
+                        welcomeText2.text = dataSnapshot.child("welcomeDescription").value as String
+                        startText.text = dataSnapshot.child("startText").value as String
+                        actionText.text = dataSnapshot.child("starAction").value as String
+                        title1.text = dataSnapshot.child("title").value as String
+                        description1.text = dataSnapshot.child("description").value as String
+                        litStarTitle.text = dataSnapshot.child("title2").value as String
+                        litStarDescription.text = dataSnapshot.child("description2").value as String
+                        buttonSkyText.text = dataSnapshot.child("button").value as String
+                        fadeInAnimation()
+
+                    } catch(e: Exception) {
+                        Log.d("oputs", "merda")
+                    }
+
 
                 }
             }

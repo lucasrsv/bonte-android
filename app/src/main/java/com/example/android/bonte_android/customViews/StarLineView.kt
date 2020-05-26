@@ -10,6 +10,7 @@ import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import com.example.android.bonte_android.R
+import kotlinx.android.synthetic.main.activity_onboarding.*
 import kotlin.math.roundToInt
 
 
@@ -38,11 +39,11 @@ class StarLineView @JvmOverloads constructor(
         path = Path().apply {
             moveTo(
                 activity.windowManager.defaultDisplay.width.toFloat() / 2,
-                (activity.windowManager.defaultDisplay.height / 2 - dpToPx(63).toFloat())
+                activity.starOutterInvisible.y
             )
             lineTo(
                 activity.windowManager.defaultDisplay.width.toFloat() / 2,
-                (resources.displayMetrics.heightPixels / 2 - dpToPx(115).toFloat())
+                activity.starOutterInvisible.y - dpToPx(50)
             )
         }
 
@@ -68,7 +69,6 @@ class StarLineView @JvmOverloads constructor(
         lineAnim.start()
     }
 
-
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas!!.drawPath(path, paint)
@@ -80,5 +80,13 @@ class StarLineView @JvmOverloads constructor(
             dp.toFloat(),
             resources.displayMetrics
         ).roundToInt()
+    }
+
+    private fun dpToPxF(dp: Float): Float {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp,
+            resources.displayMetrics
+        )
     }
 }
