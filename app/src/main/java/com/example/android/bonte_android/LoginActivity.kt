@@ -50,14 +50,15 @@ class LoginActivity : AppCompatActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         auth = FirebaseAuth.getInstance()
+        Log.d("user", auth.currentUser.toString())
         database = FirebaseDatabase.getInstance().reference
-
         signInButton.setOnClickListener {
             signIn()
         }
 
         changeStatusBarColor()
         addSkyParticles()
+
     }
 
 
@@ -172,7 +173,7 @@ class LoginActivity : AppCompatActivity() {
 
         val userConstellations = listOf(constellation1, constellation2, constellation3, constellation4, constellation5)
         val user = User(firebaseUser!!.uid, firebaseUser.email, userConstellations)
-        database.child("users").child(firebaseUser!!.uid).setValue(user)
+        database.child("users").child(firebaseUser.uid).setValue(user)
     }
 
     private fun addSkyParticles() {
