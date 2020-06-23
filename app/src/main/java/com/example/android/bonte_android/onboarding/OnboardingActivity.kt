@@ -569,16 +569,16 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     private fun addSkyParticles() {
-        val particles = List(100) { ImageView(this) }
-        val size = List(100) { Random.nextDouble(1.0, 5.0) }
-        val x = List(100) { Random.nextInt(0, resources.displayMetrics.widthPixels )}
-        val y = List(100) { Random.nextInt(0, resources.displayMetrics.heightPixels)}
-        for (i in particles.indices) {
-            particles[i].setImageResource(R.drawable.star_circle)
-            particles[i].layoutParams = LinearLayout.LayoutParams(dpToPxD(size[i]), dpToPxD(size[i]))
-            particles[i].x = x[i].toFloat()
-            particles[i].y = y[i].toFloat()
-            binding.onboarding.addView(particles[i])
+        val skyParticles = List(50) { ImageView(this) }
+        val size = List(50) { Random.nextDouble(1.0, 5.0) }
+        val x = List(50) { Random.nextInt(0, resources.displayMetrics.widthPixels )}
+        val y = List(50) { Random.nextInt(0, resources.displayMetrics.heightPixels)}
+        for (i in skyParticles.indices) {
+            skyParticles[i].setImageResource(R.drawable.star_circle)
+            skyParticles[i].layoutParams = LinearLayout.LayoutParams(dpToPxD(size[i]), dpToPxD(size[i]))
+            skyParticles[i].x = x[i].toFloat()
+            skyParticles[i].y = y[i].toFloat()
+            binding.onboarding.addView(skyParticles[i])
         }
     }
 
