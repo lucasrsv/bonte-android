@@ -1947,44 +1947,28 @@ class SkyActivity : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun addMenu() {
-        menuButton = ImageView(this)
-        menuButton.setImageResource(R.drawable.button_menu)
+        menuButton = binding.menuButton
         menuButton.alpha = 0.15f
-        menuButton.layoutParams = LinearLayout.LayoutParams(dpToPx(100), dpToPx(100))
-        menuButton.x = view.layoutParams.width - dpToPxF(120f)
-        menuButton.y = view.layoutParams.height - dpToPxF(130f)
         menuButton.isClickable = true
 
         menuSymbol = ImageView(this)
 
-
-        screenshotButton = ImageView(this)
-        screenshotButton.setImageResource(R.drawable.button_menu)
-        screenshotButton.layoutParams = LinearLayout.LayoutParams(dpToPx(100), dpToPx(100))
-        screenshotButton.x = view.layoutParams.width - dpToPxF(120f)
-        screenshotButton.y = view.layoutParams.height - dpToPxF(260f)
+        screenshotButton = binding.screenshotButton
         screenshotButton.visibility = View.INVISIBLE
         screenshotButton.isClickable = true
 
-        screenshotSymbol = ImageView(this)
+        screenshotSymbol = binding.screenshotIcon
         screenshotSymbol.setImageResource(R.drawable.share_sky)
-        screenshotSymbol.layoutParams = LinearLayout.LayoutParams(dpToPx(50), dpToPx(50))
-        screenshotSymbol.x = screenshotButton.x + screenshotButton.layoutParams.width/4
-        screenshotSymbol.y = screenshotButton.y + screenshotButton.layoutParams.height/5f
         screenshotSymbol.visibility = View.INVISIBLE
 
-        logoutButton = ImageView(this)
-        logoutButton.setImageResource(R.drawable.button_menu)
-        logoutButton.layoutParams = LinearLayout.LayoutParams(dpToPx(100), dpToPx(100))
-        logoutButton.x = view.layoutParams.width - dpToPxF(120f)
-        logoutButton.y = view.layoutParams.height - dpToPxF(390f)
+        logoutButton = binding.logoutButton
         logoutButton.visibility = View.INVISIBLE
         logoutButton.isClickable = true
 
-        sky.addView(menuButton)
-        sky.addView(screenshotButton)
-        sky.addView(screenshotSymbol)
-        sky.addView(logoutButton)
+        /* linearLayout.addView(menuButton)
+        linearLayout.addView(screenshotButton)
+        linearLayout.addView(screenshotSymbol)
+        linearLayout.addView(logoutButton) */
 
         menuButton.setOnTouchListener { v, event ->
             when (event.action) {
