@@ -101,6 +101,7 @@ class SkyActivity : AppCompatActivity() {
     private var rotateAnimations = Array(26) { ObjectAnimator() }
     private var scaleStar = 0
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
@@ -146,7 +147,7 @@ class SkyActivity : AppCompatActivity() {
         }
         scaleDetector = ScaleGestureDetector(this, scaleListener)
 
-        skyZoomLayout.setOnTouchListener { _, event ->
+        skyZoomLayout.setOnTouchListener{ _, event ->
             if (isStarClicked) {
                 scaleDetector.onTouchEvent(event)
 

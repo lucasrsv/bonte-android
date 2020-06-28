@@ -15,12 +15,14 @@ import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnPause
 import androidx.core.animation.doOnRepeat
 import androidx.core.animation.doOnStart
 import androidx.core.view.GestureDetectorCompat
@@ -81,6 +83,7 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var  xBottom:  List<Int>
     private lateinit var  yBottom:  List<Int>
     private lateinit var  paths: Array<Path>
+    private lateinit var starRotation: ObjectAnimator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.enterTransition = null
@@ -124,6 +127,7 @@ class OnboardingActivity : AppCompatActivity() {
 
         view = binding.onboarding
         params = view.layoutParams
+        rotateStar()
         addParticlesExplosion()
         addSkyParticles()
         setTexts()
@@ -147,6 +151,17 @@ class OnboardingActivity : AppCompatActivity() {
         }
     }
 
+    private fun rotateStar() {
+        var pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, 0f, 360f)
+        starRotation = ObjectAnimator.ofPropertyValuesHolder(turnedOffStarButton, pvhR).apply {
+            duration = 15000
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.RESTART
+            interpolator = LinearInterpolator()
+            start()
+        }
+    }
+
     private fun fadeInAnimation() {
         val shake = AnimationUtils.loadAnimation(this, R.anim.shake_star_onboarding)
 
@@ -167,8 +182,20 @@ class OnboardingActivity : AppCompatActivity() {
             doOnEnd {
                 turnedOffStarButton.setOnClickListener {
                     if (timesClicked == 0) {
-                        val rotateOutter = ObjectAnimator.ofFloat(starOutter2, "rotation", 0f, 26f)
-                        rotateOutter.duration = 500
+                        var initialValue = 0f
+                        var rotateOutter = ObjectAnimator.ofFloat(starOutter2, "rotation", initialValue, initialValue + 24f)
+                        starRotation.doOnPause {
+                            initialValue = starRotation.animatedValue as Float
+                            Log.d("valorr", (starRotation.animatedValue as Float).toString())
+
+                            rotateOutter = ObjectAnimator.ofFloat(starOutter2, "rotation", initialValue, initialValue + 26f).apply {
+                                duration = 500
+                                doOnStart {
+                                    starOutter2.visibility = View.VISIBLE
+                                }
+                            }
+                        }
+                        starRotation.pause()
 
                         val fadeOutWelcomeText1 =
                             ObjectAnimator.ofFloat(welcomeText1, "alpha", 1f, 0f)
@@ -445,12 +472,12 @@ class OnboardingActivity : AppCompatActivity() {
                                                             val fadeInButtonText = ObjectAnimator.ofFloat(buttonSkyText, "alpha", 0f, 1f).apply {
                                                                 duration = 1000
                                                             }
-                                                            val scaleButtonX = ObjectAnimator.ofFloat(buttonSky, "scaleX", 1f, 1.2f).apply {
+                                                            val scaleButtonX = ObjectAnimator.ofFloat(buttonSky, "scaleX", 1f, 1.1f).apply {
                                                                 duration = 1000
                                                                 repeatMode = ValueAnimator.REVERSE
                                                                 repeatCount =  ValueAnimator.INFINITE
                                                             }
-                                                            val scaleButtonTextX = ObjectAnimator.ofFloat(buttonSkyText, "scaleX", 1f, 1.2f).apply {
+                                                            val scaleButtonTextX = ObjectAnimator.ofFloat(buttonSkyText, "scaleX", 1f, 1.1f).apply {
                                                                 duration = 1000
                                                                 repeatMode = ValueAnimator.REVERSE
                                                                 repeatCount =  ValueAnimator.INFINITE
@@ -539,7 +566,8 @@ class OnboardingActivity : AppCompatActivity() {
                         windowManager.defaultDisplay.getMetrics(metrics);
                         val location = IntArray(2)
                         starOutterInvisible.getLocationOnScreen(location)
-                        actionText.y = metrics.heightPixels/2.8f - actionText.height
+                        //actionText.y = metrics.heightPixels/2.8f - actionText.height
+                        actionText.y = starOutterInvisible.y - dpToPx(55) - actionText.height
                         ballIndicator.y = actionText.y - dpToPxF(10f)
 
                         AnimatorSet().apply {
