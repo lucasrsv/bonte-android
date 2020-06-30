@@ -5,5 +5,6 @@ import com.example.android.bonte_android.sky.Star
 data class User(
     val userId: String? = "",
     val userEmail: String? = "",
-    val constellations: List<UserConstellations>
+    val constellations: List<UserConstellations>,
+    val settings: List<UserSettings>
 )

@@ -87,7 +87,7 @@ class BeamLightView @JvmOverloads constructor(
             paint.pathEffect = DashPathEffect(dashes, lineAnimUndo.animatedValue as Float)
             invalidate()
         }
-        lineAnimUndo.duration = 700
+        lineAnimUndo.duration = 500
 
         fadeAnimUndo.interpolator = LinearInterpolator()
         fadeAnimUndo.addUpdateListener {

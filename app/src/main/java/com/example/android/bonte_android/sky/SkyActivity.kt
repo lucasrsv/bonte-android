@@ -5,26 +5,20 @@ import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.ActivityManager
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.graphics.Path
 import android.graphics.Point
 import android.graphics.PorterDuff
-import android.media.Image
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.os.Handler
 import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AlphaAnimation
 import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
@@ -36,7 +30,6 @@ import androidx.core.animation.doOnPause
 import androidx.core.animation.doOnRepeat
 import androidx.core.animation.doOnStart
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.example.android.bonte_android.*
 import com.example.android.bonte_android.R
@@ -47,15 +40,11 @@ import com.example.android.bonte_android.onboarding.OnboardingActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.tasks.OnCanceledListener
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import kotlinx.android.synthetic.main.activity_onboarding.*
 import kotlinx.android.synthetic.main.activity_sky.*
 import java.io.File
 import java.util.*
-import java.util.jar.Manifest
 import kotlin.random.Random
 
 
@@ -170,6 +159,16 @@ class SkyActivity : AppCompatActivity() {
         setTexts("0", "0", "takeYourTime", 0, 0)
         setTexts("0", "0", "doStarAgainText", 0, 0)
 
+    }
+
+    override fun onPause() {
+        super.onPause()
+        BackgroundSongService().pauseMusic()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        BackgroundSongService().resumeMusic()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -1785,10 +1784,25 @@ class SkyActivity : AppCompatActivity() {
         }
     }
     private fun getSkyStatus() {
+
+        database.child("users").child(firebaseUser!!.uid).child("settings").addValueEventListener(
+            object : ValueEventListener {
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Log.w(ContentValues.TAG, "getSettingsStatus: Cancelled", databaseError.toException())
+                }
+
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (dataSnapshot.child(0.toString()).child("songOn").value.toString() == "true") {
+                        val intent = Intent(this@SkyActivity, BackgroundSongService::class.java)
+                        startService(intent)
+                    }
+                }
+            }
+        )
         database.child("users").child(firebaseUser!!.uid).child("constellations").addValueEventListener(
             object : ValueEventListener {
                 override fun onCancelled(databaseError: DatabaseError) {
-                    Log.w(ContentValues.TAG, "getUser:onCancelled", databaseError.toException())
+                    Log.w(ContentValues.TAG, "getConstSTatus: Cancelled", databaseError.toException())
                 }
 
                 override fun onDataChange(dataSnapshot: DataSnapshot) {

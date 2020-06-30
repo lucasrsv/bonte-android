@@ -16,18 +16,21 @@
         android:roundIcon="@mipmap/bonte_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".sky.SkyActivity" android:theme="@style/AppTheme.Launcher"/>
-        <activity android:name=".onboarding.OnboardingActivity" android:theme="@style/AppTheme.Launcher">
+        <activity android:name=".sky.SkyActivity" android:theme="@style/AppTheme.Launcher" android:screenOrientation="portrait"/>
+        <activity android:name=".onboarding.OnboardingActivity" android:theme="@style/AppTheme.Launcher" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity" android:theme="@style/AppTheme.Launcher" />
+        <activity android:name=".LoginActivity" android:theme="@style/AppTheme.Launcher"  android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+        <service
+            android:name=".sky.BackgroundSongService"
+            android:enabled="true" />
     </application>
 
 </manifest>
