@@ -33,6 +33,19 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.98" />
 
+        <ImageView
+            android:id="@+id/musicButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/button_menu"
+            android:elevation="2dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/screenshotButton"
+            app:layout_constraintEnd_toEndOf="@+id/skyZoomLayout"
+            app:layout_constraintHorizontal_bias="0.97"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.98" />
 
         <ImageView
             android:id="@+id/logoutButton"
@@ -40,12 +53,60 @@
             android:layout_height="50dp"
             android:src="@drawable/button_menu"
             android:elevation="2dp"
-            app:layout_constraintBottom_toTopOf="@id/screenshotButton"
+            app:layout_constraintBottom_toTopOf="@+id/musicButton"
             app:layout_constraintEnd_toEndOf="@+id/skyZoomLayout"
             app:layout_constraintHorizontal_bias="0.97"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.98" />
+
+        <ImageView
+            android:id="@+id/menu_main_icon1"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:src="@drawable/menu_main_icon"
+            android:elevation="2dp"
+            app:layout_constraintBottom_toBottomOf="@+id/menuButton"
+            app:layout_constraintEnd_toEndOf="@id/menuButton"
+            app:layout_constraintHorizontal_bias="0.25"
+            app:layout_constraintStart_toStartOf="@+id/menuButton"
+            app:layout_constraintTop_toTopOf="@+id/menuButton" />
+
+        <ImageView
+            android:id="@+id/menu_main_icon2"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:src="@drawable/menu_main_icon"
+            android:elevation="2dp"
+            app:layout_constraintBottom_toBottomOf="@+id/menuButton"
+            app:layout_constraintEnd_toEndOf="@id/menuButton"
+            app:layout_constraintStart_toStartOf="@+id/menuButton"
+            app:layout_constraintTop_toTopOf="@+id/menuButton" />
+
+        <ImageView
+            android:id="@+id/menu_main_icon3"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:src="@drawable/menu_main_icon"
+            android:elevation="2dp"
+            app:layout_constraintBottom_toBottomOf="@+id/menuButton"
+            app:layout_constraintEnd_toEndOf="@id/menuButton"
+            app:layout_constraintHorizontal_bias="0.75"
+            app:layout_constraintStart_toStartOf="@+id/menuButton"
+            app:layout_constraintTop_toTopOf="@+id/menuButton" />
+
+        <ImageView
+            android:id="@+id/close_menu"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:src="@drawable/close_buttons"
+            android:elevation="2dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/menuButton"
+            app:layout_constraintEnd_toEndOf="@id/menuButton"
+            app:layout_constraintStart_toStartOf="@+id/menuButton"
+            app:layout_constraintTop_toTopOf="@+id/menuButton" />
+
 
         <ImageView
             android:id="@+id/screenshotIcon"
@@ -58,6 +119,18 @@
             app:layout_constraintStart_toStartOf="@+id/screenshotButton"
             app:layout_constraintTop_toTopOf="@+id/screenshotButton"
             app:layout_constraintVertical_bias="0.48" />
+
+        <ImageView
+            android:id="@+id/musicIcon"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/sound_icon"
+            android:elevation="2dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/musicButton"
+            app:layout_constraintEnd_toEndOf="@id/musicButton"
+            app:layout_constraintStart_toStartOf="@+id/musicButton"
+            app:layout_constraintTop_toTopOf="@+id/musicButton" />
 
 
         <com.otaliastudios.zoom.ZoomLayout

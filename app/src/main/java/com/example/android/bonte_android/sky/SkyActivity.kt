@@ -5,8 +5,7 @@ import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Path
 import android.graphics.Point
@@ -14,6 +13,7 @@ import android.graphics.PorterDuff
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.IBinder
 import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -45,6 +45,7 @@ import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_sky.*
 import java.io.File
 import java.util.*
+import kotlin.properties.Delegates
 import kotlin.random.Random
 
 
@@ -70,16 +71,26 @@ class SkyActivity : AppCompatActivity() {
     private lateinit var takeYourTimeText: TextView
     private lateinit var actionDot: ImageView
     private lateinit var menuButton: ImageView
+    private lateinit var musicButton: ImageView
     private lateinit var menuSymbol: ImageView
+    private lateinit var menuCloseSymbol: ImageView
+    private lateinit var soundButton: ImageView
+    private lateinit var soundIcon: ImageView
     private lateinit var screenshotButton: ImageView
     private lateinit var screenshotSymbol: ImageView
     private lateinit var logoutButton: ImageView
     private lateinit var language: String
     private lateinit var googleSignInClient: GoogleSignInClient
+    private var backgroundSongService: BackgroundSongService? = null
+    private lateinit var connection: ServiceConnection
+    private var focusDuringOnPause = false
+    private var soundOn = true
+    private var bound = false
     private var database: DatabaseReference = FirebaseDatabase.getInstance().reference
     private val firebaseUser = FirebaseAuth.getInstance().currentUser
     private var numClicks = 0
     private var time = 0L
+    private var isBound = false
     private var isStarClicked = false
     private var canDoStarAgain = false
     private var canZoomOut = true
@@ -94,6 +105,7 @@ class SkyActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
+        Log.d("ye", "calledyes")
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -148,6 +160,7 @@ class SkyActivity : AppCompatActivity() {
         binding.skyZoomLayout.setBackgroundResource(R.drawable.gradient)
 
         changeStatusBarColor()
+        backgroundSong()
         setConstellations()
         setStars()
         setPaths()
@@ -161,14 +174,21 @@ class SkyActivity : AppCompatActivity() {
 
     }
 
+
     override fun onPause() {
         super.onPause()
-        BackgroundSongService().pauseMusic()
+        backgroundSongService?.run{
+            if (isPlaying()) {
+                pauseMusic()
+            }
+        }
     }
 
     override fun onRestart() {
         super.onRestart()
-        BackgroundSongService().resumeMusic()
+        if (soundOn) {
+            backgroundSongService?.resumeMusic()
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -920,6 +940,29 @@ class SkyActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun backgroundSong() {
+        connection = object : ServiceConnection {
+
+            override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
+                val binder = service as BackgroundSongService.LocalBinder
+                backgroundSongService = binder.getService()
+                bound = true
+                Log.d("abdec", "Kk")
+            }
+
+            override fun onServiceDisconnected(p0: ComponentName?) {
+                Log.e("service status:", "onServiceDisconnected")
+                bound = false
+
+            }
+        }
+
+        Intent(this, BackgroundSongService::class.java).also { intent ->
+            applicationContext.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
+        startService(Intent(this, BackgroundSongService::class.java))
     }
 
     private fun zoomOut() {
@@ -1687,6 +1730,7 @@ class SkyActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun shineStars(constIndex: Int, starIndex: Int) {
         for (i in constellations.indices) {
             for (j in constellations[i].stars.indices) {
@@ -1783,18 +1827,22 @@ class SkyActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun getSkyStatus() {
 
         database.child("users").child(firebaseUser!!.uid).child("settings").addValueEventListener(
             object : ValueEventListener {
-                override fun onCancelled(databaseError: DatabaseError) {
+                    override fun onCancelled(databaseError: DatabaseError) {
                     Log.w(ContentValues.TAG, "getSettingsStatus: Cancelled", databaseError.toException())
                 }
 
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    if (dataSnapshot.child(0.toString()).child("songOn").value.toString() == "true") {
-                        val intent = Intent(this@SkyActivity, BackgroundSongService::class.java)
-                        startService(intent)
+                    if (dataSnapshot.child(0.toString()).child("songOn").value.toString() == "false") {
+                        soundOn = false
+                        backgroundSongService?.pauseMusic()
+                        Log.d("soundoff", "off")
+                    } else {
+                        soundOn = true
                     }
                 }
             }
@@ -1910,6 +1958,9 @@ class SkyActivity : AppCompatActivity() {
             "timesCompleted" -> {
                 database.child("users").child(firebaseUser!!.uid).child("constellations").child(constellation.toString()).child("cstars").child(star.toString()).child("stimesCompleted").setValue(constellations[constellation].stars[star].timesCompleted+1)
             }
+            "music" -> {
+                database.child("users").child(firebaseUser!!.uid).child("settings").child("0").child("songOn").setValue(bool)
+            }
         }
     }
 
@@ -1965,12 +2016,16 @@ class SkyActivity : AppCompatActivity() {
         menuButton = binding.menuButton
         menuButton.alpha = 0.15f
         menuButton.isClickable = true
-
         menuSymbol = ImageView(this)
+
+        menuCloseSymbol = ImageView(this)
 
         screenshotButton = binding.screenshotButton
         screenshotButton.visibility = View.INVISIBLE
         screenshotButton.isClickable = true
+
+        musicButton = binding.musicButton
+        musicButton.isClickable = true
 
         screenshotSymbol = binding.screenshotIcon
         screenshotSymbol.setImageResource(R.drawable.share_sky)
@@ -1998,6 +2053,13 @@ class SkyActivity : AppCompatActivity() {
                     button.drawable.clearColorFilter()
                     button.invalidate()
                     if (screenshotButton.visibility == View.INVISIBLE) {
+                        menu_main_icon1.alpha = 0f
+                        menu_main_icon2.alpha = 0f
+                        menu_main_icon3.alpha = 0f
+
+                        close_menu.visibility = View.VISIBLE
+                        close_menu.alpha = 1f
+
                         val fadeScreenshotButton = ObjectAnimator.ofFloat(screenshotButton, "alpha", 0f, 0.15f).apply {
                             duration = 250
                             doOnStart {
@@ -2011,6 +2073,19 @@ class SkyActivity : AppCompatActivity() {
                                 screenshotSymbol.visibility = View.VISIBLE
                             }
                         }
+
+                        val fadeMusicButton = ObjectAnimator.ofFloat(musicButton, "alpha", 0f, 0.15f).apply {
+                            duration = 250
+                            doOnStart {
+                                musicButton.visibility = View.VISIBLE
+                            }
+                        }
+                        val fadeMusicSymbol = ObjectAnimator.ofFloat(musicIcon, "alpha", 0f, 1f).apply {
+                            duration = 250
+                            doOnStart {
+                                musicIcon.visibility = View.VISIBLE
+                            }
+                        }
                         val fadeLogoutButton= ObjectAnimator.ofFloat(logoutButton, "alpha", 0f, 0.15f).apply {
                             duration = 250
                             doOnStart {
@@ -2019,11 +2094,18 @@ class SkyActivity : AppCompatActivity() {
                         }
 
                         AnimatorSet().apply {
-                            playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeLogoutButton)
+                            playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeMusicButton, fadeMusicSymbol, fadeLogoutButton)
                             start()
                         }
 
                     } else {
+
+                        close_menu.visibility = View.INVISIBLE
+
+                        menu_main_icon1.alpha = 1f
+                        menu_main_icon2.alpha = 1f
+                        menu_main_icon3.alpha = 1f
+
                         val fadeScreenshotButton= ObjectAnimator.ofFloat(screenshotButton, "alpha", 0.15f, 0f).apply {
                             duration = 250
                             doOnEnd {
@@ -2038,6 +2120,20 @@ class SkyActivity : AppCompatActivity() {
                             }
                         }
 
+                        val fadeMusicButton = ObjectAnimator.ofFloat(musicButton, "alpha", 0.15f, 0f).apply {
+                            duration = 250
+                            doOnEnd {
+                                musicButton.visibility = View.INVISIBLE
+                            }
+                        }
+
+                        val fadeMusicSymbol = ObjectAnimator.ofFloat(musicIcon, "alpha", 1f, 0f).apply {
+                            duration = 250
+                            doOnEnd {
+                                musicIcon.visibility = View.INVISIBLE
+                            }
+                        }
+
                         val fadeLogoutButton= ObjectAnimator.ofFloat(logoutButton, "alpha", 0.15f, 0f).apply {
                             duration = 250
                             doOnEnd {
@@ -2046,7 +2142,7 @@ class SkyActivity : AppCompatActivity() {
                         }
 
                         AnimatorSet().apply {
-                            playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeLogoutButton)
+                            playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeMusicButton, fadeMusicSymbol, fadeLogoutButton)
                             start()
                         }
                     }
@@ -2091,6 +2187,20 @@ class SkyActivity : AppCompatActivity() {
                         }
                     }
 
+                    val fadeMusicButton = ObjectAnimator.ofFloat(musicButton, "alpha", 0.15f, 0f).apply {
+                        duration = 250
+                        doOnEnd {
+                            musicButton.visibility = View.INVISIBLE
+                        }
+                    }
+
+                    val fadeMusicSymbol = ObjectAnimator.ofFloat(musicIcon, "alpha", 1f, 0f).apply {
+                        duration = 250
+                        doOnEnd {
+                            musicIcon.visibility = View.INVISIBLE
+                        }
+                    }
+
                     val fadeLogoutButton = ObjectAnimator.ofFloat(logoutButton, "alpha", 0.15f, 0f).apply {
                         duration = 250
                         doOnEnd {
@@ -2099,7 +2209,14 @@ class SkyActivity : AppCompatActivity() {
                     }
 
                     AnimatorSet().apply {
-                        playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeLogoutButton)
+                        playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeMusicButton, fadeMusicSymbol, fadeLogoutButton)
+                        close_menu.visibility = View.INVISIBLE
+                        menu_main_icon1.visibility = View.VISIBLE
+                        menu_main_icon1.alpha = 1f
+                        menu_main_icon2.visibility = View.VISIBLE
+                        menu_main_icon2.alpha = 1f
+                        menu_main_icon3.visibility = View.VISIBLE
+                        menu_main_icon3.alpha = 1f
                         start()
                     }
                 }
@@ -2109,6 +2226,41 @@ class SkyActivity : AppCompatActivity() {
                     button.drawable.clearColorFilter()
                     button.invalidate()
                 }
+            }
+            false
+        }
+
+
+        musicButton.setOnTouchListener { view, motionEvent ->
+            when (motionEvent.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    val button = view as ImageView
+                    button.drawable.setColorFilter(0x77000000, PorterDuff.Mode.SRC_ATOP)
+                    button.invalidate()
+                    Log.d("bgss", backgroundSongService?.isPlaying().toString())
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    val button = view as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+
+                    if (backgroundSongService?.isPlaying()!!) {
+                        backgroundSongService?.pauseMusic()
+                        updateSkyStatus(0, 0, "music", false)
+                    } else {
+                        backgroundSongService?.resumeMusic()
+                        updateSkyStatus(0, 0, "music", true)
+                    }
+
+                }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    val button = view as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+                }
+
             }
             false
         }
