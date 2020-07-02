@@ -8,10 +8,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import com.example.android.bonte_android.User.User
-import com.example.android.bonte_android.User.UserConstellations
-import com.example.android.bonte_android.User.UserSettings
-import com.example.android.bonte_android.User.UserStars
+import com.example.android.bonte_android.User.*
 import com.example.android.bonte_android.databinding.ActivityLoginBinding
 import com.example.android.bonte_android.sky.SkyActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -172,11 +169,10 @@ class LoginActivity : AppCompatActivity() {
             cStars = stars5
         )
 
-        val settings = UserSettings(true)
-
         val userConstellations = listOf(constellation1, constellation2, constellation3, constellation4, constellation5)
-        val userSettings = listOf(settings)
-        val user = User(firebaseUser!!.uid, firebaseUser.email, userConstellations, userSettings)
+        val userSettings = UserSettings(true)
+        val userSkyStatus = UserSkyStatus(0)
+        val user = User(firebaseUser!!.uid, firebaseUser.email, userConstellations, userSettings, userSkyStatus)
         database.child("users").child(firebaseUser.uid).setValue(user)
     }
 

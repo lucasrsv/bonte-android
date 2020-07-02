@@ -6,5 +6,6 @@ data class User(
     val userId: String? = "",
     val userEmail: String? = "",
     val constellations: List<UserConstellations>,
-    val settings: List<UserSettings>
+    val settings: UserSettings,
+    val skyStatus: UserSkyStatus
 )

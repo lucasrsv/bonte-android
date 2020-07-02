@@ -181,6 +181,16 @@
                     android:visibility="invisible"
                     android:fontFamily="@font/montserrat_medium" />
 
+                <TextView
+                    android:id="@+id/intermediaryStarsLimitText"
+                    android:layout_width="80dp"
+                    android:layout_height="30dp"
+                    android:textAlignment="center"
+                    android:textColor="#FFFFFF"
+                    android:textSize="6sp"
+                    android:visibility="invisible"
+                    android:fontFamily="@font/montserrat_medium" />
+
             </FrameLayout>
 
         </com.otaliastudios.zoom.ZoomLayout>
