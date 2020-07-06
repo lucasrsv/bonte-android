@@ -1,15 +1,27 @@
 package com.example.android.bonte_android
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Path
+import android.graphics.PorterDuff
+import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnStart
 import androidx.databinding.DataBindingUtil
 import com.example.android.bonte_android.User.*
 import com.example.android.bonte_android.databinding.ActivityLoginBinding
+import com.example.android.bonte_android.onboarding.OnboardingActivity
 import com.example.android.bonte_android.sky.SkyActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -21,16 +33,20 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_onboarding.view.*
 import kotlin.random.Random
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var signInButton: SignInButton
+    private lateinit var signInButton: ImageView
     private lateinit var database: DatabaseReference
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var auth: FirebaseAuth
+    private var movedStar = false
     private val RC_SIGN_IN = 9001
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         window.enterTransition = null
         setTheme(R.style.AppTheme)
@@ -40,7 +56,6 @@ class LoginActivity : AppCompatActivity() {
             R.layout.activity_login
         )
         signInButton = binding.signInButton
-        signInButton.setSize(SignInButton.SIZE_WIDE)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -48,15 +63,169 @@ class LoginActivity : AppCompatActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         auth = FirebaseAuth.getInstance()
-        Log.d("user", auth.currentUser.toString())
         database = FirebaseDatabase.getInstance().reference
-        signInButton.setOnClickListener {
-            signIn()
+        signInButton.isClickable = true
+        signInButton.setOnTouchListener { view, motionEvent ->
+            when (motionEvent.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    val button = view as ImageView
+                    button.drawable.setColorFilter(0x77000000, PorterDuff.Mode.SRC_ATOP)
+                    button.invalidate()
+                }
+                MotionEvent.ACTION_UP -> {
+                    val button = view as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+                    signIn()
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    val button = view as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+                }
+            }
+            false
+        }
+        binding.returnToOnboardingButton.isClickable = true
+        binding.returnToOnboardingButton.setOnTouchListener { view, motionEvent ->
+            when (motionEvent.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    val button = view as ImageView
+                    button.drawable.setColorFilter(0x77000000, PorterDuff.Mode.SRC_ATOP)
+                    button.invalidate()
+                }
+                MotionEvent.ACTION_UP -> {
+                    val button = view as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+                    val intent = Intent(baseContext, OnboardingActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    startActivity(intent)
+                    overridePendingTransition(0,0)
+                    finish()
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    val button = view as ImageView
+                    button.drawable.clearColorFilter()
+                    button.invalidate()
+                }
+            }
+            false
         }
 
-        changeStatusBarColor()
+
+        if (Build.VERSION.SDK_INT > 19) {
+            changeStatusBarColor()
+        }
         addSkyParticles()
 
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!movedStar) {
+            moveStar()
+            movedStar = true
+        }
+    }
+
+    private fun moveStar() {
+
+        var distance = binding.signInButton.top.toFloat() - binding.loginText.bottom
+        if (binding.starOutter.y > binding.bonteName.y) {
+            distance += (binding.starOutter.bottom - binding.bonteName.top)
+        } else {
+            distance -= (binding.bonteName.top - binding.starOutter.bottom)
+        }
+
+        val pathInner = Path().apply {
+            moveTo(binding.starInner.x, binding.starInner.y)
+            lineTo(binding.starInner.x, binding.starInner.y - distance)
+        }
+        val pathMid = Path().apply {
+            moveTo(binding.starMid.x, binding.starMid.y)
+            lineTo(binding.starMid.x, binding.starMid.y - distance)
+        }
+        val pathOutter = Path().apply {
+            moveTo(binding.starOutter.x, binding.starOutter.y)
+            lineTo(binding.starOutter.x, binding.starOutter.y - distance)
+        }
+        val pathBright = Path().apply {
+            moveTo(binding.starBright.x, binding.starBright.y)
+            lineTo(binding.starBright.x, binding.starBright.y - distance)
+        }
+
+        val moveStarInner = ObjectAnimator.ofFloat(binding.starInner, View.X, View.Y, pathInner).apply {
+            duration = 1500
+        }
+        val moveStarMid = ObjectAnimator.ofFloat(binding.starMid, View.X, View.Y, pathMid).apply {
+            duration = 1500
+        }
+        val moveStarOutter = ObjectAnimator.ofFloat(binding.starOutter, View.X, View.Y, pathOutter).apply {
+            duration = 1500
+        }
+        val moveStarBright = ObjectAnimator.ofFloat(binding.starBright, View.X, View.Y, pathBright).apply {
+            duration = 1500
+            doOnEnd {
+                val fadeInTitle = ObjectAnimator.ofFloat(binding.bonteName, "alpha", 0f, 1f).apply {
+                    duration = 1000
+                    doOnStart {
+                        binding.bonteName.visibility = View.VISIBLE
+                    }
+                }
+                val fadeInBar = ObjectAnimator.ofFloat(binding.bar, "alpha", 0f, 0.3f).apply {
+                    duration = 1000
+                    doOnStart {
+                        binding.bar.visibility = View.VISIBLE
+                    }
+                }
+                val fadeInText = ObjectAnimator.ofFloat(binding.loginText, "alpha", 0f, 1f).apply {
+                    duration = 1000
+                    doOnStart {
+                        binding.loginText.visibility = View.VISIBLE
+                    }
+                }
+                val fadeInGoogleSymbol = ObjectAnimator.ofFloat(binding.googleSymbol, "alpha", 0f, 1f).apply {
+                    duration = 1000
+                    doOnStart {
+                        binding.googleSymbol.visibility = View.VISIBLE
+                    }
+                }
+                val fadeInLoginButton = ObjectAnimator.ofFloat(binding.signInButton, "alpha", 0f, 0.3f).apply {
+                    duration = 1000
+                    doOnStart {
+                        binding.signInButton.visibility = View.VISIBLE
+                    }
+                }
+                val fadeInLoginButtonText = ObjectAnimator.ofFloat(binding.loginButtonText, "alpha", 0f, 1f).apply {
+                    duration = 1000
+                    doOnStart {
+                        binding.loginButtonText.visibility = View.VISIBLE
+                    }
+                }
+                val fadeInReturnButton = ObjectAnimator.ofFloat(binding.returnToOnboardingButton, "alpha", 0f, 0.3f).apply {
+                    duration = 1000
+                    doOnStart {
+                        binding.returnToOnboardingButton.visibility = View.VISIBLE
+                    }
+                }
+                val fadeInReturnBUttonText = ObjectAnimator.ofFloat(binding.returnButtonText, "alpha", 0f, 1f).apply {
+                    duration = 1000
+                    doOnStart {
+                        binding.returnButtonText.visibility = View.VISIBLE
+                    }
+                }
+
+                AnimatorSet().apply {
+                    playTogether(fadeInBar, fadeInLoginButton, fadeInLoginButtonText, fadeInReturnBUttonText, fadeInReturnButton, fadeInText, fadeInTitle, fadeInGoogleSymbol)
+                    start()
+                }
+            }
+        }
+        AnimatorSet().apply {
+            playTogether(moveStarInner, moveStarMid, moveStarOutter, moveStarBright)
+            start()
+        }
     }
 
 
@@ -92,6 +261,7 @@ class LoginActivity : AppCompatActivity() {
                         writeNewUser()
                     }
                     val intent = Intent(baseContext, SkyActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     startActivity(intent)
                     window.exitTransition = null
                     overridePendingTransition(0, 0);
@@ -177,10 +347,10 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun addSkyParticles() {
-        val particles = List(100) { ImageView(this) }
-        val size = List(100) { Random.nextDouble(1.0, 5.0) }
-        val x = List(100) { Random.nextInt(0, resources.displayMetrics.widthPixels )}
-        val y = List(100) { Random.nextInt(0, resources.displayMetrics.heightPixels)}
+        val particles = List(50) { ImageView(this) }
+        val size = List(50) { Random.nextDouble(1.0, 5.0) }
+        val x = List(50) { Random.nextInt(0, resources.displayMetrics.widthPixels )}
+        val y = List(50) { Random.nextInt(0, resources.displayMetrics.heightPixels)}
         for (i in particles.indices) {
             particles[i].setImageResource(R.drawable.star_circle)
             particles[i].layoutParams = LinearLayout.LayoutParams(dpToPxD(size[i]), dpToPxD(size[i]))

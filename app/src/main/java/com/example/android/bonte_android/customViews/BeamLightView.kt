@@ -65,7 +65,7 @@ class BeamLightView @JvmOverloads constructor(
             paint.alpha = fadeAnim.animatedValue as Int
             invalidate()
         }
-        fadeAnim.duration = 3000
+        fadeAnim.duration = 2000
 
         AnimatorSet().apply {
             playTogether(lineAnim, fadeAnim)

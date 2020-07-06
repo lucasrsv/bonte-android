@@ -1,13 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">bontê</string>
-    <string name="start">start</string>
-    <string name="circlePager">circlePager</string>
-    <string name="starOffButton">starOffButton</string>
-    <string name="welcomeText">welcome to bontê</string>
-    <string name="yourMissionText">your mission here is to light up the stars in the sky with your empathy</string>
-    <string name="arrowUpStart">arrowUpStart</string>
-    <string name="onboarding2TitleDown">each star is special</string>
-    <string name="onboarding2TextDown">filled with love for you to spread, they suggest good actions to insert in your day to day life</string>
-    <string name="firstAction">commit to being empathetic with myself and people around me</string>
-    <string name="ballIndicator" />
+
+    <!---Interações-->
+
+    <string name="do_star_again" ><b>sua estrela pode ficar mais brilhante!</b> basta tocar nela se quiser praticar a ação novamente &lt;3</string>
+    <string name="intermediary_stars_limit">um passo de cada vez, você já escolheu três estrelas &lt;3"</string>
+    <string name="take_your_time">ei, reserve um tempo para fazer suas ações e volte mais tarde :)</string>
+
+    <!---Login-->
+
+    <string name="log_in">para ver suas estrelas, <b>entre na sua conta</b></string>
+    <string name="log_in_button">fazer login com Google</string>
+    <string name="return_to_onboarding">voltar à introdução</string>
+
+    <!---Onboarding-->
+
+    <string name="onboarding_start">começar</string>
+    <string name="onboarding_title1">bem vindo ao bontê!</string>
+    <string name="onboarding_title2">cada estrela é especial</string>
+    <string name="onboarding_star_action">comprometer-me a ser empático comigo mesmo e com as pessoas ao meu redor</string>
+    <string name="onboarding_title3">você acendeu sua primeira estrela!</string>
+    <string name="onboarding_description1">sua missão é iluminar as estrelas do céu através da empatia</string>
+    <string name="onboarding_description2">cheias de amor para você espalhar, elas sugerem boas ações para inserir no seu dia a dia</string>
+    <string name="onboarding_description3">quanto mais ações você executar, mais seu céu brilhará, representando seu novo bom hábito</string>
+    <string name="onboarding_go_to_sky">conheça o seu céu</string>
+
+    <!---Sky-->
+
+    <!---Aquila-->
+    <string-array name="aquila">
+        <item>escreva um papel com 5 elogios para um amigo</item>
+        <item>ofereça ajuda a seus amigos</item>
+        <item>escreva uma carta de encorajamento para um amigo</item>
+        <item>ajude um amigo a traçar metas de vida</item>
+        <item>cozinhe para um amigo</item>
+        <item>lembre a um amigo de tomar água</item>
+        <item>lembre a um amigo de parar para tirar um tempo para si mesmo</item>
+        <item>recomende o bontê a um amigo</item>
+    </string-array>
+
+    <!---Cancer-->
+    <string-array name="cancer">
+        <item>antes de dormir, pense em 3 coisas que você é grato por ser/ter</item>
+        <item>olhe-se no espelho e diga o que você gosta em si mesmo</item>
+        <item>tire um dia para cuidar de si mesmo</item>
+        <item>pense em momentos felizes e compartilhe com alguém</item>
+        <item>poste seu céu em alguma rede social</item>
+    </string-array>
+
+    <!---Equuleus-->
+    <string-array name="equuleus">
+        <item>doe roupas que você não usa mais</item>
+        <item>faça uma doação</item>
+        <item>doe livros para uma instituição</item>
+        <item>ofereça comida a alguém em situação de rua</item>
+    </string-array>
+
+    <!---Sagitta-->
+    <string-array name="sagitta">
+        <item>pergunte a alguém como foi o dia dele/dela</item>
+        <item>elogie o trabalho de alguém</item>
+        <item>elogie uma característica de algum conhecido</item>
+        <item>abrace alguém que faz parte da sua rotina</item>
+    </string-array>
+
+    <!---Volans-->
+    <string-array name="volans">
+        <item>converse com alguém com quem você nunca falou</item>
+        <item>dê um presente feito por você para alguém</item>
+        <item>recolha algum lixo da rua</item>
+        <item>dê uma flor a alguém</item>
+        <item>mande uma mensagem pra alguém com quem você não fala há um tempo</item>
+    </string-array>
 </resources>

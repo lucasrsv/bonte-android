@@ -162,7 +162,9 @@ class SkyActivity : AppCompatActivity() {
 
         binding.skyZoomLayout.setBackgroundResource(R.drawable.gradient)
 
-        changeStatusBarColor()
+        if (Build.VERSION.SDK_INT > 19) {
+            changeStatusBarColor()
+        }
         backgroundSong()
         setConstellations()
         setStars()
@@ -1573,7 +1575,7 @@ class SkyActivity : AppCompatActivity() {
             }
 
             "intermediaryStarsAmount" -> {
-                database.child("users").child(firebaseUser!!.uid).child("userSkyStatus").addListenerForSingleValueEvent(
+                database.child("users").child(firebaseUser!!.uid).child("skyStatus").addListenerForSingleValueEvent(
                     object : ValueEventListener {
                         override fun onCancelled(databaseError: DatabaseError) {
                             Log.w(

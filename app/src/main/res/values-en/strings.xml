@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">bontê</string>
+
+    <!---Interações-->
+
+    <string name="do_star_again" ><b>your star can get brighter!</b> just tap on it if you wish to do it again &lt;3</string>
+    <string name="intermediary_stars_limit">"one step at a time, you've already chosen three stars &lt;3"</string>
+    <string name="take_your_time">"hey, take your time to do your actions and come back later :)"</string>
+
+    <!---Onboarding-->
+
+    <string name="onboarding_start">start</string>
+    <string name="onboarding_title1">welcome to bontê</string>
+    <string name="onboarding_title2">each star is special</string>
+    <string name="onboarding_star_action">commit to being empathetic with myself and people around me</string>
+    <string name="onboarding_title3">you lit your first star!</string>
+    <string name="onboarding_description1">your mission here is to light up the stars in the sky with your empathy</string>
+    <string name="onboarding_description2">filled with love for you to spread, they suggest good actions to insert in your day to day life</string>
+    <string name="onboarding_description3">the more actions you do, the more your sky will shine, representing your new good habit"</string>
+    <string name="onboarding_go_to_sky">go to the sky</string>
+
+    <!--Login-->
+    <string name="log_in"><b>log in with Google</b> to see your sky</string>
+    <string name="log_in_button">log in to see your sky</string>
+    <string name="return_to_onboarding">go back to onboarding</string>
+
+    <!---Sky-->
+        <!---Aquila-->
+        <string-array name="aquila">
+            <item>on a paper, write 5 compliments to a friend</item>
+            <item>offer help to your friends</item>
+            <item>write a letter of encouragement to a friend</item>
+            <item>help a friend tracing life goals</item>
+            <item>cook a meal to a friend</item>
+            <item>remind a friend to drink some water</item>
+            <item>remind your friends to stop a little and take care of themselves</item>
+            <item>recommend bontê to a friend</item>
+        </string-array>
+
+        <!---Cancer-->
+        <string-array name="cancer">
+            <item name="star">before going to sleep, think about 3 things that you are grateful for being/having</item>
+            <item>look at yourself in the mirror and say out loud what you like about you</item>
+            <item>take one day off to take care of yourself</item>
+            <item>think about happy moments and share them with someone</item>
+            <item>share your sky on social network</item>
+        </string-array>
+
+        <!---Equuleus-->
+         <string-array name="equuleus">
+            <item>donate clothes you don\'t use anymore</item>
+            <item>make a donation</item>
+            <item>donate books to an institution</item>
+            <item>offer food to someone living in street situation</item>
+        </string-array>
+
+        <!---Sagitta-->
+        <string-array name="sagitta">
+            <item>ask people how their day was</item>
+            <item>praise someone\'s work</item>
+            <item>compliment someone\'s quality</item>
+            <item>hug someone who is a part of your routine</item>
+        </string-array>
+
+        <!---Volans-->
+        <string-array name="volans">
+            <item>chat with someone that you have never talked to</item>
+            <item>give someone a present that you made yourself</item>
+            <item>pick up litter from the streets</item>
+            <item>give a flower to someone</item>
+            <item>send a message to someone that you haven\'t talked in a while</item>
+        </string-array>
+
+
+</resources>

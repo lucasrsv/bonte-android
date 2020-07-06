@@ -5,10 +5,8 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Path
-import android.graphics.PointF
-import android.graphics.Rect
-import android.graphics.RectF
+import android.graphics.*
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.DisplayMetrics
@@ -20,6 +18,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
@@ -36,10 +35,6 @@ import com.example.android.bonte_android.sky.SkyActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_onboarding.*
-import kotlinx.android.synthetic.main.activity_sky.*
-import kotlinx.android.synthetic.main.fragment_onboarding1.*
-import kotlinx.android.synthetic.main.fragment_onboarding1.onboardingLayout
-import kotlinx.android.synthetic.main.fragment_onboarding1.starBright
 import java.lang.Exception
 import java.util.*
 import kotlin.random.Random
@@ -62,6 +57,7 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var language: String
     private lateinit var view: View
     private lateinit var params: ViewGroup.LayoutParams
+    private var fadedFirstTexts = false
     private var timesClicked = 0
     private var firstTime = true
 
@@ -88,7 +84,6 @@ class OnboardingActivity : AppCompatActivity() {
     private var time = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.enterTransition = null
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         firebaseAuth = FirebaseAuth.getInstance()
@@ -105,9 +100,16 @@ class OnboardingActivity : AppCompatActivity() {
         firebaseAuth.removeAuthStateListener(authStateListener)
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!fadedFirstTexts) {
+            fadeInAnimation()
+            fadedFirstTexts = true
+        }
+    }
     private fun loadOnboarding() {
-        database = FirebaseDatabase.getInstance().reference
-        database.keepSynced(true)
+        //database = FirebaseDatabase.getInstance().reference
+        //database.keepSynced(true)
         firebaseAuth.addAuthStateListener(authStateListener)
 
         binding = DataBindingUtil.setContentView(
@@ -115,7 +117,9 @@ class OnboardingActivity : AppCompatActivity() {
             R.layout.activity_onboarding
         )
 
-        changeStatusBarColor()
+        if (Build.VERSION.SDK_INT > 19) {
+            changeStatusBarColor()
+        }
         welcomeText1 = binding.welcomeText
         welcomeText2 = binding.welcomeText2
         startArrow = binding.arrowUp
@@ -170,18 +174,30 @@ class OnboardingActivity : AppCompatActivity() {
 
         val fadeIn1 = ObjectAnimator.ofFloat(welcomeText1, "alpha", 0f, 1.0f).apply {
             duration = 1250
+            doOnStart {
+                welcomeText1.visibility = View.VISIBLE
+            }
         }
 
         val fadeIn2 = ObjectAnimator.ofFloat(welcomeText2, "alpha", 0f, 1.0f).apply {
             duration = 1250
+            doOnStart {
+                welcomeText2.visibility = View.VISIBLE
+            }
         }
 
         val fadeIn3 = ObjectAnimator.ofFloat(startText, "alpha", 0f, 1.0f).apply {
             duration = 1250
+            doOnStart {
+                startText.visibility = View.VISIBLE
+            }
         }
 
         val fadeIn4 = ObjectAnimator.ofFloat(startArrow, "alpha", 0f, 1.0f).apply {
             duration = 1250
+            doOnStart {
+                startArrow.visibility = View.VISIBLE
+            }
             doOnEnd {
                 turnedOffStarButton.setOnClickListener {
                     if (timesClicked == 0) {
@@ -200,12 +216,10 @@ class OnboardingActivity : AppCompatActivity() {
                         }
                         starRotation.pause()
 
-                        val fadeOutWelcomeText1 =
-                            ObjectAnimator.ofFloat(welcomeText1, "alpha", 1f, 0f)
+                        val fadeOutWelcomeText1 = ObjectAnimator.ofFloat(welcomeText1, "alpha", 1f, 0f)
                         fadeOutWelcomeText1.duration = 500
 
-                        val fadeOutWelcomeText2 =
-                            ObjectAnimator.ofFloat(welcomeText2, "alpha", 1f, 0f)
+                        val fadeOutWelcomeText2 = ObjectAnimator.ofFloat(welcomeText2, "alpha", 1f, 0f)
                         fadeOutWelcomeText2.duration = 500
 
                         val fadeOutStartText = ObjectAnimator.ofFloat(startText, "alpha", 1f, 0f)
@@ -237,8 +251,9 @@ class OnboardingActivity : AppCompatActivity() {
                         val fadeInBallIndicator =
                             ObjectAnimator.ofFloat(ballIndicator, "alpha", 0.0f, 1.0f).apply {
                                 duration = 1000
-                                startDelay = 2000
+                                startDelay = 2100
                                 doOnEnd {
+                                    var longTouchHappened = false
                                     turnedOffStarButton.setOnTouchListener { view, motionEvent ->
                                         when (motionEvent.actionMasked) {
                                             MotionEvent.ACTION_DOWN -> {
@@ -251,125 +266,302 @@ class OnboardingActivity : AppCompatActivity() {
                                                 val totalTime = motionEvent.eventTime - time
                                                 Log.d("totaltime", totalTime.toString())
                                                 if (totalTime >= 400) {
-                                                    var xInner = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 2.5f)
-                                                    var yInner = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 2.5f)
-                                                    var xOutter = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 2.3f)
-                                                    var yOutter = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 2.3f)
-                                                    var xOutterReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 2.3f, 0f)
-                                                    var yOutterReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 2.3f, 0f)
-                                                    var xMid = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 2.5f)
-                                                    var yMid = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 2.5f)
-                                                    var xMid2 = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 3.5f)
-                                                    var yMid2 = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 3.5f)
-                                                    var xBright = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 5f)
-                                                    var yBright = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 5f)
-                                                    var xInnerReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 2.5f, 1.5f)
-                                                    var yInnerReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 2.5f, 1.5f)
-                                                    var xMidReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 2.5f, 1.5f)
-                                                    var yMidReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 2.5f, 1.5f)
-                                                    var xMid2Return = PropertyValuesHolder.ofFloat(View.SCALE_X, 3.5f, 2.2f)
-                                                    var yMid2Return = PropertyValuesHolder.ofFloat(View.SCALE_Y, 3.5f, 2.2f)
-                                                    var xBrightReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 5f, 4f)
-                                                    var yBrightReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 5f, 4f)
+                                                    if (!longTouchHappened) {
+                                                        longTouchHappened = true
+                                                        onboarding.removeView(binding.beamLightView)
+                                                    var xInner = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_X,
+                                                        1f,
+                                                        2.5f
+                                                    )
+                                                    var yInner = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_Y,
+                                                        1f,
+                                                        2.5f
+                                                    )
+                                                    var xOutter = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_X,
+                                                        1f,
+                                                        2.3f
+                                                    )
+                                                    var yOutter = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_Y,
+                                                        1f,
+                                                        2.3f
+                                                    )
+                                                    var xOutterReturn =
+                                                        PropertyValuesHolder.ofFloat(
+                                                            View.SCALE_X,
+                                                            2.3f,
+                                                            0f
+                                                        )
+                                                    var yOutterReturn =
+                                                        PropertyValuesHolder.ofFloat(
+                                                            View.SCALE_Y,
+                                                            2.3f,
+                                                            0f
+                                                        )
+                                                    var xMid = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_X,
+                                                        1f,
+                                                        2.5f
+                                                    )
+                                                    var yMid = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_Y,
+                                                        1f,
+                                                        2.5f
+                                                    )
+                                                    var xMid2 = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_X,
+                                                        0f,
+                                                        3.5f
+                                                    )
+                                                    var yMid2 = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_Y,
+                                                        0f,
+                                                        3.5f
+                                                    )
+                                                    var xBright = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_X,
+                                                        0f,
+                                                        5f
+                                                    )
+                                                    var yBright = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_Y,
+                                                        0f,
+                                                        5f
+                                                    )
+                                                    var xInnerReturn = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_X,
+                                                        2.5f,
+                                                        1.5f
+                                                    )
+                                                    var yInnerReturn = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_Y,
+                                                        2.5f,
+                                                        1.5f
+                                                    )
+                                                    var xMidReturn = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_X,
+                                                        2.5f,
+                                                        1.5f
+                                                    )
+                                                    var yMidReturn = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_Y,
+                                                        2.5f,
+                                                        1.5f
+                                                    )
+                                                    var xMid2Return = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_X,
+                                                        3.5f,
+                                                        2.2f
+                                                    )
+                                                    var yMid2Return = PropertyValuesHolder.ofFloat(
+                                                        View.SCALE_Y,
+                                                        3.5f,
+                                                        2.2f
+                                                    )
+                                                    var xBrightReturn =
+                                                        PropertyValuesHolder.ofFloat(
+                                                            View.SCALE_X,
+                                                            5f,
+                                                            4f
+                                                        )
+                                                    var yBrightReturn =
+                                                        PropertyValuesHolder.ofFloat(
+                                                            View.SCALE_Y,
+                                                            5f,
+                                                            4f
+                                                        )
                                                     val time = 500L
-                                                    val scaleInner = ObjectAnimator.ofPropertyValuesHolder(binding.starInner, xInner, yInner).apply {
-                                                        duration = 1000
-                                                        startDelay = time
-                                                        doOnStart {
-                                                            starParticlesExplosion()
-                                                        }
-                                                    }
-                                                    val scaleMid = ObjectAnimator.ofPropertyValuesHolder(binding.starMid, xMid, yMid).apply {
-                                                        duration = 1000
-                                                        startDelay = time
-                                                    }
-                                                    val scaleMid2 = ObjectAnimator.ofPropertyValuesHolder(
-                                                        binding.starMid2,
-                                                        xMid2,
-                                                        yMid2
-                                                    ).apply {
-                                                        duration = 1500
-                                                        doOnStart {
-                                                            binding.starMid2.alpha = 0.6f
-                                                        }
-                                                    }
-                                                    val scaleOutter = ObjectAnimator.ofPropertyValuesHolder(
-                                                        binding.starOutter1,
-                                                        xOutter,
-                                                        yOutter
-                                                    ).apply {
-                                                        duration = 1000
-                                                        startDelay = time
-                                                    }
-                                                    val scaleOutter2 = ObjectAnimator.ofPropertyValuesHolder(
-                                                        binding.starOutter2,
-                                                        xOutter,
-                                                        yOutter
-                                                    ).apply {
-                                                        duration = 1000
-                                                        startDelay = time
-                                                    }
-
-                                                    val scaleBright = ObjectAnimator.ofPropertyValuesHolder(
-                                                        binding.starBright,
-                                                        xBright,
-                                                        yBright
-                                                    ).apply {
-                                                        duration = 1000
-                                                        startDelay = time
-                                                        var turnedVisible = false
-                                                        addUpdateListener { animation ->
-                                                            if (animation.animatedValue as Float > 0f && !turnedVisible) {
-                                                                turnedVisible = true
-                                                                starBright.visibility = View.VISIBLE
+                                                    val scaleInner =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starInner,
+                                                            xInner,
+                                                            yInner
+                                                        ).apply {
+                                                            duration = 1000
+                                                            startDelay = time
+                                                            doOnStart {
+                                                                starParticlesExplosion()
                                                             }
                                                         }
-                                                    }
-
-                                                    val scaleDownOutter = ObjectAnimator.ofPropertyValuesHolder(binding.starOutter1, xOutterReturn, yOutterReturn).apply {
-                                                        duration = 300
-                                                        doOnEnd {
-                                                            binding.starOutter1.visibility = View.GONE
-                                                            binding.starOutter2.visibility = View.GONE
+                                                    val scaleMid =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starMid,
+                                                            xMid,
+                                                            yMid
+                                                        ).apply {
+                                                            duration = 1000
+                                                            startDelay = time
+                                                        }
+                                                    val scaleMid2 =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starMid2,
+                                                            xMid2,
+                                                            yMid2
+                                                        ).apply {
+                                                            duration = 1500
+                                                            doOnStart {
+                                                                binding.starMid2.alpha = 0.6f
+                                                            }
+                                                        }
+                                                    val scaleOutter =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starOutter1,
+                                                            xOutter,
+                                                            yOutter
+                                                        ).apply {
+                                                            duration = 1000
+                                                            startDelay = time
+                                                        }
+                                                    val scaleOutter2 =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starOutter2,
+                                                            xOutter,
+                                                            yOutter
+                                                        ).apply {
+                                                            duration = 1000
+                                                            startDelay = time
                                                         }
 
-                                                    }
-                                                    val scaleDownOutter2 = ObjectAnimator.ofPropertyValuesHolder(binding.starOutter2, xOutterReturn, yOutterReturn).apply {
-                                                        duration = 300
-                                                    }
-                                                    val scaleDownInner = ObjectAnimator.ofPropertyValuesHolder(
-                                                        binding.starInner,
-                                                        xInnerReturn,
-                                                        yInnerReturn
+                                                    val scaleBright =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starBright,
+                                                            xBright,
+                                                            yBright
+                                                        ).apply {
+                                                            duration = 1000
+                                                            startDelay = time
+                                                            var turnedVisible = false
+                                                            addUpdateListener { animation ->
+                                                                if (animation.animatedValue as Float > 0f && !turnedVisible) {
+                                                                    turnedVisible = true
+                                                                    starBright.visibility =
+                                                                        View.VISIBLE
+                                                                }
+                                                            }
+                                                        }
+
+                                                    val scaleDownOutter =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starOutter1,
+                                                            xOutterReturn,
+                                                            yOutterReturn
+                                                        ).apply {
+                                                            duration = 300
+                                                            doOnEnd {
+                                                                binding.starOutter1.visibility =
+                                                                    View.GONE
+                                                                binding.starOutter2.visibility =
+                                                                    View.GONE
+                                                            }
+
+                                                        }
+                                                    val scaleDownOutter2 =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starOutter2,
+                                                            xOutterReturn,
+                                                            yOutterReturn
+                                                        ).apply {
+                                                            duration = 300
+                                                        }
+                                                    val scaleDownInner =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starInner,
+                                                            xInnerReturn,
+                                                            yInnerReturn
+                                                        ).apply {
+                                                            duration = 1000
+                                                            startDelay = 500
+                                                        }
+                                                    val scaleDownMid =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starMid,
+                                                            xMidReturn,
+                                                            yMidReturn
+                                                        ).apply {
+                                                            duration = 1000
+                                                            startDelay = 500
+                                                        }
+                                                    val scaleDownMid2 =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starMid2,
+                                                            xMid2Return,
+                                                            yMid2Return
+                                                        ).apply {
+                                                            duration = 1000
+                                                            startDelay = 500
+                                                        }
+                                                    val scaleDownBright =
+                                                        ObjectAnimator.ofPropertyValuesHolder(
+                                                            binding.starBright,
+                                                            xBrightReturn,
+                                                            yBrightReturn
+                                                        ).apply {
+                                                            duration = 1000
+                                                            startDelay = 500
+                                                        }
+                                                    val fadeStar0 = ObjectAnimator.ofFloat(
+                                                        binding.star0,
+                                                        "alpha",
+                                                        0.3f,
+                                                        1.0f
                                                     ).apply {
-                                                        duration = 1000
-                                                        startDelay = 500
+                                                        duration = 1500
+                                                        repeatMode = ValueAnimator.REVERSE
+                                                        repeatCount = 1
+                                                        doOnRepeat {
+                                                            pause()
+                                                            Timer().schedule(object : TimerTask() {
+                                                                override fun run() {
+                                                                    runOnUiThread { resume() }
+                                                                }
+                                                            }, 1000)
+                                                        }
                                                     }
-                                                    val scaleDownMid = ObjectAnimator.ofPropertyValuesHolder(
-                                                        binding.starMid,
-                                                        xMidReturn,
-                                                        yMidReturn
+                                                    val fadeStar1 = ObjectAnimator.ofFloat(
+                                                        binding.star1,
+                                                        "alpha",
+                                                        0.3f,
+                                                        1.0f
                                                     ).apply {
-                                                        duration = 1000
-                                                        startDelay = 500
+                                                        duration = 1500
+                                                        repeatMode = ValueAnimator.REVERSE
+                                                        repeatCount = 1
+                                                        doOnRepeat {
+                                                            pause()
+                                                            Timer().schedule(object : TimerTask() {
+                                                                override fun run() {
+                                                                    runOnUiThread { resume() }
+                                                                }
+                                                            }, 1000)
+                                                        }
                                                     }
-                                                    val scaleDownMid2 = ObjectAnimator.ofPropertyValuesHolder(
-                                                        binding.starMid2,
-                                                        xMid2Return,
-                                                        yMid2Return
+                                                    val fadeStar2 = ObjectAnimator.ofFloat(
+                                                        binding.star2,
+                                                        "alpha",
+                                                        0.3f,
+                                                        1.0f
                                                     ).apply {
-                                                        duration = 1000
-                                                        startDelay = 500
+                                                        duration = 1500
+                                                        repeatMode = ValueAnimator.REVERSE
+                                                        repeatCount = 1
+                                                        doOnRepeat {
+                                                            pause()
+                                                            Timer().schedule(object : TimerTask() {
+                                                                override fun run() {
+                                                                    runOnUiThread { resume() }
+                                                                }
+                                                            }, 1000)
+                                                        }
                                                     }
-                                                    val scaleDownBright = ObjectAnimator.ofPropertyValuesHolder(
-                                                        binding.starBright,
-                                                        xBrightReturn,
-                                                        yBrightReturn
+                                                    val fadeStar3 = ObjectAnimator.ofFloat(
+                                                        binding.star3,
+                                                        "alpha",
+                                                        0.3f,
+                                                        1.0f
                                                     ).apply {
-                                                        duration = 1000
-                                                        startDelay = 500
-                                                    }
-                                                    val fadeStar0 = ObjectAnimator.ofFloat(binding.star0, "alpha", 0.3f, 1.0f).apply {
                                                         duration = 1500
                                                         repeatMode = ValueAnimator.REVERSE
                                                         repeatCount = 1
@@ -382,7 +574,12 @@ class OnboardingActivity : AppCompatActivity() {
                                                             }, 1000)
                                                         }
                                                     }
-                                                    val fadeStar1 = ObjectAnimator.ofFloat(binding.star1, "alpha", 0.3f, 1.0f).apply {
+                                                    val fadeStar4 = ObjectAnimator.ofFloat(
+                                                        binding.star4,
+                                                        "alpha",
+                                                        0.3f,
+                                                        1.0f
+                                                    ).apply {
                                                         duration = 1500
                                                         repeatMode = ValueAnimator.REVERSE
                                                         repeatCount = 1
@@ -395,7 +592,12 @@ class OnboardingActivity : AppCompatActivity() {
                                                             }, 1000)
                                                         }
                                                     }
-                                                    val fadeStar2 = ObjectAnimator.ofFloat(binding.star2, "alpha", 0.3f, 1.0f).apply {
+                                                    val fadeStar5 = ObjectAnimator.ofFloat(
+                                                        binding.star5,
+                                                        "alpha",
+                                                        0.3f,
+                                                        1.0f
+                                                    ).apply {
                                                         duration = 1500
                                                         repeatMode = ValueAnimator.REVERSE
                                                         repeatCount = 1
@@ -408,46 +610,12 @@ class OnboardingActivity : AppCompatActivity() {
                                                             }, 1000)
                                                         }
                                                     }
-                                                    val fadeStar3 = ObjectAnimator.ofFloat(binding.star3, "alpha", 0.3f, 1.0f).apply {
-                                                        duration = 1500
-                                                        repeatMode = ValueAnimator.REVERSE
-                                                        repeatCount = 1
-                                                        doOnRepeat {
-                                                            pause()
-                                                            Timer().schedule(object : TimerTask() {
-                                                                override fun run() {
-                                                                    runOnUiThread { resume() }
-                                                                }
-                                                            }, 1000)
-                                                        }
-                                                    }
-                                                    val fadeStar4 = ObjectAnimator.ofFloat(binding.star4, "alpha", 0.3f, 1.0f).apply {
-                                                        duration = 1500
-                                                        repeatMode = ValueAnimator.REVERSE
-                                                        repeatCount = 1
-                                                        doOnRepeat {
-                                                            pause()
-                                                            Timer().schedule(object : TimerTask() {
-                                                                override fun run() {
-                                                                    runOnUiThread { resume() }
-                                                                }
-                                                            }, 1000)
-                                                        }
-                                                    }
-                                                    val fadeStar5 = ObjectAnimator.ofFloat(binding.star5, "alpha", 0.3f, 1.0f).apply {
-                                                        duration = 1500
-                                                        repeatMode = ValueAnimator.REVERSE
-                                                        repeatCount = 1
-                                                        doOnRepeat {
-                                                            pause()
-                                                            Timer().schedule(object : TimerTask() {
-                                                                override fun run() {
-                                                                    runOnUiThread { resume() }
-                                                                }
-                                                            }, 1000)
-                                                        }
-                                                    }
-                                                    val fadeStar6 = ObjectAnimator.ofFloat(binding.star6, "alpha", 0.3f, 1.0f).apply {
+                                                    val fadeStar6 = ObjectAnimator.ofFloat(
+                                                        binding.star6,
+                                                        "alpha",
+                                                        0.3f,
+                                                        1.0f
+                                                    ).apply {
                                                         duration = 1500
                                                         repeatMode = ValueAnimator.REVERSE
                                                         repeatCount = 1
@@ -457,55 +625,102 @@ class OnboardingActivity : AppCompatActivity() {
                                                                 override fun run() {
                                                                     runOnUiThread {
                                                                         resume()
-                                                                        val fadeOutTitle = ObjectAnimator.ofFloat(title1, "alpha", 1.0f, 0f).apply {
-                                                                            duration = 500
-                                                                        }
-                                                                        val fadeOutDescription = ObjectAnimator.ofFloat(description1, "alpha", 1.0f, 0f).apply {
-                                                                            duration = 500
-                                                                        }
-                                                                        val fadeOutStarAction = ObjectAnimator.ofFloat(actionText, "alpha", 1.0f, 0f).apply {
-                                                                            duration = 500
-                                                                        }
-                                                                        val fadeInLitStarTile = ObjectAnimator.ofFloat(litStarTitle, "alpha", 0f, 1f).apply {
-                                                                            duration = 1000
-                                                                        }
-                                                                        val fadeInLitStarDescription = ObjectAnimator.ofFloat(litStarDescription, "alpha", 0f, 1f).apply {
-                                                                            duration = 1000
-                                                                        }
-                                                                        val fadeInButton = ObjectAnimator.ofFloat(buttonSky, "alpha", 0f, 0.23f).apply {
-                                                                            duration = 1000
-                                                                            doOnEnd {
-                                                                                buttonSky.isClickable = true
-                                                                                buttonSky.setOnClickListener {
-                                                                                    val intent = Intent(baseContext, LoginActivity::class.java)
-                                                                                    startActivity(intent)
-                                                                                    finish()
+                                                                        val fadeOutTitle =
+                                                                            ObjectAnimator.ofFloat(
+                                                                                title1,
+                                                                                "alpha",
+                                                                                1.0f,
+                                                                                0f
+                                                                            ).apply {
+                                                                                duration = 500
+                                                                            }
+                                                                        val fadeOutDescription =
+                                                                            ObjectAnimator.ofFloat(
+                                                                                description1,
+                                                                                "alpha",
+                                                                                1.0f,
+                                                                                0f
+                                                                            ).apply {
+                                                                                duration = 500
+                                                                            }
+                                                                        val fadeOutStarAction =
+                                                                            ObjectAnimator.ofFloat(
+                                                                                actionText,
+                                                                                "alpha",
+                                                                                1.0f,
+                                                                                0f
+                                                                            ).apply {
+                                                                                duration = 500
+                                                                            }
+                                                                        val fadeInLitStarTile =
+                                                                            ObjectAnimator.ofFloat(
+                                                                                litStarTitle,
+                                                                                "alpha",
+                                                                                0f,
+                                                                                1f
+                                                                            ).apply {
+                                                                                duration = 1000
+                                                                            }
+                                                                        val fadeInLitStarDescription =
+                                                                            ObjectAnimator.ofFloat(
+                                                                                litStarDescription,
+                                                                                "alpha",
+                                                                                0f,
+                                                                                1f
+                                                                            ).apply {
+                                                                                duration = 1000
+                                                                            }
+                                                                        val fadeInButton =
+                                                                            ObjectAnimator.ofFloat(
+                                                                                buttonSky,
+                                                                                "alpha",
+                                                                                0f,
+                                                                                0.23f
+                                                                            ).apply {
+                                                                                duration = 1000
+                                                                                doOnEnd {
+                                                                                    buttonSky.isClickable =
+                                                                                        true
+                                                                                    buttonSky.setOnTouchListener { view, motionEvent ->
+                                                                                        when (motionEvent.action) {
+                                                                                            MotionEvent.ACTION_DOWN -> {
+                                                                                                val button = view as ImageView
+                                                                                                button.drawable.setColorFilter(0x77000000, PorterDuff.Mode.SRC_ATOP)
+                                                                                                button.invalidate()
+                                                                                            }
+                                                                                            MotionEvent.ACTION_UP -> {
+                                                                                                val button = view as ImageView
+                                                                                                button.drawable.clearColorFilter()
+                                                                                                button.invalidate()
+                                                                                                val intent =
+                                                                                                    Intent(
+                                                                                                        baseContext,
+                                                                                                        LoginActivity::class.java
+                                                                                                    )
+                                                                                                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                                                                                                startActivity(intent)
+                                                                                                overridePendingTransition(0,0)
+                                                                                                finish()
+                                                                                            }
+                                                                                            MotionEvent.ACTION_CANCEL -> {
+                                                                                                val button = view as ImageView
+                                                                                                button.drawable.clearColorFilter()
+                                                                                                button.invalidate()
+                                                                                            }
+                                                                                        }
+                                                                                        false
+                                                                                    }
                                                                                 }
                                                                             }
-                                                                        }
-                                                                        val fadeInButtonText = ObjectAnimator.ofFloat(buttonSkyText, "alpha", 0f, 1f).apply {
-                                                                            duration = 1000
-                                                                        }
-                                                                        val scaleButtonX = ObjectAnimator.ofFloat(buttonSky, "scaleX", 1f, 1.1f).apply {
-                                                                            duration = 1000
-                                                                            repeatMode = ValueAnimator.REVERSE
-                                                                            repeatCount =  ValueAnimator.INFINITE
-                                                                        }
-                                                                        val scaleButtonTextX = ObjectAnimator.ofFloat(buttonSkyText, "scaleX", 1f, 1.1f).apply {
-                                                                            duration = 1000
-                                                                            repeatMode = ValueAnimator.REVERSE
-                                                                            repeatCount =  ValueAnimator.INFINITE
-                                                                        }
-                                                                        val scaleButtonY = ObjectAnimator.ofFloat(buttonSky, "scaleY", 1f, 1.2f).apply {
-                                                                            duration = 1000
-                                                                            repeatMode = ValueAnimator.REVERSE
-                                                                            repeatCount =  ValueAnimator.INFINITE
-                                                                        }
-                                                                        val scaleButtonTextY = ObjectAnimator.ofFloat(buttonSkyText, "scaleY", 1f, 1.2f).apply {
-                                                                            duration = 1000
-                                                                            repeatMode = ValueAnimator.REVERSE
-                                                                            repeatCount =  ValueAnimator.INFINITE
-                                                                        }
+                                                                        val fadeInButtonText =
+                                                                            ObjectAnimator.ofFloat(
+                                                                                buttonSkyText,
+                                                                                "alpha",
+                                                                                0f,
+                                                                                1f
+                                                                            ).apply {
+                                                                                duration = 1000
+                                                                            }
 
                                                                         AnimatorSet().apply {
                                                                             playTogether(
@@ -517,13 +732,11 @@ class OnboardingActivity : AppCompatActivity() {
                                                                                 fadeInLitStarTile,
                                                                                 fadeInLitStarDescription,
                                                                                 fadeInButton,
-                                                                                fadeInButtonText,
-                                                                                scaleButtonX,
-                                                                                scaleButtonTextX,
-                                                                                scaleButtonY,
-                                                                                scaleButtonTextY
+                                                                                fadeInButtonText
                                                                             )
-                                                                            play(fadeInLitStarTile).after(fadeOutTitle)
+                                                                            play(fadeInLitStarTile).after(
+                                                                                fadeOutTitle
+                                                                            )
                                                                             start()
                                                                         }
                                                                     }
@@ -547,7 +760,10 @@ class OnboardingActivity : AppCompatActivity() {
                                                             fadeStar5,
                                                             fadeStar6
                                                         )
-                                                        playTogether(scaleDownOutter, scaleDownOutter2)
+                                                        playTogether(
+                                                            scaleDownOutter,
+                                                            scaleDownOutter2
+                                                        )
                                                         play(scaleDownOutter).after(scaleBright)
 
                                                         play(scaleDownMid).after(scaleDownOutter)
@@ -570,6 +786,7 @@ class OnboardingActivity : AppCompatActivity() {
                                                             }, 500)
                                                         }*/
                                                     }
+                                                }
                                                 } else {
                                                     binding.beamLightView.getLineAnimUndo()?.pause()
                                                     //binding.beamLightView.getfadeAnimUndo()?.pause()
@@ -751,7 +968,33 @@ class OnboardingActivity : AppCompatActivity() {
         } else {
             "en"
         }
-        database.child(language).child("onboarding").child("onboarding1").addListenerForSingleValueEvent(
+        val config = resources.configuration
+        val locale = Locale(language)
+
+        if (Build.VERSION.SDK_INT >= 24) {
+            config.setLocale(locale)
+        } else {
+            config.locale = locale
+        }
+
+        if (Build.VERSION.SDK_INT >= 25) {
+            resources.updateConfiguration(config, resources.displayMetrics)
+        } else {
+            createConfigurationContext(config)
+        }
+
+        welcomeText1.text = resources.getString(R.string.onboarding_title1 )
+        welcomeText2.text = resources.getString(R.string.onboarding_description1)
+        startText.text = resources.getString(R.string.onboarding_start)
+        actionText.text = resources.getString(R.string.onboarding_star_action)
+        title1.text = resources.getString(R.string.onboarding_title2)
+        description1.text = resources.getString(R.string.onboarding_description2)
+        binding.litStarTitle.text = resources.getString(R.string.onboarding_title3)
+        binding.litStarDescription.text = resources.getString(R.string.onboarding_description3)
+        binding.buttonSkyText.text = resources.getString(R.string.onboarding_go_to_sky)
+
+        //This was when the app used to get the main texts from firebase
+/*        database.child(language).child("onboarding").child("onboarding1").addListenerForSingleValueEvent(
             object : ValueEventListener {
                 override fun onCancelled(databaseError: DatabaseError) {
                     Log.w(ContentValues.TAG, "getUser:onCancelled", databaseError.toException())
@@ -778,6 +1021,6 @@ class OnboardingActivity : AppCompatActivity() {
 
                 }
             }
-        )
+        )*/
     }
 }

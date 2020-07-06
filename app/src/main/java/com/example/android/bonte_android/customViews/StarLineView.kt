@@ -9,6 +9,7 @@ import android.util.TypedValue
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.animation.doOnEnd
 import com.example.android.bonte_android.R
 import kotlinx.android.synthetic.main.activity_onboarding.*
 import kotlin.math.roundToInt
@@ -63,6 +64,9 @@ class StarLineView @JvmOverloads constructor(
         lineAnim.addUpdateListener {
             paint.pathEffect = DashPathEffect(dashes, lineAnim.animatedValue as Float)
             invalidate()
+        }
+        lineAnim.doOnEnd {
+            paint.alpha = 0
         }
 
         lineAnim.duration = 500
