@@ -45,7 +45,6 @@ import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_sky.*
 import java.io.File
 import java.util.*
-import kotlin.properties.Delegates
 import kotlin.random.Random
 
 
@@ -180,8 +179,8 @@ class SkyActivity : AppCompatActivity() {
     }
 
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         backgroundSongService?.run{
             if (isPlaying()) {
                 pauseMusic()
@@ -189,10 +188,21 @@ class SkyActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRestart() {
-        super.onRestart()
+    override fun onResume() {
+        super.onResume()
         if (soundOn) {
             backgroundSongService?.resumeMusic()
+        }
+    }
+
+    override fun onBackPressed() {
+        if (isStarClicked) {
+            if (canZoomOut) {
+                Log.d("podesim", "yee")
+                zoomOut()
+            }
+        } else {
+            super.onBackPressed()
         }
     }
 
@@ -205,7 +215,6 @@ class SkyActivity : AppCompatActivity() {
                         when (event.actionMasked) {
                             MotionEvent.ACTION_DOWN -> {
                                 time = event.eventTime
-                                Log.d("timeDown", time.toString())
                                 true
                             }
                             MotionEvent.ACTION_UP -> {
@@ -449,8 +458,7 @@ class SkyActivity : AppCompatActivity() {
                                         updateSkyStatus(0, 0, "intermediaryStarsAmount", false, intermediaryStarAmount)
                                         if (starClicked.first == i && starClicked.second == j && numClicks == 1 && !constellations[i].stars[j].intermediate && !constellations[i].stars[j].done) {
                                             numClicks++
-                                            constellations[i].stars[j].starViews[4].visibility =
-                                                View.VISIBLE
+                                            constellations[i].stars[j].starViews[4].visibility = View.VISIBLE
 
                                             val constellation = if (i == 0) {
                                                 "volans"
@@ -512,6 +520,25 @@ class SkyActivity : AppCompatActivity() {
                                                 pvhR
                                             ).apply {
                                                 duration = 1000
+
+                                                //Changes the two dashed outter star to a full outter star
+                                                /*doOnEnd {
+                                                    constellations[i].stars[j].starViews[6].visibility = View.VISIBLE
+                                                    val fadeOutter1 = ObjectAnimator.ofFloat(constellations[i].stars[j].starViews[2], "alpha", 1f, 0f)
+                                                    fadeOutter1.duration = 2000
+                                                    fadeOutter1.doOnEnd {
+                                                        constellations[i].stars[j].starViews[2].visibility = View.INVISIBLE
+                                                    }
+                                                    val fadeOutter2 = ObjectAnimator.ofFloat(constellations[i].stars[j].starViews[4], "alpha", 1f, 0f)
+                                                    fadeOutter2.duration = 2000
+                                                    fadeOutter2.doOnEnd {
+                                                        constellations[i].stars[j].starViews[4].visibility = View.INVISIBLE
+                                                    }
+                                                    AnimatorSet().apply {
+                                                        playTogether(fadeOutter1, fadeOutter2)
+                                                        start()
+                                                    }
+                                                }*/
                                             }
 
                                             AnimatorSet().apply {
@@ -1031,6 +1058,46 @@ class SkyActivity : AppCompatActivity() {
             applicationContext.bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
         startService(Intent(this, BackgroundSongService::class.java))
+    }
+
+    private fun takeAndStoreScreenhot() {
+        val b = Screenshot().takescreenshotOfRootView(sky)
+        if (Screenshot().storeScreenshot(b, applicationContext)) {
+            val fadeInScreenshotFeedback = ObjectAnimator.ofFloat(binding.screenshotFeedbackButton, "alpha", 0f, 0.2f).apply {
+                duration = 1000
+                doOnStart {
+                    binding.screenshotFeedbackButton.visibility = View.VISIBLE
+                }
+            }
+            val fadeInScreenshotFeedbackText = ObjectAnimator.ofFloat(binding.screenshotFeedbackText, "alpha", 0f, 1f).apply {
+                duration = 1000
+                doOnStart {
+                    binding.screenshotFeedbackText.visibility = View.VISIBLE
+                }
+            }
+
+            val fadeOutScreenshotFeedback = ObjectAnimator.ofFloat(binding.screenshotFeedbackButton, "alpha", 0.2f, 0f).apply {
+                duration = 1000
+                startDelay = 2000
+                doOnEnd {
+                    binding.screenshotFeedbackButton.visibility = View.INVISIBLE
+                }
+            }
+            val fadeOutScreenshotFeedbackText = ObjectAnimator.ofFloat(binding.screenshotFeedbackText, "alpha", 1f, 0f).apply {
+                duration = 1000
+                startDelay = 2000
+                doOnEnd {
+                    binding.screenshotFeedbackText.visibility = View.INVISIBLE
+                }
+            }
+
+            AnimatorSet().apply {
+                playTogether(fadeInScreenshotFeedback, fadeInScreenshotFeedbackText)
+                playTogether(fadeOutScreenshotFeedback, fadeOutScreenshotFeedbackText)
+                play(fadeOutScreenshotFeedback).after(fadeInScreenshotFeedback)
+                start()
+            }
+        }
     }
 
     private fun zoomOut() {
@@ -1587,7 +1654,6 @@ class SkyActivity : AppCompatActivity() {
 
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             intermediaryStarAmount = dataSnapshot.child("intermediaryStarsAmount").value as Long
-                            Log.d("aaassak", intermediaryStarAmount.toString())
                         }
                     }
                 )
@@ -2032,6 +2098,7 @@ class SkyActivity : AppCompatActivity() {
             }
             "music" -> {
                 database.child("users").child(firebaseUser!!.uid).child("settings").child("songOn").setValue(bool)
+                soundOn = bool
             }
             "intermediaryStarsAmount" -> {
                 database.child("users").child(firebaseUser!!.uid).child("userSkyStatus").child("intermediaryStarsAmount").setValue(intermediaryStarsAmount)
@@ -2167,9 +2234,15 @@ class SkyActivity : AppCompatActivity() {
                                 logoutButton.visibility = View.VISIBLE
                             }
                         }
+                        val fadeLogoutSymbol = ObjectAnimator.ofFloat(binding.logoutIcon, "alpha", 0f, 1f).apply {
+                            duration = 250
+                            doOnStart {
+                                binding.logoutIcon.visibility = View.VISIBLE
+                            }
+                        }
 
                         AnimatorSet().apply {
-                            playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeMusicButton, fadeMusicSymbol, fadeLogoutButton)
+                            playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeMusicButton, fadeMusicSymbol, fadeLogoutButton, fadeLogoutSymbol)
                             start()
                         }
 
@@ -2216,8 +2289,15 @@ class SkyActivity : AppCompatActivity() {
                             }
                         }
 
+                        val fadeLogoutSymbol = ObjectAnimator.ofFloat(binding.logoutIcon, "alpha", 1f, 0f).apply {
+                            duration = 250
+                            doOnEnd {
+                                binding.logoutIcon.visibility = View.INVISIBLE
+                            }
+                        }
+
                         AnimatorSet().apply {
-                            playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeMusicButton, fadeMusicSymbol, fadeLogoutButton)
+                            playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeMusicButton, fadeMusicSymbol, fadeLogoutButton, fadeLogoutSymbol)
                             start()
                         }
                     }
@@ -2249,8 +2329,9 @@ class SkyActivity : AppCompatActivity() {
                         doOnEnd {
                             if (isStoragePermissionGranted()) {
                                 screenshotButton.visibility = View.INVISIBLE
-                                val b = Screenshot().takescreenshotOfRootView(sky)
-                                Screenshot().storeScreenshot(b, applicationContext)
+                                takeAndStoreScreenhot()
+                            } else {
+                                Log.d("Storage Permission", "Still not granted, opening the Activity for Request.")
                             }
                         }
                     }
@@ -2283,8 +2364,15 @@ class SkyActivity : AppCompatActivity() {
                         }
                     }
 
+                    val fadeLogoutSymbol = ObjectAnimator.ofFloat(binding.logoutIcon, "alpha", 1f, 0f).apply {
+                        duration = 250
+                        doOnEnd {
+                            binding.logoutIcon.visibility = View.INVISIBLE
+                        }
+                    }
+
                     AnimatorSet().apply {
-                        playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeMusicButton, fadeMusicSymbol, fadeLogoutButton)
+                        playTogether(fadeScreenshotButton, fadeScreenshotSymbol, fadeMusicButton, fadeMusicSymbol, fadeLogoutButton, fadeLogoutSymbol)
                         close_menu.visibility = View.INVISIBLE
                         menu_main_icon1.visibility = View.VISIBLE
                         menu_main_icon1.alpha = 1f
@@ -2374,6 +2462,26 @@ class SkyActivity : AppCompatActivity() {
 
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            1 -> {
+                // If request is cancelled, the result arrays are empty.
+                if ((grantResults.isNotEmpty() &&
+                            grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    screenshotButton.visibility = View.INVISIBLE
+                    takeAndStoreScreenhot()
+                    } else {
+                    // Needs to implement this feedback
+                }
+                return
+            }
+            else -> {
+                // Ignore all other requests.
+            }
+        }
+    }
+
     private fun isStoragePermissionGranted(): Boolean {
         return if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -2381,22 +2489,18 @@ class SkyActivity : AppCompatActivity() {
                     val folder =  File(Environment.getExternalStorageDirectory().toString(), "bontê")
                     if (!folder.exists()) {
                         folder.mkdir()
-                        if (folder.exists()) {
-                            Log.d("aff vei", "yuke")
-                        }
                     }
                 }
-                Log.v("TAG","Permission is granted")
+                Log.d("TAG","Permission is granted!")
                 true
             } else {
-
-                Log.v("TAG", "Permission is revoked")
+                Log.d("TAG", "Permission is revoked")
                 ActivityCompat.requestPermissions(this, Array(2){ android.Manifest.permission.WRITE_EXTERNAL_STORAGE }, 1)
                 false
             }
         }
         else { //permission is automatically granted on sdk<23 upon installation
-            Log.v("TAG","Permission is granted");
+            Log.d("TAG","Permission is granted2");
             val folder =  File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "bontê")
             if (!folder.exists()) {
                 folder.mkdir()

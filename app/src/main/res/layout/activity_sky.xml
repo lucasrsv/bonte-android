@@ -8,6 +8,36 @@
         android:layout_height="match_parent">
 
         <ImageView
+            android:id="@+id/screenshot_feedback_button"
+            android:layout_width="160dp"
+            android:layout_height="64dp"
+            android:src="@drawable/rectangle"
+            android:elevation="2dp"
+            android:alpha="0.2"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/skyZoomLayout"
+            app:layout_constraintStart_toStartOf="@+id/skyZoomLayout"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <TextView
+            android:id="@+id/screenshot_feedback_text"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:text="@string/screenshot_feedback"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/montserrat"
+            android:elevation="2dp"
+            android:textAlignment="center"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/screenshot_feedback_button"
+            app:layout_constraintStart_toStartOf="@+id/screenshot_feedback_button"
+            app:layout_constraintTop_toTopOf="@+id/screenshot_feedback_button" />
+
+        <ImageView
             android:id="@+id/menuButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -18,7 +48,7 @@
             app:layout_constraintHorizontal_bias="0.97"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.98" />
+            app:layout_constraintVertical_bias="0.96" />
 
         <ImageView
             android:id="@+id/screenshotButton"
@@ -132,6 +162,18 @@
             app:layout_constraintStart_toStartOf="@+id/musicButton"
             app:layout_constraintTop_toTopOf="@+id/musicButton" />
 
+        <ImageView
+            android:id="@+id/logoutIcon"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/logout_symbol"
+            android:elevation="2dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/logoutButton"
+            app:layout_constraintEnd_toEndOf="@id/logoutButton"
+            app:layout_constraintHorizontal_bias="0.52"
+            app:layout_constraintStart_toStartOf="@+id/logoutButton"
+            app:layout_constraintTop_toTopOf="@+id/logoutButton" />
 
         <com.otaliastudios.zoom.ZoomLayout
             android:id="@+id/skyZoomLayout"
@@ -140,8 +182,10 @@
             app:hasClickableChildren="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
             app:maxZoom="5.0"
             app:minZoom="1.0">
 

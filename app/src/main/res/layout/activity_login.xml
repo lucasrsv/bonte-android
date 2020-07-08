@@ -108,20 +108,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.98" />
+            app:layout_constraintVertical_bias="0.979" />
 
         <ImageView
             android:id="@+id/googleSymbol"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
             android:src="@drawable/google_icon"
             android:visibility="invisible"
+            android:layout_marginStart="24dp"
             app:layout_constraintBottom_toBottomOf="@+id/sign_in_button"
             app:layout_constraintEnd_toEndOf="@+id/sign_in_button"
-            app:layout_constraintHorizontal_bias="0.076"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/sign_in_button"
-            app:layout_constraintTop_toTopOf="@+id/sign_in_button"
-            app:layout_constraintVertical_bias="0.545" />
+            app:layout_constraintTop_toTopOf="@+id/sign_in_button" />
 
         <TextView
             android:id="@+id/loginButtonText"
@@ -130,11 +130,14 @@
             android:text="@string/log_in_button"
             android:textColor="@color/white"
             android:textSize="19sp"
+            android:textAlignment="center"
             android:fontFamily="@font/montserrat_bold"
             android:layout_marginTop="9dp"
             android:visibility="invisible"
+            android:layout_marginStart="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/sign_in_button"
             app:layout_constraintEnd_toEndOf="@+id/sign_in_button"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/googleSymbol"
             app:layout_constraintTop_toTopOf="@+id/sign_in_button"
             app:layout_constraintVertical_bias="0.0" />

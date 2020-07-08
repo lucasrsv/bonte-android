@@ -32,6 +32,7 @@ import com.example.android.bonte_android.*
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.databinding.ActivityOnboardingBinding
 import com.example.android.bonte_android.sky.SkyActivity
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_onboarding.*
@@ -65,6 +66,7 @@ class OnboardingActivity : AppCompatActivity() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
+    private lateinit var gso: GoogleSignInOptions
 
     //
 
@@ -86,6 +88,10 @@ class OnboardingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
+        gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
         firebaseAuth = FirebaseAuth.getInstance()
         checkLogin()
     }
@@ -103,7 +109,8 @@ class OnboardingActivity : AppCompatActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (!fadedFirstTexts) {
-            fadeInAnimation()
+            //Need to make a better usage of lateinit (with nullable property)
+            //fadeInAnimation()
             fadedFirstTexts = true
         }
     }
@@ -117,9 +124,7 @@ class OnboardingActivity : AppCompatActivity() {
             R.layout.activity_onboarding
         )
 
-        if (Build.VERSION.SDK_INT > 19) {
-            changeStatusBarColor()
-        }
+        changeStatusBarColor()
         welcomeText1 = binding.welcomeText
         welcomeText2 = binding.welcomeText2
         startArrow = binding.arrowUp
@@ -137,6 +142,7 @@ class OnboardingActivity : AppCompatActivity() {
         addParticlesExplosion()
         addSkyParticles()
         setTexts()
+        fadeInAnimation()
     }
 
     private fun checkLogin() {

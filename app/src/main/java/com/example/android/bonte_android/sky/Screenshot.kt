@@ -33,7 +33,7 @@ class Screenshot {
         return takescreenshot(v.rootView)
     }
 
-    fun storeScreenshot(bitmap: Bitmap, context: Context) {
+    fun storeScreenshot(bitmap: Bitmap, context: Context) : Boolean{
         val now = Date()
         DateFormat.format("yyyy-MM-dd_hh:mm:ss", now)
         val path: String = Environment.getExternalStorageDirectory().toString() + "/" + "bontê" + "/" + "bontê " + now + ".jpg"
@@ -54,16 +54,17 @@ class Screenshot {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
                 out!!.flush()
             } catch (e: FileNotFoundException) {
-                // manage exception ...
+                Log.d("filenotfound", "a")
             } catch (e: IOException) {
-                // manage exception ...
+                Log.d("ioexception", "ioexception")
             } finally {
 
-                try {
+                return try {
                     out?.close()
-
+                    true
                 } catch (exc: Exception) {
-
+                    Log.d("finallyex", "exc")
+                    false
                 }
 
             }
@@ -73,24 +74,24 @@ class Screenshot {
                 out = FileOutputStream(imageFile)
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
                 out.flush()
+                Log.d("trueea", "a")
             } catch (e: FileNotFoundException) {
-                // manage exception ...
+                Log.d("filenotfound", "a")
             } catch (e: IOException) {
-                // manage exception ...
+                Log.d("ioexcp", "a")
             } finally {
 
-                try {
+                return try {
                     out?.close()
+                    Log.d("true", "a")
+                    true
 
                 } catch (exc: Exception) {
-
+                    Log.d("exception", "a")
+                    false
                 }
 
             }
         }
-
-
-
-
     }
 }

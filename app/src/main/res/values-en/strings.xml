@@ -7,6 +7,7 @@
     <string name="do_star_again" ><b>your star can get brighter!</b> just tap on it if you wish to do it again &lt;3</string>
     <string name="intermediary_stars_limit">"one step at a time, you've already chosen three stars &lt;3"</string>
     <string name="take_your_time">"hey, take your time to do your actions and come back later :)"</string>
+    <string name="screenshot_feedback">your sky is already in your galery!</string>
 
     <!---Onboarding-->
 
@@ -21,8 +22,8 @@
     <string name="onboarding_go_to_sky">go to the sky</string>
 
     <!--Login-->
-    <string name="log_in"><b>log in with Google</b> to see your sky</string>
-    <string name="log_in_button">log in to see your sky</string>
+    <string name="log_in"><b>log in</b> to see your sky</string>
+    <string name="log_in_button">log in with Google</string>
     <string name="return_to_onboarding">go back to onboarding</string>
 
     <!---Sky-->
