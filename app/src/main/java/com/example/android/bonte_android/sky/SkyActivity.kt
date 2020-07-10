@@ -119,6 +119,7 @@ class SkyActivity : AppCompatActivity() {
             this,
             R.layout.activity_sky
         )
+        database.keepSynced(true)
         doStarAgainText = binding.starDoAgainText
         takeYourTimeText = binding.takeYourTimeText
         intermediaryStarsLimitText = binding.intermediaryStarsLimitText
@@ -462,9 +463,9 @@ class SkyActivity : AppCompatActivity() {
                                 val totalTime = event.eventTime - time
                                 if (totalTime <= 300) {
                                     if (intermediaryStarsAmount < 3) {
-                                        intermediaryStarsAmount++
-                                        updateSkyStatus(0, 0, "intermediaryStarsAmount", false)
                                         if (starClicked.first == i && starClicked.second == j && numClicks == 1 && !constellations[i].stars[j].intermediate && !constellations[i].stars[j].done) {
+                                            intermediaryStarsAmount++
+                                            updateSkyStatus(0, 0, "intermediaryStarsAmount", false)
                                             numClicks++
                                             constellations[i].stars[j].starViews[4].visibility = View.VISIBLE
                                             starRectangle.x = constellations[i].stars[j].position.x - dpToPxF(36.5f)
@@ -537,9 +538,9 @@ class SkyActivity : AppCompatActivity() {
                                             }
                                             updateSkyStatus(i, j, "intermediary", true)
 
-                                        } else if (starClicked.first == i && starClicked.second == j &&
-                                            !constellations[i].stars[j].intermediate && constellations[i].stars[j].done
-                                        ) {
+                                        } else if (starClicked.first == i && starClicked.second == j && !constellations[i].stars[j].intermediate && constellations[i].stars[j].done) {
+                                            intermediaryStarsAmount++
+                                            updateSkyStatus(0, 0, "intermediaryStarsAmount", false)
                                             starRectangle.x =
                                                 constellations[i].stars[j].position.x - dpToPxF(
                                                     36.5f
@@ -2052,7 +2053,7 @@ class SkyActivity : AppCompatActivity() {
                 database.child("users").child(firebaseUser!!.uid).child("constellations").child(constellation.toString()).child("cstars").child(star.toString()).child("stimesCompleted").setValue(constellations[constellation].stars[star].timesCompleted+1)
             }
             "music" -> {
-                database.child("users").child(firebaseUser!!.uid).child("settings").child("songOn").setValue(bool)
+                    database.child("users").child(firebaseUser!!.uid).child("settings").child("songOn").setValue(bool)
                 soundOn = bool
             }
             "intermediaryStarsAmount" -> {
