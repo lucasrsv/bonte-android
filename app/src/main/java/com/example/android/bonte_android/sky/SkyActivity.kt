@@ -100,7 +100,7 @@ class SkyActivity : AppCompatActivity() {
     private var boolForRotateShow = true
     private var rotateAnimations = Array(26) { ObjectAnimator() }
     private var scaleStar = 0
-    private var intermediaryStarAmount = 0L
+    private var intermediaryStarsAmount = 0L
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -168,7 +168,6 @@ class SkyActivity : AppCompatActivity() {
         setPaths()
         getSkyStatus()
         touchListener()
-        longPressListener()
         setParticles()
         addMenu()
         setTexts("0", "0", "interactions")
@@ -462,9 +461,9 @@ class SkyActivity : AppCompatActivity() {
                             MotionEvent.ACTION_UP -> {
                                 val totalTime = event.eventTime - time
                                 if (totalTime <= 300) {
-                                    if (intermediaryStarAmount < 3) {
-                                        intermediaryStarAmount++
-                                        updateSkyStatus(0, 0, "intermediaryStarsAmount", false, intermediaryStarAmount)
+                                    if (intermediaryStarsAmount < 3) {
+                                        intermediaryStarsAmount++
+                                        updateSkyStatus(0, 0, "intermediaryStarsAmount", false)
                                         if (starClicked.first == i && starClicked.second == j && numClicks == 1 && !constellations[i].stars[j].intermediate && !constellations[i].stars[j].done) {
                                             numClicks++
                                             constellations[i].stars[j].starViews[4].visibility = View.VISIBLE
@@ -536,7 +535,7 @@ class SkyActivity : AppCompatActivity() {
                                                 )
                                                 start()
                                             }
-                                            updateSkyStatus(i, j, "intermediary", true, 0L)
+                                            updateSkyStatus(i, j, "intermediary", true)
 
                                         } else if (starClicked.first == i && starClicked.second == j &&
                                             !constellations[i].stars[j].intermediate && constellations[i].stars[j].done
@@ -553,7 +552,7 @@ class SkyActivity : AppCompatActivity() {
                                                 )
                                             takeYourTimeText.y =
                                                 (-skyZoomLayout.engine.panY + view.height / skyZoomLayout.zoom) - starRectangle.height / 1.1f
-                                            updateSkyStatus(i, j, "intermediary", true, 0L)
+                                            updateSkyStatus(i, j, "intermediary", true)
                                             numClicks++
                                             val x =
                                                 PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 3.1f)
@@ -644,6 +643,345 @@ class SkyActivity : AppCompatActivity() {
                                             start()
                                         }
                                     }
+                                } else if (totalTime >= 500) {
+                                    if (isStarClicked) {
+                                        if (constellations[i].stars[j].intermediate) {
+                                            canZoomOut = false
+                                            canZoomOut2 = false
+                                            /*val vibrator = applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                                vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L), intArrayOf(5, 10, 20, 30, 40, 50, 60, 70, 80, 90), -1))
+                                            }*/
+                                            shineStars(i, j)
+                                            //numClicks = 5 // O onTouch detecta o longpress normalmente. Então, para não entrar nas condições do longpress, aumentei o numClicks.
+                                            intermediaryStarsAmount--
+                                            updateSkyStatus(0, 0, "intermediaryStarsAmount", false)
+                                            canDoStarAgain = true //Porém, aumentando o número de cliques
+
+
+                                            var xMid2 = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 4f)
+                                            var yMid2 = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 4f)
+                                            var xGeneral = PropertyValuesHolder.ofFloat(View.SCALE_X, 2f, 4f)
+                                            var yGeneral = PropertyValuesHolder.ofFloat(View.SCALE_Y, 2f, 4f)
+                                            var xOutter = PropertyValuesHolder.ofFloat(View.SCALE_X, 2f, 4.1f)
+                                            var yOutter = PropertyValuesHolder.ofFloat(View.SCALE_Y, 2f, 4.1f)
+                                            var xBright = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 6f)
+                                            var yBright = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 6f)
+                                            var delay = 0L
+                                            var time = 2000L
+
+
+                                            if (!constellations[i].stars[j].done) {
+                                                delay = 750L
+                                            } else if (constellations[i].stars[j].intermediate && !constellations[i].stars[j].done) {
+                                                delay = 1250L
+                                            }
+
+                                            if (constellations[i].stars[j].done) {
+                                                xMid2 = PropertyValuesHolder.ofFloat(View.SCALE_X, 3f, 5f)
+                                                yMid2 = PropertyValuesHolder.ofFloat(View.SCALE_Y, 3f, 5f)
+                                                xGeneral = PropertyValuesHolder.ofFloat(View.SCALE_X, 3f, 5f)
+                                                yGeneral = PropertyValuesHolder.ofFloat(View.SCALE_Y, 3f, 5f)
+                                                xOutter = PropertyValuesHolder.ofFloat(View.SCALE_X, 3.1f, 5.1f)
+                                                yOutter = PropertyValuesHolder.ofFloat(View.SCALE_Y, 3.1f, 5.1f)
+                                                xBright = PropertyValuesHolder.ofFloat(View.SCALE_X, 4f, 7f)
+                                                yBright = PropertyValuesHolder.ofFloat(View.SCALE_Y, 4f, 7f)
+                                                time = 1000L
+                                                delay = 500L
+                                            }
+
+                                            val scaleInner = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[0],
+                                                xGeneral,
+                                                yGeneral
+                                            ).apply {
+                                                duration = 1000
+                                                startDelay = delay
+                                            }
+                                            val scaleMid = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[1],
+                                                xGeneral,
+                                                yGeneral
+                                            ).apply {
+                                                duration = 1000
+                                                startDelay = delay
+                                            }
+                                            val scaleMid2 = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[3],
+                                                xMid2,
+                                                yMid2
+                                            ).apply {
+                                                duration = time
+                                                startDelay = if (constellations[i].stars[j].done) {
+                                                    500L
+                                                } else {
+                                                    0L
+                                                }
+                                            }
+                                            val scaleOutter = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[2],
+                                                xOutter,
+                                                yOutter
+                                            ).apply {
+                                                duration = 1100
+                                                startDelay = delay
+                                            }
+                                            val scaleOutter2 = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[4],
+                                                xOutter,
+                                                yOutter
+                                            ).apply {
+                                                duration = 1100
+                                                startDelay = delay
+                                            }
+                                            val scaleIntermediaryOutter = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[6],
+                                                xOutter,
+                                                yOutter
+                                            ).apply {
+                                                duration = 1000
+                                                startDelay = delay
+                                            }
+                                            val scaleBright = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[5],
+                                                xBright,
+                                                yBright
+                                            ).apply {
+                                                duration = 1000
+                                                startDelay = delay
+                                                var turnedVisible = false
+                                                addUpdateListener { animation ->
+                                                    if (animation.animatedValue as Float > 0f && !turnedVisible) {
+                                                        turnedVisible = true
+                                                        constellations[i].stars[j].starViews[5].visibility = View.VISIBLE
+                                                    }
+                                                }
+                                            }
+                                            val fadeOutText = ObjectAnimator.ofFloat(actionText, "alpha", 1.0f, 0f)
+                                            fadeOutText.duration = 500
+                                            val fadeOutBall = ObjectAnimator.ofFloat(actionDot, "alpha", 1.0f, 0f)
+                                            fadeOutBall.duration = 500
+                                            val fadeInText = ObjectAnimator.ofFloat(actionText, "alpha", 0f, 1.0f)
+                                            fadeInText.duration = 500
+                                            val fadeInBall = ObjectAnimator.ofFloat(actionDot, "alpha", 0f, 1.0f)
+                                            fadeInBall.duration = 500
+                                            fadeInBall.doOnEnd {
+                                                canZoomOut = true
+                                                canZoomOut2 = true
+                                            }
+
+                                            if (takeYourTimeText.alpha == 1f) {
+                                                //Take your time text fade
+                                                ObjectAnimator.ofFloat(takeYourTimeText, "alpha", 1f, 0f).apply {
+                                                    duration = 500
+                                                    doOnStart {
+                                                        doStarAgainText.alpha = 0f
+                                                        doStarAgainText.visibility = View.INVISIBLE
+                                                    }
+                                                    start()
+                                                }
+
+                                            }
+
+                                            val shake = AnimationUtils.loadAnimation(this, R.anim.shake_star)
+                                            var xReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 4f, 3f)
+                                            var yReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 4f, 3f)
+                                            var outterXReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 4.1f, 0f)
+                                            var outterYReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 4.1f, 0f)
+                                            var xBrightReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 6f, 4f)
+                                            var yBrightReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 6f, 4f)
+
+                                            if (constellations[i].stars[j].done) {
+                                                xReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 5f, 3f)
+                                                yReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 5f, 3f)
+                                                outterXReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 5.1f, 0f)
+                                                outterYReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 5.1f, 0f)
+                                                xBrightReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 7f, 4f)
+                                                yBrightReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 7f, 4f)
+                                            }
+
+                                            val fadeInStarDoAgainText = ObjectAnimator.ofFloat(starDoAgainText, "alpha", 0f, 1.0f).apply {
+                                                duration = 500
+                                                doOnStart {
+                                                    starDoAgainText.visibility = View.VISIBLE
+                                                    takeYourTimeText.alpha = 0f
+                                                }
+                                            }
+
+                                            val scaleDownOutter = ObjectAnimator.ofPropertyValuesHolder(constellations[i].stars[j].starViews[2], outterXReturn, outterYReturn).apply {
+                                                duration = 250
+                                                doOnEnd {
+                                                    constellations[i].stars[j].starViews[2].visibility = View.GONE
+                                                    constellations[i].stars[j].starViews[4].visibility = View.GONE
+                                                }
+
+                                            }
+                                            val scaleDownOutter2 = ObjectAnimator.ofPropertyValuesHolder(constellations[i].stars[j].starViews[4], outterXReturn, outterYReturn).apply {
+                                                duration = 250
+
+                                            }
+                                            val scaleDownInner = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[0],
+                                                xReturn,
+                                                yReturn
+                                            ).apply {
+                                                duration = 1000
+                                                startDelay = 500
+                                                doOnEnd {
+                                                    sky.removeView(starLineView)
+                                                    val fadeRectangle = ObjectAnimator.ofFloat(starRectangle, "alpha", 0f, 0.06f)
+                                                    fadeRectangle.duration = 500
+                                                    starRectangle.x = constellations[i].stars[j].position.x - dpToPxF(36.5f)
+                                                    starRectangle.y = (-skyZoomLayout.engine.panY + view.height/skyZoomLayout.zoom) - starRectangle.height
+                                                    doStarAgainText.x = constellations[i].stars[j].position.x - dpToPxF(26.3f)
+                                                    doStarAgainText.y = (-skyZoomLayout.engine.panY + view.height/skyZoomLayout.zoom) - starRectangle.height/1.1f
+                                                    starRectangle.visibility = View.VISIBLE
+                                                    fadeRectangle.start()
+                                                    fadeInStarDoAgainText.start()
+                                                }
+                                            }
+                                            val scaleDownMid = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[1],
+                                                xReturn,
+                                                yReturn
+                                            ).apply {
+                                                duration = 1000
+                                                startDelay = 500
+                                            }
+                                            val scaleDownMid2 = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[3],
+                                                xReturn,
+                                                yReturn
+                                            ).apply {
+                                                duration = 1000
+                                                startDelay = 500
+                                            }
+                                            val scaleDownBright = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[5],
+                                                xBrightReturn,
+                                                yBrightReturn
+                                            ).apply {
+                                                duration = 1000
+                                                startDelay = 500
+                                            }
+                                            val scaleDownIntermediaryOutter = ObjectAnimator.ofPropertyValuesHolder(
+                                                constellations[i].stars[j].starViews[6],
+                                                outterXReturn,
+                                                outterYReturn
+                                            ).apply {
+                                                duration = 250
+                                                startDelay = 100
+                                                doOnEnd {
+                                                    constellations[i].stars[j].starViews[6].visibility =
+                                                        View.INVISIBLE
+                                                }
+
+                                            }
+
+                                            val alphaMid2 = ObjectAnimator.ofFloat(
+                                                constellations[i].stars[j].starViews[3],
+                                                "alpha",
+                                                constellations[i].stars[j].starViews[3].alpha,
+                                                constellations[i].stars[j].starViews[3].alpha + 0.1f
+                                            ).apply {
+                                                duration = 1000
+
+                                            }
+
+                                            if (!constellations[i].stars[j].done) {
+                                                canZoomOut = false
+                                                canZoomOut2 = false
+                                                starLineView.undo()
+                                                constellations[i].stars[j].starViews[3].visibility = View.VISIBLE
+                                                AnimatorSet().apply {
+                                                    playTogether(
+                                                        fadeOutBall,
+                                                        fadeOutText,
+                                                        scaleMid2,
+                                                        scaleInner,
+                                                        scaleMid,
+                                                        scaleOutter,
+                                                        scaleOutter2,
+                                                        scaleBright
+                                                    )
+                                                    playTogether(scaleDownOutter, scaleDownOutter2)
+                                                    play(scaleDownOutter).after(scaleBright)
+                                                    play(scaleDownMid).after(scaleDownOutter)
+                                                    play(scaleDownMid2).after(scaleDownOutter)
+                                                    play(scaleDownBright).after(scaleDownOutter)
+                                                    play(scaleDownInner).after(scaleDownOutter)
+                                                    playTogether(fadeInBall, fadeInText)
+                                                    play(fadeInBall).after(scaleDownInner)
+                                                    start()
+                                                }
+                                                constellations[i].stars[j].starViews[2].startAnimation(shake)
+                                                constellations[i].stars[j].starViews[4].startAnimation(shake)
+                                                constellations[i].stars[j].starViews[0].startAnimation(shake)
+                                                constellations[i].stars[j].starViews[1].startAnimation(shake)
+                                                constellations[i].stars[j].starViews[3].startAnimation(shake)
+
+                                            } else {
+                                                canZoomOut = false
+                                                canZoomOut2 = false
+                                                AnimatorSet().apply {
+                                                    if (constellations[i].stars[j].timesCompleted < 3) {
+                                                        playTogether(
+                                                            fadeOutBall,
+                                                            fadeOutText,
+                                                            scaleInner,
+                                                            scaleMid,
+                                                            scaleMid2,
+                                                            scaleIntermediaryOutter,
+                                                            scaleBright,
+                                                            alphaMid2
+                                                        )
+                                                        play(scaleDownIntermediaryOutter).after(scaleInner)
+                                                    } else {
+                                                        playTogether(
+                                                            fadeOutBall,
+                                                            fadeOutText,
+                                                            scaleInner,
+                                                            scaleMid,
+                                                            scaleMid2,
+                                                            scaleIntermediaryOutter,
+                                                            scaleBright
+                                                        )
+                                                        play(scaleDownIntermediaryOutter).after(scaleInner)
+                                                    }
+
+                                                    if (constellations[i].stars[j].timesCompleted == 0L) {
+                                                        play(scaleDownInner).after(scaleDownOutter)
+                                                        play(scaleDownMid).after(scaleDownOutter)
+                                                        play(scaleDownMid2).after(scaleDownOutter)
+                                                        play(scaleDownBright).after(scaleDownOutter)
+                                                    } else {
+                                                        play(scaleDownInner).after(scaleDownIntermediaryOutter)
+                                                        play(scaleDownMid).after(scaleDownIntermediaryOutter)
+                                                        play(scaleDownMid2).after(scaleDownIntermediaryOutter)
+                                                        play(scaleDownBright).after(scaleDownIntermediaryOutter)
+                                                    }
+
+                                                    playTogether(
+                                                        fadeInBall,
+                                                        fadeInText
+                                                    )
+                                                    play(fadeInBall).after(scaleDownInner)
+                                                    start()
+                                                }
+
+                                                constellations[i].stars[j].starViews[0].startAnimation(shake)
+                                                constellations[i].stars[j].starViews[1].startAnimation(shake)
+                                                constellations[i].stars[j].starViews[3].startAnimation(shake)
+                                                constellations[i].stars[j].starViews[6].startAnimation(shake)
+                                            }
+                                            particlesExplosion(i, j)
+                                            updateSkyStatus(i, j, "done", true)
+                                            updateSkyStatus(i, j, "intermediary", false)
+                                            if (constellations[i].stars[j].timesCompleted <= 2) {
+                                                updateSkyStatus(i, j, "timesCompleted", false)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -659,354 +997,6 @@ class SkyActivity : AppCompatActivity() {
                 }
             }
             super.onTouchEvent(event)
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun longPressListener() {
-        for (i in constellations.indices) {
-            for (j in constellations[i].stars.indices) {
-                constellations[i].stars[j].starViews[7].setOnLongClickListener {
-                    if (isStarClicked) {
-                        if (constellations[i].stars[j].intermediate) {
-                            /*val vibrator = applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L), intArrayOf(5, 10, 20, 30, 40, 50, 60, 70, 80, 90), -1))
-                            }*/
-                            shineStars(i, j)
-                            //numClicks = 5 // O onTouch detecta o longpress normalmente. Então, para não entrar nas condições do longpress, aumentei o numClicks.
-                            intermediaryStarAmount--
-                            canDoStarAgain = true //Porém, aumentando o número de cliques
-
-
-                            var xMid2 = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 4f)
-                            var yMid2 = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 4f)
-                            var xGeneral = PropertyValuesHolder.ofFloat(View.SCALE_X, 2f, 4f)
-                            var yGeneral = PropertyValuesHolder.ofFloat(View.SCALE_Y, 2f, 4f)
-                            var xOutter = PropertyValuesHolder.ofFloat(View.SCALE_X, 2f, 4.1f)
-                            var yOutter = PropertyValuesHolder.ofFloat(View.SCALE_Y, 2f, 4.1f)
-                            var xBright = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 6f)
-                            var yBright = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f, 6f)
-                            var delay = 0L
-                            var time = 2000L
-
-
-                            if (!constellations[i].stars[j].done) {
-                                delay = 750L
-                            } else if (constellations[i].stars[j].intermediate && !constellations[i].stars[j].done) {
-                                delay = 1250L
-                            }
-
-                            if (constellations[i].stars[j].done) {
-                                xMid2 = PropertyValuesHolder.ofFloat(View.SCALE_X, 3f, 5f)
-                                yMid2 = PropertyValuesHolder.ofFloat(View.SCALE_Y, 3f, 5f)
-                                xGeneral = PropertyValuesHolder.ofFloat(View.SCALE_X, 3f, 5f)
-                                yGeneral = PropertyValuesHolder.ofFloat(View.SCALE_Y, 3f, 5f)
-                                xOutter = PropertyValuesHolder.ofFloat(View.SCALE_X, 3.1f, 5.1f)
-                                yOutter = PropertyValuesHolder.ofFloat(View.SCALE_Y, 3.1f, 5.1f)
-                                xBright = PropertyValuesHolder.ofFloat(View.SCALE_X, 4f, 7f)
-                                yBright = PropertyValuesHolder.ofFloat(View.SCALE_Y, 4f, 7f)
-                                time = 1000L
-                                delay = 500L
-                            }
-
-                            val scaleInner = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[0],
-                                xGeneral,
-                                yGeneral
-                            ).apply {
-                                duration = 1000
-                                startDelay = delay
-                            }
-                            val scaleMid = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[1],
-                                xGeneral,
-                                yGeneral
-                            ).apply {
-                                duration = 1000
-                                startDelay = delay
-                            }
-                            val scaleMid2 = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[3],
-                                xMid2,
-                                yMid2
-                            ).apply {
-                                duration = time
-                                startDelay = if (constellations[i].stars[j].done) {
-                                    500L
-                                } else {
-                                    0L
-                                }
-                            }
-                            val scaleOutter = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[2],
-                                xOutter,
-                                yOutter
-                            ).apply {
-                                duration = 1100
-                                startDelay = delay
-                            }
-                            val scaleOutter2 = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[4],
-                                xOutter,
-                                yOutter
-                            ).apply {
-                                duration = 1100
-                                startDelay = delay
-                            }
-                            val scaleIntermediaryOutter = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[6],
-                                xOutter,
-                                yOutter
-                            ).apply {
-                                duration = 1000
-                                startDelay = delay
-                            }
-                            val scaleBright = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[5],
-                                xBright,
-                                yBright
-                            ).apply {
-                                duration = 1000
-                                startDelay = delay
-                                var turnedVisible = false
-                                addUpdateListener { animation ->
-                                    if (animation.animatedValue as Float > 0f && !turnedVisible) {
-                                        turnedVisible = true
-                                        constellations[i].stars[j].starViews[5].visibility = View.VISIBLE
-                                    }
-                                }
-                            }
-                            val fadeOutText = ObjectAnimator.ofFloat(actionText, "alpha", 1.0f, 0f)
-                            fadeOutText.duration = 500
-                            val fadeOutBall = ObjectAnimator.ofFloat(actionDot, "alpha", 1.0f, 0f)
-                            fadeOutBall.duration = 500
-                            val fadeInText = ObjectAnimator.ofFloat(actionText, "alpha", 0f, 1.0f)
-                            fadeInText.duration = 500
-                            val fadeInBall = ObjectAnimator.ofFloat(actionDot, "alpha", 0f, 1.0f)
-                            fadeInBall.duration = 500
-                            fadeInBall.doOnEnd {
-                                canZoomOut = true
-                                canZoomOut2 = true
-                            }
-
-                            if (takeYourTimeText.alpha == 1f) {
-                                //Take your time text fade
-                                ObjectAnimator.ofFloat(takeYourTimeText, "alpha", 1f, 0f).apply {
-                                    duration = 500
-                                    doOnStart {
-                                        doStarAgainText.alpha = 0f
-                                        doStarAgainText.visibility = View.INVISIBLE
-                                    }
-                                    start()
-                                }
-
-                            }
-
-                            val shake = AnimationUtils.loadAnimation(this, R.anim.shake_star)
-                            var xReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 4f, 3f)
-                            var yReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 4f, 3f)
-                            var outterXReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 4.1f, 0f)
-                            var outterYReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 4.1f, 0f)
-                            var xBrightReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 6f, 4f)
-                            var yBrightReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 6f, 4f)
-
-                            if(constellations[i].stars[j].done) {
-                                xReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 5f, 3f)
-                                yReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 5f, 3f)
-                                outterXReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 5.1f, 0f)
-                                outterYReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 5.1f, 0f)
-                                xBrightReturn = PropertyValuesHolder.ofFloat(View.SCALE_X, 7f, 4f)
-                                yBrightReturn = PropertyValuesHolder.ofFloat(View.SCALE_Y, 7f, 4f)
-                            }
-
-                            val fadeInStarDoAgainText = ObjectAnimator.ofFloat(starDoAgainText, "alpha", 0f, 1.0f).apply {
-                                duration = 500
-                                doOnStart {
-                                    starDoAgainText.visibility = View.VISIBLE
-                                    takeYourTimeText.alpha = 0f
-                                }
-                            }
-
-                            val scaleDownOutter = ObjectAnimator.ofPropertyValuesHolder(constellations[i].stars[j].starViews[2], outterXReturn, outterYReturn).apply {
-                                duration = 250
-                                doOnEnd {
-                                    constellations[i].stars[j].starViews[2].visibility = View.GONE
-                                    constellations[i].stars[j].starViews[4].visibility = View.GONE
-                                }
-
-                            }
-                            val scaleDownOutter2 = ObjectAnimator.ofPropertyValuesHolder(constellations[i].stars[j].starViews[4], outterXReturn, outterYReturn).apply {
-                                duration = 250
-
-                            }
-                            val scaleDownInner = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[0],
-                                xReturn,
-                                yReturn
-                            ).apply {
-                                duration = 1000
-                                startDelay = 500
-                                doOnEnd {
-                                    sky.removeView(starLineView)
-                                    val fadeRectangle = ObjectAnimator.ofFloat(starRectangle, "alpha", 0f, 0.06f)
-                                    fadeRectangle.duration = 500
-                                    starRectangle.x = constellations[i].stars[j].position.x - dpToPxF(36.5f)
-                                    starRectangle.y = (-skyZoomLayout.engine.panY + view.height/skyZoomLayout.zoom) - starRectangle.height
-                                    doStarAgainText.x = constellations[i].stars[j].position.x - dpToPxF(26.3f)
-                                    doStarAgainText.y = (-skyZoomLayout.engine.panY + view.height/skyZoomLayout.zoom) - starRectangle.height/1.1f
-                                    starRectangle.visibility = View.VISIBLE
-                                    fadeRectangle.start()
-                                    fadeInStarDoAgainText.start()
-                                }
-                                }
-                                val scaleDownMid = ObjectAnimator.ofPropertyValuesHolder(
-                                    constellations[i].stars[j].starViews[1],
-                                    xReturn,
-                                yReturn
-                            ).apply {
-                                duration = 1000
-                                startDelay = 500
-                            }
-                            val scaleDownMid2 = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[3],
-                                xReturn,
-                                yReturn
-                            ).apply {
-                                duration = 1000
-                                startDelay = 500
-                            }
-                            val scaleDownBright = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[5],
-                                xBrightReturn,
-                                yBrightReturn
-                            ).apply {
-                                duration = 1000
-                                startDelay = 500
-                            }
-                            val scaleDownIntermediaryOutter = ObjectAnimator.ofPropertyValuesHolder(
-                                constellations[i].stars[j].starViews[6],
-                                outterXReturn,
-                                outterYReturn
-                            ).apply {
-                                duration = 250
-                                startDelay = 100
-                                doOnEnd {
-                                    constellations[i].stars[j].starViews[6].visibility =
-                                        View.INVISIBLE
-                                }
-
-                            }
-
-                            val alphaMid2 = ObjectAnimator.ofFloat(
-                                constellations[i].stars[j].starViews[3],
-                                "alpha",
-                                constellations[i].stars[j].starViews[3].alpha,
-                                constellations[i].stars[j].starViews[3].alpha + 0.1f
-                            ).apply {
-                                duration = 1000
-
-                            }
-
-                            if (!constellations[i].stars[j].done) {
-                                canZoomOut = false
-                                canZoomOut2 = false
-                                starLineView.undo()
-                                constellations[i].stars[j].starViews[3].visibility = View.VISIBLE
-                                AnimatorSet().apply {
-                                    playTogether(
-                                        fadeOutBall,
-                                        fadeOutText,
-                                        scaleMid2,
-                                        scaleInner,
-                                        scaleMid,
-                                        scaleOutter,
-                                        scaleOutter2,
-                                        scaleBright
-                                    )
-                                    playTogether(scaleDownOutter, scaleDownOutter2)
-                                    play(scaleDownOutter).after(scaleBright)
-                                    play(scaleDownMid).after(scaleDownOutter)
-                                    play(scaleDownMid2).after(scaleDownOutter)
-                                    play(scaleDownBright).after(scaleDownOutter)
-                                    play(scaleDownInner).after(scaleDownOutter)
-                                    playTogether(fadeInBall, fadeInText)
-                                    play(fadeInBall).after(scaleDownInner)
-                                    start()
-                                }
-                                constellations[i].stars[j].starViews[2].startAnimation(shake)
-                                constellations[i].stars[j].starViews[4].startAnimation(shake)
-                                constellations[i].stars[j].starViews[0].startAnimation(shake)
-                                constellations[i].stars[j].starViews[1].startAnimation(shake)
-                                constellations[i].stars[j].starViews[3].startAnimation(shake)
-
-                            } else {
-                                canZoomOut = false
-                                canZoomOut2 = false
-                                AnimatorSet().apply {
-                                    if (constellations[i].stars[j].timesCompleted < 3) {
-                                        playTogether(
-                                            fadeOutBall,
-                                            fadeOutText,
-                                            scaleInner,
-                                            scaleMid,
-                                            scaleMid2,
-                                            scaleIntermediaryOutter,
-                                            scaleBright,
-                                            alphaMid2
-                                        )
-                                        play(scaleDownIntermediaryOutter).after(scaleInner)
-                                    } else {
-                                        playTogether(
-                                            fadeOutBall,
-                                            fadeOutText,
-                                            scaleInner,
-                                            scaleMid,
-                                            scaleMid2,
-                                            scaleIntermediaryOutter,
-                                            scaleBright
-                                        )
-                                        play(scaleDownIntermediaryOutter).after(scaleInner)
-                                    }
-
-                                    if (constellations[i].stars[j].timesCompleted == 0L) {
-                                        play(scaleDownInner).after(scaleDownOutter)
-                                        play(scaleDownMid).after(scaleDownOutter)
-                                        play(scaleDownMid2).after(scaleDownOutter)
-                                        play(scaleDownBright).after(scaleDownOutter)
-                                    } else {
-                                        play(scaleDownInner).after(scaleDownIntermediaryOutter)
-                                        play(scaleDownMid).after(scaleDownIntermediaryOutter)
-                                        play(scaleDownMid2).after(scaleDownIntermediaryOutter)
-                                        play(scaleDownBright).after(scaleDownIntermediaryOutter)
-                                    }
-
-                                    playTogether(
-                                        fadeInBall,
-                                        fadeInText
-                                    )
-                                     playSequentially(scaleInner, fadeInBall)
-                                    start()
-                                }
-
-                                constellations[i].stars[j].starViews[0].startAnimation(shake)
-                                constellations[i].stars[j].starViews[1].startAnimation(shake)
-                                constellations[i].stars[j].starViews[3].startAnimation(shake)
-                                constellations[i].stars[j].starViews[6].startAnimation(shake)
-                            }
-                            particlesExplosion(i, j)
-                            updateSkyStatus(i, j, "done", true, 0L)
-                            Log.d("lala", constellations[i].stars[j].done.toString())
-                            updateSkyStatus(i, j, "intermediary", false, 0L)
-                            if (constellations[i].stars[j].timesCompleted <= 2) {
-                                updateSkyStatus(i, j, "timesCompleted", false, 0L)
-                            }
-                            return@setOnLongClickListener true
-                        }
-                    }
-                    return@setOnLongClickListener true
-                }
-            }
         }
     }
 
@@ -1614,7 +1604,7 @@ class SkyActivity : AppCompatActivity() {
                         }
 
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            intermediaryStarAmount = dataSnapshot.child("intermediaryStarsAmount").value as Long
+                            intermediaryStarsAmount = dataSnapshot.child("intermediaryStarsAmount").value as Long
                         }
                     }
                 )
@@ -2050,7 +2040,7 @@ class SkyActivity : AppCompatActivity() {
         )
     }
 
-    private fun updateSkyStatus(constellation: Int, star: Int, update: String, bool: Boolean, intermediaryStarsAmount: Long) {
+    private fun updateSkyStatus(constellation: Int, star: Int, update: String, bool: Boolean) {
         when (update) {
             "done" -> {
                 database.child("users").child(firebaseUser!!.uid).child("constellations").child(constellation.toString()).child("cstars").child(star.toString()).child("sdone").setValue(bool)
@@ -2066,7 +2056,7 @@ class SkyActivity : AppCompatActivity() {
                 soundOn = bool
             }
             "intermediaryStarsAmount" -> {
-                database.child("users").child(firebaseUser!!.uid).child("userSkyStatus").child("intermediaryStarsAmount").setValue(intermediaryStarsAmount)
+                database.child("users").child(firebaseUser!!.uid).child("skyStatus").child("intermediaryStarsAmount").setValue(intermediaryStarsAmount)
             }
         }
     }
@@ -2375,10 +2365,10 @@ class SkyActivity : AppCompatActivity() {
 
                     if (backgroundSongService?.isPlaying()!!) {
                         backgroundSongService?.pauseMusic()
-                        updateSkyStatus(0, 0, "music", false, 0L)
+                        updateSkyStatus(0, 0, "music", false)
                     } else {
                         backgroundSongService?.resumeMusic()
-                        updateSkyStatus(0, 0, "music", true, 0L)
+                        updateSkyStatus(0, 0, "music", true)
                     }
 
                 }
