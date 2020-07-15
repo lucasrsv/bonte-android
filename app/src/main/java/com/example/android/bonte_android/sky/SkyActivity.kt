@@ -466,6 +466,7 @@ class SkyActivity : AppCompatActivity() {
                                         if (starClicked.first == i && starClicked.second == j && numClicks == 1 && !constellations[i].stars[j].intermediate && !constellations[i].stars[j].done) {
                                             intermediaryStarsAmount++
                                             updateSkyStatus(0, 0, "intermediaryStarsAmount", false)
+                                            Log.d("muitasvezes", intermediaryStarsAmount.toString())
                                             numClicks++
                                             constellations[i].stars[j].starViews[4].visibility = View.VISIBLE
                                             starRectangle.x = constellations[i].stars[j].position.x - dpToPxF(36.5f)
@@ -649,6 +650,7 @@ class SkyActivity : AppCompatActivity() {
                                         if (constellations[i].stars[j].intermediate) {
                                             canZoomOut = false
                                             canZoomOut2 = false
+                                            canDoStarAgain = false
                                             /*val vibrator = applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                                 vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L), intArrayOf(5, 10, 20, 30, 40, 50, 60, 70, 80, 90), -1))
@@ -657,7 +659,7 @@ class SkyActivity : AppCompatActivity() {
                                             //numClicks = 5 // O onTouch detecta o longpress normalmente. Então, para não entrar nas condições do longpress, aumentei o numClicks.
                                             intermediaryStarsAmount--
                                             updateSkyStatus(0, 0, "intermediaryStarsAmount", false)
-                                            canDoStarAgain = true //Porém, aumentando o número de cliques
+                                            //Porém, aumentando o número de cliques
 
 
                                             var xMid2 = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f, 4f)
@@ -769,6 +771,7 @@ class SkyActivity : AppCompatActivity() {
                                             fadeInBall.doOnEnd {
                                                 canZoomOut = true
                                                 canZoomOut2 = true
+                                                canDoStarAgain = true
                                             }
 
                                             if (takeYourTimeText.alpha == 1f) {
