@@ -11,7 +11,6 @@ import com.example.android.bonte_android.R
 class BackgroundSongService : Service() {
     private lateinit var mediaPlayer: MediaPlayer
     private var length = 0
-
     private val binder = LocalBinder()
 
     inner class LocalBinder : Binder() {
@@ -37,7 +36,6 @@ class BackgroundSongService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         mediaPlayer.start()
-        Log.d("test", "test")
         return START_STICKY
     }
 

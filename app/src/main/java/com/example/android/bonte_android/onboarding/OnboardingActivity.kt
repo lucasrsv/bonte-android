@@ -2,13 +2,13 @@ package com.example.android.bonte_android.onboarding
 
 import android.animation.*
 import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.content.Intent
-import android.content.SharedPreferences
+import android.app.ActivityManager
+import android.content.*
 import android.graphics.*
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.IBinder
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
@@ -31,6 +31,7 @@ import androidx.databinding.DataBindingUtil
 import com.example.android.bonte_android.*
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.databinding.ActivityOnboardingBinding
+import com.example.android.bonte_android.sky.BackgroundSongService
 import com.example.android.bonte_android.sky.SkyActivity
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -58,9 +59,12 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var language: String
     private lateinit var view: View
     private lateinit var params: ViewGroup.LayoutParams
+    private var backgroundSongService: BackgroundSongService? = null
+    private var connection: ServiceConnection? = null
     private var fadedFirstTexts = false
-    private var timesClicked = 0
+    private var startingLoginActivity = false
     private var firstTime = true
+    private var timesClicked = 0
 
     //Check firebase login
 
@@ -102,8 +106,30 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        super.onPause()
         firebaseAuth.removeAuthStateListener(authStateListener)
+        super.onPause()
+    }
+
+    override fun onStop() {
+        if (!startingLoginActivity) {
+            Log.d("aabd", "ué")
+            backgroundSongService?.run {
+                if (isPlaying()) {
+                    pauseMusic()
+                }
+            }
+        }
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        firebaseAuth.removeAuthStateListener(authStateListener)
+        super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        backgroundSongService?.resumeMusic()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -114,6 +140,29 @@ class OnboardingActivity : AppCompatActivity() {
             fadedFirstTexts = true
         }
     }
+
+    private fun backgroundSong() {
+        connection = object : ServiceConnection {
+            override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
+                val binder = service as BackgroundSongService.LocalBinder
+                backgroundSongService = binder.getService()
+            }
+
+            override fun onServiceDisconnected(p0: ComponentName?) {
+                Log.e("service status:", "onServiceDisconnected")
+            }
+        }
+
+        Intent(this, BackgroundSongService::class.java).also { intent ->
+            bindService(intent, connection as ServiceConnection, Context.BIND_AUTO_CREATE)
+        }
+
+        if ((!intent.hasExtra("EXTRA_SONG_SERVICE_ON"))) {
+            Log.d("uékcarai"," kk")
+            startService(Intent(this, BackgroundSongService::class.java))
+        }
+    }
+
     private fun loadOnboarding() {
         //database = FirebaseDatabase.getInstance().reference
         //database.keepSynced(true)
@@ -135,7 +184,6 @@ class OnboardingActivity : AppCompatActivity() {
         description1 = binding.description1
         actionText = binding.firstAction
         ballIndicator = binding.ballIndicator
-
         view = binding.onboarding
         params = view.layoutParams
         rotateStar()
@@ -143,13 +191,21 @@ class OnboardingActivity : AppCompatActivity() {
         addSkyParticles()
         setTexts()
         fadeInAnimation()
+        backgroundSong()
     }
 
     private fun checkLogin() {
         authStateListener =  FirebaseAuth.AuthStateListener {
             var firebaseUser = firebaseAuth.currentUser
             if (firebaseUser != null) {
+                if (intent.hasExtra("EXTRA_SONG_SERVICE_ON")) {
+                    intent.removeExtra("EXTRA_SONG_SERVICE_ON")
+                }
                 val intent = Intent(baseContext, SkyActivity::class.java)
+                intent.putExtra("EXTRA_SONG_SERVICE", "DISABLED")
+                intent.putExtra("EXTRA_STARTING_SKY_ACTIVITY", "1")
+                Log.d("wtf", "kkkk")
+                connection?.let { unbindService(it) }
                 startActivity(intent)
                 window.exitTransition = null
                 overridePendingTransition(0, 0);
@@ -704,6 +760,10 @@ class OnboardingActivity : AppCompatActivity() {
                                                                                                         LoginActivity::class.java
                                                                                                     )
                                                                                                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                                                                                                startingLoginActivity = true
+                                                                                                connection?.let { it1 ->
+                                                                                                    unbindService(it1)
+                                                                                                }
                                                                                                 startActivity(intent)
                                                                                                 overridePendingTransition(0,0)
                                                                                                 finish()

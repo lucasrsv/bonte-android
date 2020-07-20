@@ -98,15 +98,16 @@ class SkyActivity : AppCompatActivity() {
     private var canRotate = true
     private var canAddPath = true
     private var boolForRotateShow = true
+    private var isAnimating = false
     private var rotateAnimations = Array(26) { ObjectAnimator() }
     private var scaleStar = 0
     private var intermediaryStarsAmount = 0L
+    private var startingAnotherActivity = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
-        Log.d("ye", "calledyes")
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -179,20 +180,36 @@ class SkyActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        backgroundSongService?.run{
-            if (isPlaying()) {
-                pauseMusic()
+        if ((!intent.hasExtra("EXTRA_STARTING_SKY_ACTIVITY") && !startingAnotherActivity)) {
+            backgroundSongService?.run{
+                if (isPlaying()) {
+                    Log.d("vsf", "pqp")
+                    pauseMusic()
+                }
+
+                if (connection != null) {
+                    unbindService(connection)
+                }
             }
         }
+
+        if (intent.hasExtra("EXTRA_STARTING_SKY_ACTIVITY")) {
+            intent.removeExtra("EXTRA_STARTING_SKY_ACTIVITY")
+        }
+
     }
 
     override fun onDestroy() {
-        backgroundSongService?.run{
-            if (isPlaying()) {
-                pauseMusic()
+        super.onDestroy()
+        if ((!intent.hasExtra("EXTRA_STARTING_SKY_ACTIVITY") && !startingAnotherActivity)) {
+            backgroundSongService?.run{
+                if (isPlaying()) {
+                    Log.d("vsf", "pqp")
+                    pauseMusic()
+                }
             }
         }
-        super.onDestroy()
+        unbindService(connection)
     }
 
     override fun onResume() {
@@ -462,7 +479,7 @@ class SkyActivity : AppCompatActivity() {
                             MotionEvent.ACTION_UP -> {
                                 val totalTime = event.eventTime - time
                                 if (totalTime <= 300) {
-                                    if (intermediaryStarsAmount < 3) {
+                                    if (intermediaryStarsAmount < 3 && !isAnimating) {
                                         if (starClicked.first == i && starClicked.second == j && numClicks == 1 && !constellations[i].stars[j].intermediate && !constellations[i].stars[j].done) {
                                             intermediaryStarsAmount++
                                             updateSkyStatus(0, 0, "intermediaryStarsAmount", false)
@@ -610,7 +627,7 @@ class SkyActivity : AppCompatActivity() {
                                                 start()
                                             }
                                         }
-                                    } else if (!constellations[i].stars[j].intermediate) {
+                                    } else if (!constellations[i].stars[j].intermediate && !isAnimating) {
                                         starRectangle.x = constellations[i].stars[j].position.x - dpToPxF(36.5f)
                                         starRectangle.y = (-skyZoomLayout.engine.panY + view.height / skyZoomLayout.zoom) - starRectangle.height
                                         intermediaryStarsLimitText.x = constellations[i].stars[j].position.x - dpToPxF(26.3f)
@@ -651,6 +668,7 @@ class SkyActivity : AppCompatActivity() {
                                             canZoomOut = false
                                             canZoomOut2 = false
                                             canDoStarAgain = false
+                                            isAnimating = true
                                             /*val vibrator = applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                                 vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L), intArrayOf(5, 10, 20, 30, 40, 50, 60, 70, 80, 90), -1))
@@ -700,6 +718,9 @@ class SkyActivity : AppCompatActivity() {
                                             ).apply {
                                                 duration = 1000
                                                 startDelay = delay
+                                                doOnStart {
+                                                    isAnimating = true
+                                                }
                                             }
                                             val scaleMid = ObjectAnimator.ofPropertyValuesHolder(
                                                 constellations[i].stars[j].starViews[1],
@@ -764,6 +785,9 @@ class SkyActivity : AppCompatActivity() {
                                             fadeOutText.duration = 500
                                             val fadeOutBall = ObjectAnimator.ofFloat(actionDot, "alpha", 1.0f, 0f)
                                             fadeOutBall.duration = 500
+                                            fadeOutBall.doOnStart {
+                                                isAnimating = true
+                                            }
                                             val fadeInText = ObjectAnimator.ofFloat(actionText, "alpha", 0f, 1.0f)
                                             fadeInText.duration = 500
                                             val fadeInBall = ObjectAnimator.ofFloat(actionDot, "alpha", 0f, 1.0f)
@@ -772,6 +796,7 @@ class SkyActivity : AppCompatActivity() {
                                                 canZoomOut = true
                                                 canZoomOut2 = true
                                                 canDoStarAgain = true
+                                                isAnimating = false
                                             }
 
                                             if (takeYourTimeText.alpha == 1f) {
@@ -1006,25 +1031,25 @@ class SkyActivity : AppCompatActivity() {
 
     private fun backgroundSong() {
         connection = object : ServiceConnection {
-
             override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
                 val binder = service as BackgroundSongService.LocalBinder
                 backgroundSongService = binder.getService()
-                bound = true
-                Log.d("abdec", "Kk")
             }
 
             override fun onServiceDisconnected(p0: ComponentName?) {
                 Log.e("service status:", "onServiceDisconnected")
-                bound = false
-
             }
         }
-
         Intent(this, BackgroundSongService::class.java).also { intent ->
-            applicationContext.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            bindService(intent, connection as ServiceConnection, Context.BIND_AUTO_CREATE)
         }
-        startService(Intent(this, BackgroundSongService::class.java))
+
+        var songEnabled = intent.getStringExtra("EXTRA_SONG_SERVICE")
+        Log.d("song", songEnabled.toString())
+        if (songEnabled == "ENABLED") {
+        } else {
+            startService(Intent(this, BackgroundSongService::class.java))
+        }
     }
 
     private fun takeAndStoreScreenhot() {
@@ -2083,14 +2108,14 @@ class SkyActivity : AppCompatActivity() {
                     constellations[i].stars[j].starViews[5].visibility = View.INVISIBLE //Bright
                     constellations[i].stars[j].starViews[6].visibility = View.INVISIBLE //Intermediary Outter
 
-                } else if (constellations[i].stars[j].done && !constellations[i].stars[j].intermediate) {
-                    Log.d("star23", i.toString() + j.toString())
+                } else if (constellations[i].stars[j].done && !constellations[i].stars[j].intermediate) { //If star is completed but not in intermediary mode
+
                     constellations[i].stars[j].starViews[2].visibility = View.INVISIBLE //Outter 1
                     constellations[i].stars[j].starViews[3].visibility = View.VISIBLE //Mid 2
-                    constellations[i].stars[j].starViews[3].alpha = 0.5f + ((constellations[i].stars[j].timesCompleted/10) - 0.1f)
                     constellations[i].stars[j].starViews[4].visibility = View.INVISIBLE //Outter 2
                     constellations[i].stars[j].starViews[5].visibility = View.VISIBLE //Bright
                     constellations[i].stars[j].starViews[6].visibility = View.INVISIBLE //Intermediary Outter
+                    constellations[i].stars[j].starViews[3].alpha = 0.5f + ((constellations[i].stars[j].timesCompleted/10) - 0.1f)
 
                     constellations[i].stars[j].starViews[0].scaleX = 1.2f
                     constellations[i].stars[j].starViews[0].scaleY = 1.2f
@@ -2098,6 +2123,26 @@ class SkyActivity : AppCompatActivity() {
                     constellations[i].stars[j].starViews[1].scaleY = 1.2f
                     constellations[i].stars[j].starViews[3].scaleX = 1.2f
                     constellations[i].stars[j].starViews[3].scaleY = 1.2f
+
+
+                    for (starView in 2..6) {
+                        if (starView%2 == 0) { //If starView is an Outter border, don't show it
+                            constellations[i].stars[j].starViews[starView].visibility = View.INVISIBLE
+
+                        } else { //If starView is mid part or outter part, show it
+                            constellations[i].stars[j].starViews[starView].visibility = View.VISIBLE
+                            if (starView == 3) { //If it's the outter part, change its alpha value according to the amount of times the star was completed
+                                constellations[i].stars[j].starViews[starView].alpha = 0.5f + ((constellations[i].stars[j].timesCompleted/10) - 0.1f)
+                            }
+                        }
+                    }
+
+                    for (starView in 0..3) {
+                        if (starView == 0 || starView == 1 || starView == 3) { //Makes the inner, mid and outter part a little bigger
+                            constellations[i].stars[j].starViews[starView].scaleX = 1.2f
+                            constellations[i].stars[j].starViews[starView].scaleY = 1.2f
+                        }
+                    }
 
                 } else {
                     constellations[i].stars[j].starViews[2].visibility = View.INVISIBLE //Outter 1
@@ -2405,6 +2450,8 @@ class SkyActivity : AppCompatActivity() {
                     FirebaseAuth.getInstance().signOut()
 
                     val intent = Intent(baseContext, OnboardingActivity::class.java)
+                    startingAnotherActivity = true
+                    intent.putExtra("EXTRA_SONG_SERVICE_ON", "1")
                     startActivity(intent)
                     finish()
 

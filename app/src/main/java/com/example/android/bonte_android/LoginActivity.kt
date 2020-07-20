@@ -4,11 +4,15 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Path
 import android.graphics.PorterDuff
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.os.PersistableBundle
 import android.util.Log
 import android.view.MotionEvent
@@ -22,6 +26,7 @@ import androidx.databinding.DataBindingUtil
 import com.example.android.bonte_android.User.*
 import com.example.android.bonte_android.databinding.ActivityLoginBinding
 import com.example.android.bonte_android.onboarding.OnboardingActivity
+import com.example.android.bonte_android.sky.BackgroundSongService
 import com.example.android.bonte_android.sky.SkyActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -43,7 +48,10 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var database: DatabaseReference
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var auth: FirebaseAuth
+    private lateinit var connection: ServiceConnection
+    private var backgroundSongService: BackgroundSongService? = null
     private var movedStar = false
+    private var startingNewActivity = false
     private val RC_SIGN_IN = 9001
 
     @SuppressLint("ClickableViewAccessibility")
@@ -100,6 +108,9 @@ class LoginActivity : AppCompatActivity() {
                     button.invalidate()
                     val intent = Intent(baseContext, OnboardingActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    intent.putExtra("EXTRA_SONG_SERVICE_ON", "1")
+                    startingNewActivity = true
+                    unbindService(connection)
                     startActivity(intent)
                     overridePendingTransition(0,0)
                     finish()
@@ -114,11 +125,22 @@ class LoginActivity : AppCompatActivity() {
         }
 
 
-        if (Build.VERSION.SDK_INT > 19) {
-            changeStatusBarColor()
-        }
+        changeStatusBarColor()
+        backgroundSong()
         addSkyParticles()
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        backgroundSongService?.resumeMusic()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (!startingNewActivity) {
+            backgroundSongService?.pauseMusic()
+        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -126,6 +148,22 @@ class LoginActivity : AppCompatActivity() {
         if (!movedStar) {
             moveStar()
             movedStar = true
+        }
+    }
+
+    private fun backgroundSong() {
+        connection = object : ServiceConnection {
+            override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
+                val binder = service as BackgroundSongService.LocalBinder
+                backgroundSongService = binder.getService()
+            }
+
+            override fun onServiceDisconnected(p0: ComponentName?) {
+                Log.e("service status:", "onServiceDisconnected")
+            }
+        }
+        Intent(this, BackgroundSongService::class.java).also { intent ->
+            bindService(intent, connection as ServiceConnection, Context.BIND_AUTO_CREATE)
         }
     }
 
@@ -261,6 +299,10 @@ class LoginActivity : AppCompatActivity() {
                     }
                     val intent = Intent(baseContext, SkyActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    intent.putExtra("EXTRA_SONG_SERVICE", "ENABLED")
+                    intent.putExtra("EXTRA_STARTING_SKY_ACTIVITY", "1")
+                    startingNewActivity = true
+                    unbindService(connection)
                     startActivity(intent)
                     window.exitTransition = null
                     overridePendingTransition(0, 0);
