@@ -34,9 +34,8 @@ class BackgroundSongService : Service() {
         mediaPlayer.release()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    fun startSong() {
         mediaPlayer.start()
-        return START_STICKY
     }
 
     fun isPlaying(): Boolean {

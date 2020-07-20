@@ -204,7 +204,6 @@ class OnboardingActivity : AppCompatActivity() {
                 val intent = Intent(baseContext, SkyActivity::class.java)
                 intent.putExtra("EXTRA_SONG_SERVICE", "DISABLED")
                 intent.putExtra("EXTRA_STARTING_SKY_ACTIVITY", "1")
-                Log.d("wtf", "kkkk")
                 connection?.let { unbindService(it) }
                 startActivity(intent)
                 window.exitTransition = null

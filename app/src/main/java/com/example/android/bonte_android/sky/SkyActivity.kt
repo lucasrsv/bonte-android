@@ -74,23 +74,18 @@ class SkyActivity : AppCompatActivity() {
     private lateinit var musicButton: ImageView
     private lateinit var menuSymbol: ImageView
     private lateinit var menuCloseSymbol: ImageView
-    private lateinit var soundButton: ImageView
-    private lateinit var soundIcon: ImageView
     private lateinit var screenshotButton: ImageView
     private lateinit var screenshotSymbol: ImageView
     private lateinit var logoutButton: ImageView
     private lateinit var language: String
     private lateinit var googleSignInClient: GoogleSignInClient
     private var backgroundSongService: BackgroundSongService? = null
-    private lateinit var connection: ServiceConnection
-    private var focusDuringOnPause = false
     private var soundOn = true
     private var bound = false
     private var database: DatabaseReference = FirebaseDatabase.getInstance().reference
     private val firebaseUser = FirebaseAuth.getInstance().currentUser
     private var numClicks = 0
     private var time = 0L
-    private var isBound = false
     private var isStarClicked = false
     private var canDoStarAgain = false
     private var canZoomOut = true
@@ -103,6 +98,26 @@ class SkyActivity : AppCompatActivity() {
     private var scaleStar = 0
     private var intermediaryStarsAmount = 0L
     private var startingAnotherActivity = false
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
+            val binder = service as BackgroundSongService.LocalBinder
+            backgroundSongService = binder.getService()
+            bound = true
+            backgroundSongService?.run{
+                Log.d("soundoff", "offx")
+                if (soundOn) {
+                    startSong()
+                }
+            }
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            Log.e("service status:", "onServiceDisconnected")
+            bound = false
+        }
+    }
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -164,44 +179,61 @@ class SkyActivity : AppCompatActivity() {
         binding.skyZoomLayout.setBackgroundResource(R.drawable.gradient)
 
         changeStatusBarColor()
-        backgroundSong()
         setConstellations()
         setStars()
         setPaths()
-        getSkyStatus()
         touchListener()
         setParticles()
         addMenu()
+        backgroundSong()
         setTexts("0", "0", "interactions")
         setTexts("0", "0", "intermediaryStarsAmount")
 
     }
 
+    override fun onStart() {
+        super.onStart()
+        Intent(this, BackgroundSongService::class.java).also { intent ->
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
+        getSkyStatus()
+        Log.d("soundonn??", soundOn.toString())
+        if (!soundOn) {
+            backgroundSongService?.pauseMusic()
+        }
+    }
+
+
 
     override fun onStop() {
         super.onStop()
-        if ((!intent.hasExtra("EXTRA_STARTING_SKY_ACTIVITY") && !startingAnotherActivity)) {
+
+        /*The if condition also had (!intent.hasExtra("EXTRA_STARTING_SKY_ACTIVITY_FROM_LOGIN"),
+        because everytime user started the Sky Activity from the Login Activity, onPause() was called.
+        So this extra condition always checked if the sky was started from the login activity. If yes, it
+        wouldn't do the code during the first onPause*/
+
+        if (!startingAnotherActivity) {
             backgroundSongService?.run{
                 if (isPlaying()) {
-                    Log.d("vsf", "pqp")
                     pauseMusic()
                 }
-
-                if (connection != null) {
-                    unbindService(connection)
-                }
+            }
+            if (bound) {
+                unbindService(connection)
+                bound = false
             }
         }
 
-        if (intent.hasExtra("EXTRA_STARTING_SKY_ACTIVITY")) {
-            intent.removeExtra("EXTRA_STARTING_SKY_ACTIVITY")
+        if (intent.hasExtra("EXTRA_STARTING_SKY_ACTIVITY_FROM_LOGIN")) {
+            intent.removeExtra("EXTRA_STARTING_SKY_ACTIVITY_FROM_LOGIN")
         }
 
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if ((!intent.hasExtra("EXTRA_STARTING_SKY_ACTIVITY") && !startingAnotherActivity)) {
+        if ((!intent.hasExtra("EXTRA_STARTING_SKY_ACTIVITY_FROM_LOGIN") && !startingAnotherActivity)) {
             backgroundSongService?.run{
                 if (isPlaying()) {
                     Log.d("vsf", "pqp")
@@ -209,7 +241,9 @@ class SkyActivity : AppCompatActivity() {
                 }
             }
         }
-        unbindService(connection)
+        if (bound) {
+            unbindService(connection)
+        }
     }
 
     override fun onResume() {
@@ -229,6 +263,7 @@ class SkyActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+
 
     @SuppressLint("ClickableViewAccessibility")
     private fun touchListener() {
@@ -1030,20 +1065,6 @@ class SkyActivity : AppCompatActivity() {
     }
 
     private fun backgroundSong() {
-        connection = object : ServiceConnection {
-            override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
-                val binder = service as BackgroundSongService.LocalBinder
-                backgroundSongService = binder.getService()
-            }
-
-            override fun onServiceDisconnected(p0: ComponentName?) {
-                Log.e("service status:", "onServiceDisconnected")
-            }
-        }
-        Intent(this, BackgroundSongService::class.java).also { intent ->
-            bindService(intent, connection as ServiceConnection, Context.BIND_AUTO_CREATE)
-        }
-
         var songEnabled = intent.getStringExtra("EXTRA_SONG_SERVICE")
         Log.d("song", songEnabled.toString())
         if (songEnabled == "ENABLED") {
@@ -1959,11 +1980,11 @@ class SkyActivity : AppCompatActivity() {
                 }
 
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    if (dataSnapshot.child(0.toString()).child("songOn").value.toString() == "false") {
+                    if (dataSnapshot.child("songOn").value.toString() == "false") {
                         soundOn = false
-                        backgroundSongService?.pauseMusic()
                         Log.d("soundoff", "off")
                     } else {
+                        Log.d("soundon", "on")
                         soundOn = true
                     }
                 }
@@ -2081,7 +2102,7 @@ class SkyActivity : AppCompatActivity() {
                 database.child("users").child(firebaseUser!!.uid).child("constellations").child(constellation.toString()).child("cstars").child(star.toString()).child("stimesCompleted").setValue(constellations[constellation].stars[star].timesCompleted+1)
             }
             "music" -> {
-                    database.child("users").child(firebaseUser!!.uid).child("settings").child("songOn").setValue(bool)
+                database.child("users").child(firebaseUser!!.uid).child("settings").child("songOn").setValue(bool)
                 soundOn = bool
             }
             "intermediaryStarsAmount" -> {
@@ -2414,6 +2435,7 @@ class SkyActivity : AppCompatActivity() {
 
                     if (backgroundSongService?.isPlaying()!!) {
                         backgroundSongService?.pauseMusic()
+                        Log.d("issending", "tofrebase")
                         updateSkyStatus(0, 0, "music", false)
                     } else {
                         backgroundSongService?.resumeMusic()

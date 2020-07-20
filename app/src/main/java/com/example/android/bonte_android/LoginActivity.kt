@@ -300,7 +300,7 @@ class LoginActivity : AppCompatActivity() {
                     val intent = Intent(baseContext, SkyActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                     intent.putExtra("EXTRA_SONG_SERVICE", "ENABLED")
-                    intent.putExtra("EXTRA_STARTING_SKY_ACTIVITY", "1")
+                    intent.putExtra("EXTRA_STARTING_SKY_ACTIVITY_FROM_LOGIN", "1")
                     startingNewActivity = true
                     unbindService(connection)
                     startActivity(intent)
