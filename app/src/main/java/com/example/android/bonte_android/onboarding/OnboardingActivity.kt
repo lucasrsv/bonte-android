@@ -32,6 +32,7 @@ import com.example.android.bonte_android.*
 import com.example.android.bonte_android.R
 import com.example.android.bonte_android.databinding.ActivityOnboardingBinding
 import com.example.android.bonte_android.sky.BackgroundSongService
+import com.example.android.bonte_android.sky.Screenshot
 import com.example.android.bonte_android.sky.SkyActivity
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -137,7 +138,7 @@ class OnboardingActivity : AppCompatActivity() {
         if (!fadedFirstTexts) {
             //Need to make a better usage of lateinit (with nullable property)
             //fadeInAnimation()
-            fadedFirstTexts = true
+            fadedFirstTexts = true 
         }
     }
 
@@ -146,6 +147,7 @@ class OnboardingActivity : AppCompatActivity() {
             override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
                 val binder = service as BackgroundSongService.LocalBinder
                 backgroundSongService = binder.getService()
+                backgroundSongService?.startSong()
             }
 
             override fun onServiceDisconnected(p0: ComponentName?) {
@@ -174,6 +176,7 @@ class OnboardingActivity : AppCompatActivity() {
         )
 
         changeStatusBarColor()
+        backgroundSong()
         welcomeText1 = binding.welcomeText
         welcomeText2 = binding.welcomeText2
         startArrow = binding.arrowUp
@@ -563,6 +566,44 @@ class OnboardingActivity : AppCompatActivity() {
                                                             duration = 1000
                                                             startDelay = 500
                                                         }
+
+                                                        val fadeOutTitle =
+                                                            ObjectAnimator.ofFloat(
+                                                                title1,
+                                                                "alpha",
+                                                                1.0f,
+                                                                0f
+                                                            ).apply {
+                                                                duration = 500
+                                                            }
+                                                        val fadeOutDescription =
+                                                            ObjectAnimator.ofFloat(
+                                                                description1,
+                                                                "alpha",
+                                                                1.0f,
+                                                                0f
+                                                            ).apply {
+                                                                duration = 500
+                                                            }
+                                                        val fadeOutStarAction =
+                                                            ObjectAnimator.ofFloat(
+                                                                actionText,
+                                                                "alpha",
+                                                                1.0f,
+                                                                0f
+                                                            ).apply {
+                                                                duration = 500
+                                                            }
+                                                        val fadeOutStarCircle =
+                                                            ObjectAnimator.ofFloat(
+                                                                ballIndicator,
+                                                                "alpha",
+                                                                1.0f,
+                                                                0f
+                                                            ).apply {
+                                                                duration = 500
+                                                            }
+
                                                     val fadeStar0 = ObjectAnimator.ofFloat(
                                                         binding.star0,
                                                         "alpha",
@@ -686,33 +727,6 @@ class OnboardingActivity : AppCompatActivity() {
                                                                 override fun run() {
                                                                     runOnUiThread {
                                                                         resume()
-                                                                        val fadeOutTitle =
-                                                                            ObjectAnimator.ofFloat(
-                                                                                title1,
-                                                                                "alpha",
-                                                                                1.0f,
-                                                                                0f
-                                                                            ).apply {
-                                                                                duration = 500
-                                                                            }
-                                                                        val fadeOutDescription =
-                                                                            ObjectAnimator.ofFloat(
-                                                                                description1,
-                                                                                "alpha",
-                                                                                1.0f,
-                                                                                0f
-                                                                            ).apply {
-                                                                                duration = 500
-                                                                            }
-                                                                        val fadeOutStarAction =
-                                                                            ObjectAnimator.ofFloat(
-                                                                                actionText,
-                                                                                "alpha",
-                                                                                1.0f,
-                                                                                0f
-                                                                            ).apply {
-                                                                                duration = 500
-                                                                            }
                                                                         val fadeInLitStarTile =
                                                                             ObjectAnimator.ofFloat(
                                                                                 litStarTitle,
@@ -789,18 +803,13 @@ class OnboardingActivity : AppCompatActivity() {
 
                                                                         AnimatorSet().apply {
                                                                             playTogether(
-                                                                                fadeOutTitle,
-                                                                                fadeOutDescription,
-                                                                                fadeOutStarAction
-                                                                            )
-                                                                            playTogether(
                                                                                 fadeInLitStarTile,
                                                                                 fadeInLitStarDescription,
                                                                                 fadeInButton,
                                                                                 fadeInButtonText
                                                                             )
                                                                             play(fadeInLitStarTile).after(
-                                                                                fadeOutTitle
+                                                                                scaleDownBright
                                                                             )
                                                                             start()
                                                                         }
@@ -823,7 +832,11 @@ class OnboardingActivity : AppCompatActivity() {
                                                             fadeStar3,
                                                             fadeStar4,
                                                             fadeStar5,
-                                                            fadeStar6
+                                                            fadeStar6,
+                                                            fadeOutTitle,
+                                                            fadeOutDescription,
+                                                            fadeOutStarAction,
+                                                            fadeOutStarCircle
                                                         )
                                                         playTogether(
                                                             scaleDownOutter,
@@ -871,8 +884,9 @@ class OnboardingActivity : AppCompatActivity() {
                         val location = IntArray(2)
                         starOutterInvisible.getLocationOnScreen(location)
                         //actionText.y = metrics.heightPixels/2.8f - actionText.height
-                        actionText.y = starOutterInvisible.y - dpToPx(55) - actionText.height
-                        ballIndicator.y = actionText.y - dpToPxF(10f)
+                        actionText.y = starOutterInvisible.y - dpToPx(50) - actionText.height
+                        Log.d("actiontextheight", actionText.height.toString())
+                        ballIndicator.y = actionText.y - dpToPxF(15f)
 
                         AnimatorSet().apply {
                             playTogether(
@@ -1048,7 +1062,7 @@ class OnboardingActivity : AppCompatActivity() {
             createConfigurationContext(config)
         }
 
-        welcomeText1.text = resources.getString(R.string.onboarding_title1 )
+        welcomeText1.text = resources.getString(R.string.onboarding_title1)
         welcomeText2.text = resources.getString(R.string.onboarding_description1)
         startText.text = resources.getString(R.string.onboarding_start)
         actionText.text = resources.getString(R.string.onboarding_star_action)
@@ -1057,6 +1071,7 @@ class OnboardingActivity : AppCompatActivity() {
         binding.litStarTitle.text = resources.getString(R.string.onboarding_title3)
         binding.litStarDescription.text = resources.getString(R.string.onboarding_description3)
         binding.buttonSkyText.text = resources.getString(R.string.onboarding_go_to_sky)
+        Log.d("buttonheight", binding.buttonSkyText.height.toString())
 
         //This was when the app used to get the main texts from firebase
 /*        database.child(language).child("onboarding").child("onboarding1").addListenerForSingleValueEvent(

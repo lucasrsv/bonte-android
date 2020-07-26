@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/onboarding"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/gradient"
-        android:id="@+id/onboarding">
+        android:background="@drawable/gradient">
 
         <com.example.android.bonte_android.customViews.StarLineView
             android:id="@+id/starLineView"
@@ -28,7 +28,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"/>
+            app:layout_constraintVertical_bias="0.0" />
 
         <ImageView
             android:id="@+id/ballIndicator"
@@ -49,8 +49,10 @@
             android:rotation="0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.225"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.35" />
 
         <com.example.android.bonte_android.customViews.StarOffOutterView
             android:id="@+id/starOutter2"
@@ -59,8 +61,10 @@
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.225"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.35" />
 
         <ImageView
             android:id="@+id/starOutterInvisible"
@@ -70,8 +74,10 @@
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.12"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.35" />
 
         <ImageView
             android:id="@+id/starInner"
@@ -80,8 +86,10 @@
             android:src="@drawable/star_circle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.045"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.071" />
 
 
         <ImageView
@@ -92,8 +100,10 @@
             android:alpha="0.3"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.079"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.127" />
 
         <ImageView
             android:id="@+id/starMid2"
@@ -103,8 +113,10 @@
             android:alpha="0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.079"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.127" />
 
         <ImageView
             android:id="@+id/starBright"
@@ -114,8 +126,10 @@
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.079"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.127" />
 
         <TextView
             android:id="@+id/welcomeText"
@@ -131,18 +145,21 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/welcomeText2"
-            android:layout_width="278dp"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="19sp"
             android:fontFamily="@font/montserrat_medium"
             android:visibility="invisible"
+            android:text="@string/onboarding_description1"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintHeight_percent="0.08"
+            app:layout_constraintWidth_percent="0.8"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.13" />
@@ -176,88 +193,105 @@
             app:layout_constraintTop_toBottomOf="@+id/arrowUp"
             app:layout_constraintVertical_bias="0.0" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/title1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:fontFamily="@font/montserrat_bold"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="25sp"
             android:alpha="0"
+            android:text="@string/onboarding_title2"
+            app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHeight_percent="0.07"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.75" />
+            app:layout_constraintVertical_bias="0.761"
+            app:layout_constraintWidth_percent="0.8" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/description1"
-            android:layout_width="306dp"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="19sp"
             android:fontFamily="@font/montserrat"
             android:alpha="0"
+            android:text="@string/onboarding_description2"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintHeight_percent="0.12"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/title1"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintWidth_percent="0.75" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/firstAction"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="19sp"
             android:fontFamily="@font/montserrat"
             android:alpha="0"
+            android:text="@string/onboarding_star_action"
+            app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.5"
+            app:layout_constraintHeight_percent="0.15"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/litStarTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:fontFamily="@font/montserrat_bold"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="25sp"
             android:alpha="0"
-            android:layout_marginBottom="8dp"
+            android:text="@string/onboarding_title3"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintWidth_percent="0.75"
+            app:layout_constraintHeight_percent="0.1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.7" />
+            app:layout_constraintVertical_bias="0.692" />
 
-
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/litStarDescription"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="19sp"
             android:fontFamily="@font/montserrat"
             android:alpha="0"
-            app:layout_constraintBottom_toTopOf="@id/buttonSky"
+            android:text="@string/onboarding_description3"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toBottomOf="@+id/description1"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/litStarTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/litStarTitle"
+            app:layout_constraintVertical_bias="0.24000001"
+            app:layout_constraintWidth_percent="0.75" />
 
         <ImageView
+            android:id="@+id/star0"
             android:layout_width="50dp"
             android:layout_height="51dp"
             android:src="@drawable/star_on"
-            android:id="@+id/star0"
             android:alpha="0.3"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -267,10 +301,10 @@
             app:layout_constraintVertical_bias="0.631" />
 
         <ImageView
+            android:id="@+id/star1"
             android:layout_width="50dp"
             android:layout_height="51dp"
             android:src="@drawable/star_on"
-            android:id="@+id/star1"
             android:alpha="0.3"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -280,10 +314,10 @@
             app:layout_constraintVertical_bias="0.973" />
 
         <ImageView
+            android:id="@+id/star2"
             android:layout_width="47dp"
             android:layout_height="44dp"
             android:src="@drawable/star_on"
-            android:id="@+id/star2"
             android:alpha="0.3"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -293,10 +327,10 @@
             app:layout_constraintVertical_bias="0.351" />
 
         <ImageView
+            android:id="@+id/star3"
             android:layout_width="50dp"
             android:layout_height="51dp"
             android:src="@drawable/star_on"
-            android:id="@+id/star3"
             android:alpha="0.3"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -306,10 +340,10 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <ImageView
+            android:id="@+id/star4"
             android:layout_width="50dp"
             android:layout_height="51dp"
             android:src="@drawable/star_on"
-            android:id="@+id/star4"
             android:alpha="0.3"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -319,10 +353,10 @@
             app:layout_constraintVertical_bias="0.738" />
 
         <ImageView
+            android:id="@+id/star5"
             android:layout_width="50dp"
             android:layout_height="51dp"
             android:src="@drawable/star_on"
-            android:id="@+id/star5"
             android:alpha="0.3"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -332,10 +366,10 @@
             app:layout_constraintVertical_bias="0.123" />
 
         <ImageView
+            android:id="@+id/star6"
             android:layout_width="50dp"
             android:layout_height="51dp"
             android:src="@drawable/star_on"
-            android:id="@+id/star6"
             android:alpha="0.3"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -346,28 +380,37 @@
 
         <ImageView
             android:id="@+id/buttonSky"
-            android:layout_width="283dp"
-            android:layout_height="57dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:src="@drawable/button_go_to_sky"
             android:alpha="0"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.09"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/litStarDescription" />
+            app:layout_constraintTop_toBottomOf="@+id/litStarDescription"
+            app:layout_constraintVertical_bias="0.8"
+            app:layout_constraintWidth_percent="0.65" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/buttonSkyText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:fontFamily="@font/montserrat_bold"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="21sp"
             android:alpha="0"
+            android:text="@string/onboarding_go_to_sky"
+            app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="@+id/buttonSky"
             app:layout_constraintEnd_toEndOf="@+id/buttonSky"
+            app:layout_constraintHeight_percent="0.05"
             app:layout_constraintStart_toStartOf="@+id/buttonSky"
-            app:layout_constraintTop_toTopOf="@+id/buttonSky" />
+            app:layout_constraintTop_toTopOf="@+id/buttonSky"
+            app:layout_constraintWidth_percent="0.5" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

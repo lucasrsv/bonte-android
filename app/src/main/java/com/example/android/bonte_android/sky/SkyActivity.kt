@@ -256,7 +256,6 @@ class SkyActivity : AppCompatActivity() {
     override fun onBackPressed() {
         if (isStarClicked) {
             if (canZoomOut) {
-                Log.d("podesim", "yee")
                 zoomOut()
             }
         } else {
