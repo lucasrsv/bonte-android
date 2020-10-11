@@ -8,6 +8,7 @@
     <string name="intermediary_stars_limit">um passo de cada vez, você já escolheu três estrelas &lt;3"</string>
     <string name="take_your_time">ei, reserve um tempo para fazer suas ações e volte mais tarde :)</string>
     <string name="screenshot_feedback">seu céu já está salvo na sua galeria!</string>
+    <string name="star_clicked">você escolheu essa estrela! quando realizar a ação, segure-a para acendê-la!</string>
 
     <!---Login-->
 

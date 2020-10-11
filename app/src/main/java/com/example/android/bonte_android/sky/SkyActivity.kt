@@ -10,10 +10,7 @@ import android.content.pm.PackageManager
 import android.graphics.Path
 import android.graphics.Point
 import android.graphics.PorterDuff
-import android.os.Build
-import android.os.Bundle
-import android.os.Environment
-import android.os.IBinder
+import android.os.*
 import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -65,6 +62,8 @@ class SkyActivity : AppCompatActivity() {
     private lateinit var scaleDetector: ScaleGestureDetector
     private lateinit var starLineView:  SkyStarLineView
     private lateinit var starRectangle: ImageView
+    private lateinit var starClickedRectangle: ImageView
+    private lateinit var starClickedText: TextView
     private lateinit var actionText: TextView
     private lateinit var doStarAgainText: TextView
     private lateinit var takeYourTimeText: TextView
@@ -105,7 +104,6 @@ class SkyActivity : AppCompatActivity() {
             backgroundSongService = binder.getService()
             bound = true
             backgroundSongService?.run{
-                Log.d("soundoff", "offx")
                 if (soundOn) {
                     startSong()
                 }
@@ -136,6 +134,7 @@ class SkyActivity : AppCompatActivity() {
             R.layout.activity_sky
         )
         database.keepSynced(true)
+        starClickedText = binding.starClickedText
         doStarAgainText = binding.starDoAgainText
         takeYourTimeText = binding.takeYourTimeText
         intermediaryStarsLimitText = binding.intermediaryStarsLimitText
@@ -277,6 +276,18 @@ class SkyActivity : AppCompatActivity() {
                             }
                             MotionEvent.ACTION_UP -> {
                                 val totalTime = event.eventTime - time
+                                menuButton.visibility = View.INVISIBLE
+                                binding.menuMainIcon1.visibility = View.INVISIBLE
+                                binding.menuMainIcon2.visibility = View.INVISIBLE
+                                binding.menuMainIcon3.visibility = View.INVISIBLE
+                                binding.musicButton.visibility = View.INVISIBLE
+                                binding.musicIcon.visibility = View.INVISIBLE
+                                binding.closeMenu.visibility = View.INVISIBLE
+                                binding.screenshotButton.visibility = View.INVISIBLE
+                                binding.screenshotIcon.visibility = View.INVISIBLE
+                                binding.logoutButton.visibility  = View.INVISIBLE
+                                binding.logoutIcon.visibility = View.INVISIBLE
+
                                 if (totalTime <= 300) {
                                     numClicks++
                                     starClicked = Pair(i, j)
@@ -324,7 +335,7 @@ class SkyActivity : AppCompatActivity() {
                                             actionText.visibility = View.VISIBLE
                                             actionText.x = constellations[i].stars[j].position.x - dpToPx(26).toFloat()
                                             val height = (-skyZoomLayout.engine.panY + view.height / skyZoomLayout.zoom) - (-skyZoomLayout.panY)
-                                            actionText.y = -skyZoomLayout.engine.panY + height/3f - actionText.height
+                                            actionText.y = -skyZoomLayout.engine.panY + height/3.2f - actionText.height
                                             actionDot.x = constellations[i].stars[j].position.x.toFloat() + dpToPxF(11.3f)
                                             actionDot.y = actionText.y - dpToPxF(5f)
                                         }
@@ -434,7 +445,6 @@ class SkyActivity : AppCompatActivity() {
                                     if (!constellations[i].stars[j].done && !constellations[i].stars[j].intermediate) {
                                         starLineView.setValues(constellations[i].stars[j].position.x, constellations[i].stars[j].position.y)
                                         sky.addView(starLineView)
-                                        Log.d("starlineview", starLineView.width.toString())
                                         AnimatorSet().apply {
                                             playTogether(scaleButton, scaleInner, scaleMid, scaleOutter1, scaleOutter2, scaleOutter3, fadeText, fadeDot)
                                             start()
@@ -517,13 +527,17 @@ class SkyActivity : AppCompatActivity() {
                                         if (starClicked.first == i && starClicked.second == j && numClicks == 1 && !constellations[i].stars[j].intermediate && !constellations[i].stars[j].done) {
                                             intermediaryStarsAmount++
                                             updateSkyStatus(0, 0, "intermediaryStarsAmount", false)
-                                            Log.d("muitasvezes", intermediaryStarsAmount.toString())
                                             numClicks++
                                             constellations[i].stars[j].starViews[4].visibility = View.VISIBLE
                                             starRectangle.x = constellations[i].stars[j].position.x - dpToPxF(36.5f)
                                             starRectangle.y = (-skyZoomLayout.engine.panY + view.height / skyZoomLayout.zoom) - starRectangle.height
+                                            starClickedRectangle.x = constellations[i].stars[j].position.x - dpToPxF(36.5f)
+                                            starClickedRectangle.y = (-skyZoomLayout.engine.panY)
+                                            starClickedText.x = constellations[i].stars[j].position.x - dpToPxF(26.3f)
+                                            starClickedText.y = (-skyZoomLayout.engine.panY) + starClickedRectangle.height / 3.7f
                                             takeYourTimeText.x = constellations[i].stars[j].position.x - dpToPxF(26.3f)
-                                            takeYourTimeText.y = (-skyZoomLayout.engine.panY + view.height / skyZoomLayout.zoom) - starRectangle.height / 1.1f
+                                            takeYourTimeText.y = (-skyZoomLayout.engine.panY + view.height / skyZoomLayout.zoom) - starRectangle.height / 1.4f
+
 
                                             val fadeInRectangle = ObjectAnimator.ofFloat(
                                                 starRectangle,
@@ -537,6 +551,18 @@ class SkyActivity : AppCompatActivity() {
                                                 }
                                             }
 
+                                            val fadeInRectangle2 = ObjectAnimator.ofFloat(
+                                                starClickedRectangle,
+                                                "alpha",
+                                                0f,
+                                                0.06f
+                                            ).apply {
+                                                duration = 500
+                                                doOnStart {
+                                                    starClickedRectangle.visibility = View.VISIBLE
+                                                }
+                                            }
+
                                             val fadeInTakeYourTimeText = ObjectAnimator.ofFloat(
                                                 takeYourTimeText,
                                                 "alpha",
@@ -546,6 +572,17 @@ class SkyActivity : AppCompatActivity() {
                                                 duration = 500
                                                 doOnStart {
                                                     takeYourTimeText.visibility = View.VISIBLE
+                                                }
+                                            }
+                                            val fadeInStarClickedText = ObjectAnimator.ofFloat(
+                                                starClickedText,
+                                                "alpha",
+                                                0f,
+                                                1.0f
+                                            ).apply {
+                                                duration = 500
+                                                doOnStart {
+                                                    starClickedText.visibility = View.VISIBLE
                                                 }
                                             }
 
@@ -584,6 +621,8 @@ class SkyActivity : AppCompatActivity() {
                                                 playTogether(
                                                     rotateAnim,
                                                     fadeInRectangle,
+                                                    fadeInRectangle2,
+                                                    fadeInStarClickedText,
                                                     fadeInTakeYourTimeText
                                                 )
                                                 start()
@@ -703,10 +742,10 @@ class SkyActivity : AppCompatActivity() {
                                             canZoomOut2 = false
                                             canDoStarAgain = false
                                             isAnimating = true
-                                            /*val vibrator = applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                                            val vibrator = applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                                 vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L, 100L), intArrayOf(5, 10, 20, 30, 40, 50, 60, 70, 80, 90), -1))
-                                            }*/
+                                            }
                                             shineStars(i, j)
                                             //numClicks = 5 // O onTouch detecta o longpress normalmente. Então, para não entrar nas condições do longpress, aumentei o numClicks.
                                             intermediaryStarsAmount--
@@ -1123,9 +1162,17 @@ class SkyActivity : AppCompatActivity() {
         actionText.text = ""
         actionDot.visibility = View.INVISIBLE
         starRectangle.visibility = View.INVISIBLE
+        starClickedRectangle.visibility = View.INVISIBLE
+        starClickedText.visibility = View.INVISIBLE
         intermediaryStarsLimitText.visibility = View.INVISIBLE
         starDoAgainText.visibility = View.INVISIBLE
         takeYourTimeText.visibility = View.INVISIBLE
+
+        menuButton.visibility = View.VISIBLE
+        binding.menuMainIcon1.visibility = View.VISIBLE
+        binding.menuMainIcon2.visibility = View.VISIBLE
+        binding.menuMainIcon3.visibility = View.VISIBLE
+
         skyZoomLayout.engine.setZoomEnabled(true)
         skyZoomLayout.engine.setScrollEnabled(true)
         skyZoomLayout.engine.setFlingEnabled(true)
@@ -1589,6 +1636,13 @@ class SkyActivity : AppCompatActivity() {
         starRectangle.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         starRectangle.visibility = View.INVISIBLE
         sky.addView(starRectangle)
+
+        starClickedRectangle = ImageView(this)
+        starClickedRectangle.setImageResource(R.drawable.rectangle2)
+        starClickedRectangle.alpha = 0.5f
+        starClickedRectangle.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        starClickedRectangle.visibility = View.INVISIBLE
+        sky.addView(starClickedRectangle)
     }
 
     private fun setPaths() {

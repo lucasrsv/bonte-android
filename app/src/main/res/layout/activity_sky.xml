@@ -207,6 +207,17 @@
                     android:layout_height="wrap_content" />
 
                 <TextView
+                    android:id="@+id/starClickedText"
+                    android:textAlignment="center"
+                    android:textColor="#FFFFFF"
+                    android:textSize="6sp"
+                    android:text="@string/star_clicked"
+                    android:visibility="invisible"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:layout_width="80dp"
+                    android:layout_height="30dp" />
+
+                <TextView
                     android:id="@+id/starDoAgainText"
                     android:layout_width="80dp"
                     android:layout_height="30dp"

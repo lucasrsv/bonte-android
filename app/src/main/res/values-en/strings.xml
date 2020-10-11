@@ -8,6 +8,7 @@
     <string name="intermediary_stars_limit">"one step at a time, you've already chosen three stars &lt;3"</string>
     <string name="take_your_time">"hey, take your time to do your actions and come back later :)"</string>
     <string name="screenshot_feedback">your sky is already in your galery!</string>
+    <string name="star_clicked">you chose this star! once you\'ve done this action, just press and hold it to make it shine!</string>
 
     <!---Onboarding-->
 
