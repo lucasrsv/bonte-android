@@ -192,8 +192,10 @@ class SkyActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        Intent(this, BackgroundSongService::class.java).also { intent ->
-            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        if (!bound) {
+            Intent(this, BackgroundSongService::class.java).also { intent ->
+                bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            }
         }
         getSkyStatus()
         Log.d("soundonn??", soundOn.toString())
@@ -1604,7 +1606,6 @@ class SkyActivity : AppCompatActivity() {
                 starButton.isClickable = true
                 starButton.alpha = 0f
 
-
                 constellations[i].stars[j].starViews.add(starOffInner)
                 constellations[i].stars[j].starViews.add(starOffMid)
                 constellations[i].stars[j].starViews.add(starOffOutter)
@@ -2255,11 +2256,6 @@ class SkyActivity : AppCompatActivity() {
         logoutButton.visibility = View.INVISIBLE
         logoutButton.isClickable = true
 
-        /* linearLayout.addView(menuButton)
-        linearLayout.addView(screenshotButton)
-        linearLayout.addView(screenshotSymbol)
-        linearLayout.addView(logoutButton) */
-
         menuButton.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -2478,7 +2474,6 @@ class SkyActivity : AppCompatActivity() {
                     val button = view as ImageView
                     button.drawable.setColorFilter(0x77000000, PorterDuff.Mode.SRC_ATOP)
                     button.invalidate()
-                    Log.d("bgss", backgroundSongService?.isPlaying().toString())
                 }
 
                 MotionEvent.ACTION_UP -> {
@@ -2488,7 +2483,6 @@ class SkyActivity : AppCompatActivity() {
 
                     if (backgroundSongService?.isPlaying()!!) {
                         backgroundSongService?.pauseMusic()
-                        Log.d("issending", "tofrebase")
                         updateSkyStatus(0, 0, "music", false)
                     } else {
                         backgroundSongService?.resumeMusic()
@@ -2579,8 +2573,8 @@ class SkyActivity : AppCompatActivity() {
                 false
             }
         }
-        else { //permission is automatically granted on sdk<23 upon installation
-            Log.d("TAG","Permission is granted2")
+        else { // permission is automatically granted on sdk<23 upon installation
+            Log.d("TAG","Permission is granted!")
             val folder =  File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "bontê")
             if (!folder.exists()) {
                 folder.mkdir()

@@ -14,7 +14,6 @@ class BackgroundSongService : Service() {
     private val binder = LocalBinder()
 
     inner class LocalBinder : Binder() {
-        // Return this instance of LocalService so clients can call public methods
         fun getService(): BackgroundSongService = this@BackgroundSongService
     }
 
@@ -32,6 +31,7 @@ class BackgroundSongService : Service() {
     override fun onDestroy() {
         mediaPlayer.stop()
         mediaPlayer.release()
+        super.onDestroy()
     }
 
     fun startSong() {
@@ -55,10 +55,4 @@ class BackgroundSongService : Service() {
             mediaPlayer.start()
         }
     }
-
-    fun stopMusic() {
-        mediaPlayer.stop()
-        mediaPlayer.release()
-    }
-
 }

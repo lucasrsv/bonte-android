@@ -49,6 +49,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var auth: FirebaseAuth
     private lateinit var connection: ServiceConnection
+    private var isBound = false
     private var backgroundSongService: BackgroundSongService? = null
     private var movedStar = false
     private var startingNewActivity = false
@@ -111,6 +112,7 @@ class LoginActivity : AppCompatActivity() {
                     intent.putExtra("EXTRA_SONG_SERVICE_ON", "1")
                     startingNewActivity = true
                     unbindService(connection)
+                    isBound = false
                     startActivity(intent)
                     overridePendingTransition(0,0)
                     finish()
@@ -133,13 +135,29 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        backgroundSongService?.resumeMusic()
+        if (!isBound) {
+            Intent(this, BackgroundSongService::class.java).also { intent ->
+                bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            }
+            isBound = true
+            backgroundSongService?.resumeMusic()
+        }
     }
 
     override fun onStop() {
         super.onStop()
         if (!startingNewActivity) {
-            backgroundSongService?.pauseMusic()
+            backgroundSongService?.run {
+                if (isPlaying()) {
+                    pauseMusic()
+                }
+            }
+            if (isBound) {
+                connection.let {
+                    unbindService(it)
+                    isBound = false
+                }
+            }
         }
     }
 

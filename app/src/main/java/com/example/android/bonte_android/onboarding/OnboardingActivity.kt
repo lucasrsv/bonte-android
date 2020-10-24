@@ -1,44 +1,43 @@
 package com.example.android.bonte_android.onboarding
 
-import android.animation.*
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.ActivityManager
-import android.content.*
-import android.graphics.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.graphics.Path
+import android.graphics.PorterDuff
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.os.IBinder
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.*
-import android.view.animation.Animation
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnPause
 import androidx.core.animation.doOnRepeat
 import androidx.core.animation.doOnStart
-import androidx.core.view.GestureDetectorCompat
-import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import com.example.android.bonte_android.*
-import com.example.android.bonte_android.R
 import com.example.android.bonte_android.databinding.ActivityOnboardingBinding
 import com.example.android.bonte_android.sky.BackgroundSongService
-import com.example.android.bonte_android.sky.Screenshot
 import com.example.android.bonte_android.sky.SkyActivity
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
+import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.activity_onboarding.*
-import java.lang.Exception
 import java.util.*
 import kotlin.random.Random
 
@@ -65,6 +64,7 @@ class OnboardingActivity : AppCompatActivity() {
     private var fadedFirstTexts = false
     private var startingLoginActivity = false
     private var firstTime = true
+    private var isBound = false
     private var timesClicked = 0
 
     //Check firebase login
@@ -73,7 +73,6 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
     private lateinit var gso: GoogleSignInOptions
 
-    //
 
     private lateinit var particles: List<ImageView>
     private lateinit var  size: List<Double>
@@ -98,6 +97,7 @@ class OnboardingActivity : AppCompatActivity() {
             .requestEmail()
             .build()
         firebaseAuth = FirebaseAuth.getInstance()
+        backgroundSong()
         checkLogin()
     }
 
@@ -113,10 +113,16 @@ class OnboardingActivity : AppCompatActivity() {
 
     override fun onStop() {
         if (!startingLoginActivity) {
-            Log.d("aabd", "ué")
             backgroundSongService?.run {
                 if (isPlaying()) {
                     pauseMusic()
+                }
+            }
+            if (isBound) {
+                Log.d("onstop", "unbound")
+                connection?.let { it ->
+                    unbindService(it)
+                    isBound = false
                 }
             }
         }
@@ -130,7 +136,14 @@ class OnboardingActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        backgroundSongService?.resumeMusic()
+        if (!isBound) {
+            Intent(this, BackgroundSongService::class.java).also { intent ->
+                bindService(intent, connection as ServiceConnection, Context.BIND_AUTO_CREATE)
+            }
+            isBound = true
+            Log.d("onresume", "bound")
+            backgroundSongService?.resumeMusic()
+        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -155,14 +168,19 @@ class OnboardingActivity : AppCompatActivity() {
             }
         }
 
-        Intent(this, BackgroundSongService::class.java).also { intent ->
-            bindService(intent, connection as ServiceConnection, Context.BIND_AUTO_CREATE)
+        if (bindService(Intent(this, BackgroundSongService::class.java), connection as ServiceConnection, Context.BIND_AUTO_CREATE)) {
+            isBound = true
+        } else {
+            Log.e("ServiceBinding", "Service was not bound. ")
         }
+
+        Log.d("backgroundsong", "bound")
 
         if ((!intent.hasExtra("EXTRA_SONG_SERVICE_ON"))) {
             Log.d("uékcarai"," kk")
             startService(Intent(this, BackgroundSongService::class.java))
         }
+        Log.d("servucestarted", "bound")
     }
 
     private fun loadOnboarding() {
@@ -174,9 +192,7 @@ class OnboardingActivity : AppCompatActivity() {
             this,
             R.layout.activity_onboarding
         )
-
         changeStatusBarColor()
-        backgroundSong()
         welcomeText1 = binding.welcomeText
         welcomeText2 = binding.welcomeText2
         startArrow = binding.arrowUp
@@ -194,7 +210,6 @@ class OnboardingActivity : AppCompatActivity() {
         addSkyParticles()
         setTexts()
         fadeInAnimation()
-        backgroundSong()
     }
 
     private fun checkLogin() {
@@ -207,7 +222,6 @@ class OnboardingActivity : AppCompatActivity() {
                 val intent = Intent(baseContext, SkyActivity::class.java)
                 intent.putExtra("EXTRA_SONG_SERVICE", "DISABLED")
                 intent.putExtra("EXTRA_STARTING_SKY_ACTIVITY", "1")
-                connection?.let { unbindService(it) }
                 startActivity(intent)
                 window.exitTransition = null
                 overridePendingTransition(0, 0);

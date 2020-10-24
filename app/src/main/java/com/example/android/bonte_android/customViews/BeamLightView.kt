@@ -36,7 +36,6 @@ class BeamLightView @JvmOverloads constructor(
     }
 
     fun run() {
-
         paint = Paint().apply {
             isAntiAlias = true
             color = Color.WHITE
