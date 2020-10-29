@@ -65,6 +65,7 @@ class OnboardingActivity : AppCompatActivity() {
     private var startingLoginActivity = false
     private var firstTime = true
     private var isBound = false
+    private var serviceStarted = false
     private var timesClicked = 0
 
     //Check firebase login
@@ -97,7 +98,6 @@ class OnboardingActivity : AppCompatActivity() {
             .requestEmail()
             .build()
         firebaseAuth = FirebaseAuth.getInstance()
-        backgroundSong()
         checkLogin()
     }
 
@@ -136,7 +136,7 @@ class OnboardingActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!isBound) {
+        if (!isBound && serviceStarted) {
             Intent(this, BackgroundSongService::class.java).also { intent ->
                 bindService(intent, connection as ServiceConnection, Context.BIND_AUTO_CREATE)
             }
@@ -161,6 +161,7 @@ class OnboardingActivity : AppCompatActivity() {
                 val binder = service as BackgroundSongService.LocalBinder
                 backgroundSongService = binder.getService()
                 backgroundSongService?.startSong()
+                Log.d("bgSongOnboarding", "startsong")
             }
 
             override fun onServiceDisconnected(p0: ComponentName?) {
@@ -179,6 +180,7 @@ class OnboardingActivity : AppCompatActivity() {
         if ((!intent.hasExtra("EXTRA_SONG_SERVICE_ON"))) {
             Log.d("uékcarai"," kk")
             startService(Intent(this, BackgroundSongService::class.java))
+            serviceStarted = true
         }
         Log.d("servucestarted", "bound")
     }
@@ -193,6 +195,7 @@ class OnboardingActivity : AppCompatActivity() {
             R.layout.activity_onboarding
         )
         changeStatusBarColor()
+        backgroundSong()
         welcomeText1 = binding.welcomeText
         welcomeText2 = binding.welcomeText2
         startArrow = binding.arrowUp

@@ -12,10 +12,7 @@ import android.graphics.Point
 import android.graphics.PorterDuff
 import android.os.*
 import android.util.Log
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
@@ -106,6 +103,7 @@ class SkyActivity : AppCompatActivity() {
             backgroundSongService?.run{
                 if (soundOn) {
                     startSong()
+                    Log.d("bgsong", "soundon")
                 }
             }
         }
@@ -198,8 +196,8 @@ class SkyActivity : AppCompatActivity() {
             }
         }
         getSkyStatus()
-        Log.d("soundonn??", soundOn.toString())
         if (!soundOn) {
+            Log.d("soundonn??", soundOn.toString())
             backgroundSongService?.pauseMusic()
         }
     }
@@ -218,6 +216,7 @@ class SkyActivity : AppCompatActivity() {
             backgroundSongService?.run{
                 if (isPlaying()) {
                     pauseMusic()
+                    Log.d("onStop", "pausou")
                 }
             }
             if (bound) {
@@ -274,6 +273,17 @@ class SkyActivity : AppCompatActivity() {
                         when (event.actionMasked) {
                             MotionEvent.ACTION_DOWN -> {
                                 time = event.eventTime
+                                when {
+                                    Build.VERSION.SDK_INT > 30 -> {
+                                        constellations[i].stars[j].starViews[7].performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                                    }
+                                    Build.VERSION.SDK_INT > 23 -> {
+                                        constellations[i].stars[j].starViews[7].performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING)
+                                    }
+                                    else -> {
+                                        constellations[i].stars[j].starViews[7].performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                                    }
+                                }
                                 true
                             }
                             MotionEvent.ACTION_UP -> {
@@ -520,6 +530,17 @@ class SkyActivity : AppCompatActivity() {
                         when (event.actionMasked) {
                             MotionEvent.ACTION_DOWN -> {
                                 time = event.eventTime
+                                when {
+                                    Build.VERSION.SDK_INT > 30 -> {
+                                        constellations[i].stars[j].starViews[7].performHapticFeedback(HapticFeedbackConstants.CONFIRM, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING)
+                                    }
+                                    Build.VERSION.SDK_INT > 23 -> {
+                                        constellations[i].stars[j].starViews[7].performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING)
+                                    }
+                                    else -> {
+                                        constellations[i].stars[j].starViews[7].performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING)
+                                    }
+                                }
                             }
 
                             MotionEvent.ACTION_UP -> {
@@ -1110,6 +1131,8 @@ class SkyActivity : AppCompatActivity() {
         if (songEnabled == "ENABLED") {
         } else {
             startService(Intent(this, BackgroundSongService::class.java))
+            bindService(Intent(this, BackgroundSongService::class.java), connection as ServiceConnection, Context.BIND_AUTO_CREATE)
+            bound = true
         }
     }
 
@@ -1605,6 +1628,7 @@ class SkyActivity : AppCompatActivity() {
                 starButton.y = constellations[i].stars[j].position.y.toFloat()
                 starButton.isClickable = true
                 starButton.alpha = 0f
+                starButton.isHapticFeedbackEnabled = true
 
                 constellations[i].stars[j].starViews.add(starOffInner)
                 constellations[i].stars[j].starViews.add(starOffMid)
@@ -1614,6 +1638,7 @@ class SkyActivity : AppCompatActivity() {
                 constellations[i].stars[j].starViews.add(starOnBright)
                 constellations[i].stars[j].starViews.add(starIntermediaryOutter)
                 constellations[i].stars[j].starViews.add(starButton)
+                constellations[i].stars[j].starViews[7].isHapticFeedbackEnabled = true
 
                 binding.sky.addView(starOffInner)
                 binding.sky.addView(starOffMid)
@@ -2051,88 +2076,13 @@ class SkyActivity : AppCompatActivity() {
                 }
 
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    constellations[0].stars[0].done = dataSnapshot.child(0.toString()).child("cstars").child(0.toString()).child("sdone").value.toString() == "true"
-                    constellations[0].stars[1].done = dataSnapshot.child(0.toString()).child("cstars").child(1.toString()).child("sdone").value.toString() == "true"
-                    constellations[0].stars[2].done = dataSnapshot.child(0.toString()).child("cstars").child(2.toString()).child("sdone").value.toString() == "true"
-                    constellations[0].stars[3].done = dataSnapshot.child(0.toString()).child("cstars").child(3.toString()).child("sdone").value.toString() == "true"
-                    constellations[0].stars[4].done = dataSnapshot.child(0.toString()).child("cstars").child(4.toString()).child("sdone").value.toString() == "true"
-                    constellations[0].stars[0].intermediate = dataSnapshot.child(0.toString()).child("cstars").child(0.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[0].stars[1].intermediate = dataSnapshot.child(0.toString()).child("cstars").child(1.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[0].stars[2].intermediate = dataSnapshot.child(0.toString()).child("cstars").child(2.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[0].stars[3].intermediate = dataSnapshot.child(0.toString()).child("cstars").child(3.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[0].stars[4].intermediate = dataSnapshot.child(0.toString()).child("cstars").child(4.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[0].stars[0].timesCompleted = dataSnapshot.child(0.toString()).child("cstars").child(0.toString()).child("stimesCompleted").value as Long
-                    constellations[0].stars[1].timesCompleted = dataSnapshot.child(0.toString()).child("cstars").child(1.toString()).child("stimesCompleted").value as Long
-                    constellations[0].stars[2].timesCompleted = dataSnapshot.child(0.toString()).child("cstars").child(2.toString()).child("stimesCompleted").value as Long
-                    constellations[0].stars[3].timesCompleted = dataSnapshot.child(0.toString()).child("cstars").child(3.toString()).child("stimesCompleted").value as Long
-                    constellations[0].stars[4].timesCompleted = dataSnapshot.child(0.toString()).child("cstars").child(4.toString()).child("stimesCompleted").value as Long
-
-                    constellations[1].stars[0].done = dataSnapshot.child(1.toString()).child("cstars").child(0.toString()).child("sdone").value.toString() == "true"
-                    constellations[1].stars[1].done = dataSnapshot.child(1.toString()).child("cstars").child(1.toString()).child("sdone").value.toString() == "true"
-                    constellations[1].stars[2].done = dataSnapshot.child(1.toString()).child("cstars").child(2.toString()).child("sdone").value.toString() == "true"
-                    constellations[1].stars[3].done = dataSnapshot.child(1.toString()).child("cstars").child(3.toString()).child("sdone").value.toString() == "true"
-                    constellations[1].stars[4].done = dataSnapshot.child(1.toString()).child("cstars").child(4.toString()).child("sdone").value.toString() == "true"
-                    constellations[1].stars[0].intermediate = dataSnapshot.child(1.toString()).child("cstars").child(0.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[1].stars[1].intermediate = dataSnapshot.child(1.toString()).child("cstars").child(1.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[1].stars[2].intermediate = dataSnapshot.child(1.toString()).child("cstars").child(2.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[1].stars[3].intermediate = dataSnapshot.child(1.toString()).child("cstars").child(3.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[1].stars[4].intermediate = dataSnapshot.child(1.toString()).child("cstars").child(4.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[1].stars[0].timesCompleted = dataSnapshot.child(1.toString()).child("cstars").child(0.toString()).child("stimesCompleted").value as Long
-                    constellations[1].stars[1].timesCompleted = dataSnapshot.child(1.toString()).child("cstars").child(1.toString()).child("stimesCompleted").value as Long
-                    constellations[1].stars[2].timesCompleted = dataSnapshot.child(1.toString()).child("cstars").child(2.toString()).child("stimesCompleted").value as Long
-                    constellations[1].stars[3].timesCompleted = dataSnapshot.child(1.toString()).child("cstars").child(3.toString()).child("stimesCompleted").value as Long
-                    constellations[1].stars[4].timesCompleted = dataSnapshot.child(1.toString()).child("cstars").child(4.toString()).child("stimesCompleted").value as Long
-
-                    constellations[2].stars[0].done = dataSnapshot.child(2.toString()).child("cstars").child(0.toString()).child("sdone").value.toString() == "true"
-                    constellations[2].stars[1].done = dataSnapshot.child(2.toString()).child("cstars").child(1.toString()).child("sdone").value.toString() == "true"
-                    constellations[2].stars[2].done = dataSnapshot.child(2.toString()).child("cstars").child(2.toString()).child("sdone").value.toString() == "true"
-                    constellations[2].stars[3].done = dataSnapshot.child(2.toString()).child("cstars").child(3.toString()).child("sdone").value.toString() == "true"
-                    constellations[2].stars[4].done = dataSnapshot.child(2.toString()).child("cstars").child(4.toString()).child("sdone").value.toString() == "true"
-                    constellations[2].stars[5].done = dataSnapshot.child(2.toString()).child("cstars").child(5.toString()).child("sdone").value.toString() == "true"
-                    constellations[2].stars[6].done = dataSnapshot.child(2.toString()).child("cstars").child(6.toString()).child("sdone").value.toString() == "true"
-                    constellations[2].stars[7].done = dataSnapshot.child(2.toString()).child("cstars").child(7.toString()).child("sdone").value.toString() == "true"
-                    constellations[2].stars[0].intermediate = dataSnapshot.child(2.toString()).child("cstars").child(0.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[2].stars[1].intermediate = dataSnapshot.child(2.toString()).child("cstars").child(1.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[2].stars[2].intermediate = dataSnapshot.child(2.toString()).child("cstars").child(2.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[2].stars[3].intermediate = dataSnapshot.child(2.toString()).child("cstars").child(3.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[2].stars[4].intermediate = dataSnapshot.child(2.toString()).child("cstars").child(4.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[2].stars[5].intermediate = dataSnapshot.child(2.toString()).child("cstars").child(5.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[2].stars[6].intermediate = dataSnapshot.child(2.toString()).child("cstars").child(6.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[2].stars[7].intermediate = dataSnapshot.child(2.toString()).child("cstars").child(7.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[2].stars[0].timesCompleted = dataSnapshot.child(2.toString()).child("cstars").child(0.toString()).child("stimesCompleted").value as Long
-                    constellations[2].stars[1].timesCompleted = dataSnapshot.child(2.toString()).child("cstars").child(1.toString()).child("stimesCompleted").value as Long
-                    constellations[2].stars[2].timesCompleted = dataSnapshot.child(2.toString()).child("cstars").child(2.toString()).child("stimesCompleted").value as Long
-                    constellations[2].stars[3].timesCompleted = dataSnapshot.child(2.toString()).child("cstars").child(3.toString()).child("stimesCompleted").value as Long
-                    constellations[2].stars[4].timesCompleted = dataSnapshot.child(2.toString()).child("cstars").child(4.toString()).child("stimesCompleted").value as Long
-                    constellations[2].stars[5].timesCompleted = dataSnapshot.child(2.toString()).child("cstars").child(5.toString()).child("stimesCompleted").value as Long
-                    constellations[2].stars[6].timesCompleted = dataSnapshot.child(2.toString()).child("cstars").child(6.toString()).child("stimesCompleted").value as Long
-                    constellations[2].stars[7].timesCompleted = dataSnapshot.child(2.toString()).child("cstars").child(7.toString()).child("stimesCompleted").value as Long
-
-                    constellations[3].stars[0].done = dataSnapshot.child("3").child("cstars").child(0.toString()).child("sdone").value.toString() == "true"
-                    constellations[3].stars[1].done = dataSnapshot.child("3").child("cstars").child(1.toString()).child("sdone").value.toString() == "true"
-                    constellations[3].stars[2].done = dataSnapshot.child("3").child("cstars").child(2.toString()).child("sdone").value.toString() == "true"
-                    constellations[3].stars[3].done = dataSnapshot.child("3").child("cstars").child(3.toString()).child("sdone").value.toString() == "true"
-                    constellations[3].stars[0].intermediate = dataSnapshot.child(3.toString()).child("cstars").child(0.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[3].stars[1].intermediate = dataSnapshot.child(3.toString()).child("cstars").child(1.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[3].stars[2].intermediate = dataSnapshot.child(3.toString()).child("cstars").child(2.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[3].stars[3].intermediate = dataSnapshot.child(3.toString()).child("cstars").child(3.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[3].stars[0].timesCompleted = dataSnapshot.child(3.toString()).child("cstars").child(0.toString()).child("stimesCompleted").value as Long
-                    constellations[3].stars[1].timesCompleted = dataSnapshot.child(3.toString()).child("cstars").child(1.toString()).child("stimesCompleted").value as Long
-                    constellations[3].stars[2].timesCompleted = dataSnapshot.child(3.toString()).child("cstars").child(2.toString()).child("stimesCompleted").value as Long
-                    constellations[3].stars[3].timesCompleted = dataSnapshot.child(3.toString()).child("cstars").child(3.toString()).child("stimesCompleted").value as Long
-
-                    constellations[4].stars[0].done = dataSnapshot.child("4").child("cstars").child(0.toString()).child("sdone").value.toString() == "true"
-                    constellations[4].stars[1].done = dataSnapshot.child("4").child("cstars").child(1.toString()).child("sdone").value.toString() == "true"
-                    constellations[4].stars[2].done = dataSnapshot.child("4").child("cstars").child(2.toString()).child("sdone").value.toString() == "true"
-                    constellations[4].stars[3].done = dataSnapshot.child("4").child("cstars").child(3.toString()).child("sdone").value.toString() == "true"
-                    constellations[4].stars[0].intermediate = dataSnapshot.child(4.toString()).child("cstars").child(0.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[4].stars[1].intermediate = dataSnapshot.child(4.toString()).child("cstars").child(1.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[4].stars[2].intermediate = dataSnapshot.child(4.toString()).child("cstars").child(2.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[4].stars[3].intermediate = dataSnapshot.child(4.toString()).child("cstars").child(3.toString()).child("sintermediary").value.toString() == "true"
-                    constellations[4].stars[0].timesCompleted = dataSnapshot.child(4.toString()).child("cstars").child(0.toString()).child("stimesCompleted").value as Long
-                    constellations[4].stars[1].timesCompleted = dataSnapshot.child(4.toString()).child("cstars").child(1.toString()).child("stimesCompleted").value as Long
-                    constellations[4].stars[2].timesCompleted = dataSnapshot.child(4.toString()).child("cstars").child(2.toString()).child("stimesCompleted").value as Long
-                    constellations[4].stars[3].timesCompleted = dataSnapshot.child(4.toString()).child("cstars").child(3.toString()).child("stimesCompleted").value as Long
+                    for (i in constellations.indices) {
+                        for (j in constellations[i].stars.indices) {
+                            constellations[i].stars[j].done = dataSnapshot.child(i.toString()).child("cstars").child(j.toString()).child("sdone").value.toString() == "true"
+                            constellations[i].stars[j].intermediate = dataSnapshot.child(i.toString()).child("cstars").child(j.toString()).child("sintermediary").value.toString() == "true"
+                            constellations[i].stars[j].timesCompleted = dataSnapshot.child(i.toString()).child("cstars").child(j.toString()).child("stimesCompleted").value as Long
+                        }
+                    }
 
                     if (boolForRotateShow) {
                         rotateStarts()
@@ -2237,6 +2187,7 @@ class SkyActivity : AppCompatActivity() {
         menuButton = binding.menuButton
         menuButton.alpha = 0.15f
         menuButton.isClickable = true
+        menuButton.isHapticFeedbackEnabled = true
         menuSymbol = ImageView(this)
 
         menuCloseSymbol = ImageView(this)
@@ -2244,9 +2195,11 @@ class SkyActivity : AppCompatActivity() {
         screenshotButton = binding.screenshotButton
         screenshotButton.visibility = View.INVISIBLE
         screenshotButton.isClickable = true
+        screenshotButton.isHapticFeedbackEnabled = true
 
         musicButton = binding.musicButton
         musicButton.isClickable = true
+        musicButton.isHapticFeedbackEnabled = true
 
         screenshotSymbol = binding.screenshotIcon
         screenshotSymbol.setImageResource(R.drawable.share_sky)
@@ -2255,6 +2208,7 @@ class SkyActivity : AppCompatActivity() {
         logoutButton = binding.logoutButton
         logoutButton.visibility = View.INVISIBLE
         logoutButton.isClickable = true
+        logoutButton.isHapticFeedbackEnabled = true
 
         menuButton.setOnTouchListener { v, event ->
             when (event.action) {
