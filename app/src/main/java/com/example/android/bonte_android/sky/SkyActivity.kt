@@ -5,6 +5,9 @@ import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Path
@@ -46,6 +49,8 @@ class SkyActivity : AppCompatActivity() {
     private lateinit var view: View
     private lateinit var params: ViewGroup.LayoutParams
     private lateinit var binding: ActivitySkyBinding
+
+    //Constellations and stars
     private lateinit var constellations: Array<Constellation>
     private lateinit var const1Positions: Array<Point>
     private lateinit var const2Positions: Array<Point>
@@ -53,11 +58,15 @@ class SkyActivity : AppCompatActivity() {
     private lateinit var const4Positions: Array<Point>
     private lateinit var const5Positions: Array<Point>
     private lateinit var starParams: LinearLayout.LayoutParams
-    private lateinit var pathCustomView: StarPathView
     private lateinit var starClicked: Pair<Int, Int>
+
+    //Scale controllers
     private lateinit var scaleListener: ScaleGestureDetector.SimpleOnScaleGestureListener
     private lateinit var scaleDetector: ScaleGestureDetector
+
+    //ImageViews, TextViews and CustomViews
     private lateinit var starLineView:  SkyStarLineView
+    private lateinit var pathCustomView: StarPathView
     private lateinit var starRectangle: ImageView
     private lateinit var starClickedRectangle: ImageView
     private lateinit var starClickedText: TextView
@@ -73,15 +82,21 @@ class SkyActivity : AppCompatActivity() {
     private lateinit var screenshotButton: ImageView
     private lateinit var screenshotSymbol: ImageView
     private lateinit var logoutButton: ImageView
-    private lateinit var language: String
+
+    //Firebase
     private lateinit var googleSignInClient: GoogleSignInClient
-    private var backgroundSongService: BackgroundSongService? = null
-    private var soundOn = true
-    private var bound = false
     private var database: DatabaseReference = FirebaseDatabase.getInstance().reference
     private val firebaseUser = FirebaseAuth.getInstance().currentUser
-    private var numClicks = 0
-    private var time = 0L
+
+    //Notifications and music
+    private lateinit var alarmManager: AlarmManager
+    private lateinit var alarmIntent: PendingIntent
+    private var backgroundSongService: BackgroundSongService? = null
+
+
+    //Auxiliar booleans
+    private var soundOn = true
+    private var bound = false
     private var isStarClicked = false
     private var canDoStarAgain = false
     private var canZoomOut = true
@@ -90,10 +105,15 @@ class SkyActivity : AppCompatActivity() {
     private var canAddPath = true
     private var boolForRotateShow = true
     private var isAnimating = false
+    private var startingAnotherActivity = false
+
+    //Auxiliar variables
+    private lateinit var language: String
     private var rotateAnimations = Array(26) { ObjectAnimator() }
     private var scaleStar = 0
     private var intermediaryStarsAmount = 0L
-    private var startingAnotherActivity = false
+    private var numClicks = 0
+    private var time = 0L
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
@@ -103,7 +123,6 @@ class SkyActivity : AppCompatActivity() {
             backgroundSongService?.run{
                 if (soundOn) {
                     startSong()
-                    Log.d("bgsong", "soundon")
                 }
             }
         }
@@ -183,6 +202,7 @@ class SkyActivity : AppCompatActivity() {
         setParticles()
         addMenu()
         backgroundSong()
+        setNotificationAlarm()
         setTexts("0", "0", "interactions")
         setTexts("0", "0", "intermediaryStarsAmount")
 
@@ -2535,5 +2555,19 @@ class SkyActivity : AppCompatActivity() {
             }
             true
         }
+    }
+
+    private fun setNotificationAlarm() {
+        alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmIntent = Intent(applicationContext, NotificationAlarmReceiver::class.java).let { intent ->
+            PendingIntent.getBroadcast(applicationContext, 0, intent, 0)
+        }
+
+        alarmManager.setInexactRepeating(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_HOUR,
+            AlarmManager.INTERVAL_DAY + AlarmManager.INTERVAL_DAY,
+            alarmIntent
+        )
     }
 }
