@@ -34,11 +34,12 @@
             android:name=".sky.BackgroundSongService"
             android:enabled="true" />
 
-        <receiver android:name=".sky.NotificationAlarmReceiver">
+        <receiver android:name=".sky.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".sky.NotificationAlarmReceiver"/>
     </application>
 
 </manifest>
